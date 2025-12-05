@@ -1,0 +1,44 @@
+[
+  {
+    "courseId": 11,
+    "classes": [
+      {
+        "classId": 5447,
+        "location": "Bensalem, PA",
+        "startDate": "2025-11-20T00:00:00",
+        "endDate": "2025-11-25T00:00:00",
+        "seats": 5,
+        "type": "ILT"
+      },
+      {
+        "classId": 5448,
+        "location": "Online (Virtual)",
+        "startDate": "2025-12-05T00:00:00",
+        "endDate": "2025-12-10T00:00:00",
+        "seats": 100,
+        "type": "Online"
+      }
+    ]
+  },
+  {
+    "courseId": 116,
+    "classes": [
+      {
+        "classId": 5451,
+        "location": "Bensalem, PA",
+        "startDate": "2025-12-01T00:00:00",
+        "endDate": "2025-12-02T00:00:00",
+        "seats": 2,
+        "type": "ILT"
+      },
+      {
+        "classId": 5465,
+        "location": "Mumbai, India",
+        "startDate": "2025-11-27T00:00:00",
+        "endDate": "2025-11-29T00:00:00",
+        "seats": 10,
+        "type": "ILT"
+      }
+    ]
+  }
+]

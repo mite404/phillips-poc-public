@@ -1,0 +1,60 @@
+[
+  {
+    "courseId": 116,
+    "courseTitle": "CNC Machining & Repair",
+    "levelName": "Basic",
+    "trainingTypeName": "ILT",
+    "totalDays": 7,
+    "hours": 0,
+    "previewImageUrl": "https://phillipsx-imageresizer.azurewebsites.net/api/ImageResizeroriginal?imagepath=coursemedia/1df870d5a1f54c9e81ee3e07e2098370.png",
+    "prices": [{ "isFree": true }],
+    "skills": [{ "skillName": "Good Communication" }, { "skillName": "Multitasking" }]
+  },
+  {
+    "courseId": 11,
+    "courseTitle": "Haas Advanced Mill",
+    "levelName": "Advanced",
+    "trainingTypeName": "ILT",
+    "totalDays": 5,
+    "hours": 0,
+    "previewImageUrl": "https://phillipsx-imageresizer.azurewebsites.net/api/ImageResizeroriginal?imagepath=coursemedia/eb3e35d218cc4f5d97b0185edaeeea98.png",
+    "prices": [{ "isFree": false, "price": 4400, "currency": "USD" }],
+    "skills": [
+      { "skillName": "Geometry Inspection" },
+      { "skillName": "Spindle Replacement" }
+    ]
+  },
+  {
+    "courseId": 9,
+    "courseTitle": "Haas Maintenance & Repair",
+    "levelName": "Basic",
+    "trainingTypeName": "ILT",
+    "totalDays": 5,
+    "hours": 0,
+    "previewImageUrl": "https://phillipsx-imageresizer.azurewebsites.net/api/ImageResizeroriginal?imagepath=coursemedia/cfb8dbb33890493f8ae13f3859b0f494.png",
+    "prices": [{ "isFree": false, "price": 4400, "currency": "USD" }],
+    "skills": [{ "skillName": "Troubleshooting" }, { "skillName": "Electrical Systems" }]
+  },
+  {
+    "courseId": 131,
+    "courseTitle": "Haas Lathe Operations",
+    "levelName": "Basic",
+    "trainingTypeName": "ILT",
+    "totalDays": 10,
+    "hours": 0,
+    "previewImageUrl": "https://phillipsx-imageresizer.azurewebsites.net/api/ImageResizeroriginal?imagepath=coursemedia/50d49f25fa1d4637aaf648519b7134eb.jpg",
+    "prices": [{ "isFree": false }],
+    "skills": [{ "skillName": "Turning" }, { "skillName": "Drilling" }]
+  },
+  {
+    "courseId": 90,
+    "courseTitle": "CAD Assignments (Solidworks)",
+    "levelName": "Basic",
+    "trainingTypeName": "eLearning",
+    "totalDays": 0,
+    "hours": 3,
+    "previewImageUrl": "https://phillipsx-imageresizer.azurewebsites.net/api/ImageResizeroriginal?imagepath=coursemedia/b58cc3be333849e38dfd177800142ad0.jpg",
+    "prices": [{ "isFree": true }],
+    "skills": [{ "skillName": "CAD" }, { "skillName": "Solidworks" }]
+  }
+]
