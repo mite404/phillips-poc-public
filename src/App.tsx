@@ -1,5 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
-import { ProgramList } from "@/components/ProgramList"; // Import it
+import { CatalogColumn } from "@/components/builder/CatalogColumn";
 
 function App() {
   return (
@@ -9,9 +9,8 @@ function App() {
         <h1 className="text-2xl font-bold text-phillips-blue">Phillips Education</h1>
       </header>
 
-      <main className="container mx-auto">
-        {/* Invoke the component without props */}
-        <ProgramList />
+      <main className="container mx-auto px-4 py-6">
+        <CatalogColumn />
       </main>
 
       <Toaster />
