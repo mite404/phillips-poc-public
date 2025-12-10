@@ -58,6 +58,7 @@ type FilterKey = "Self-Paced" | "ILT" | "Advanced";
 
 export function useProgramBuilder() {
   const [programTitle, setProgramTitle] = useState("My Program");
+  const [programDescription, setProgramDescription] = useState("");
   const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilters, setActiveFilters] = useState<Record<FilterKey, boolean>>({
@@ -108,6 +109,10 @@ export function useProgramBuilder() {
     setProgramTitle(newTitle);
   };
 
+  const updateDescription = (text: string) => {
+    setProgramDescription(text);
+  };
+
   const toggleFilter = (filterType: FilterKey) => {
     setActiveFilters((prev) => ({ ...prev, [filterType]: !prev[filterType] }));
   };
@@ -127,6 +132,7 @@ export function useProgramBuilder() {
   return {
     // State
     programTitle,
+    programDescription,
     selectedCourses,
     searchQuery,
     activeFilters,
@@ -137,6 +143,7 @@ export function useProgramBuilder() {
     removeCourse,
     reorderCourses,
     updateTitle,
+    updateDescription,
     toggleFilter,
     setSearch,
     saveDraft,

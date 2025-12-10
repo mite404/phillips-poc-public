@@ -1,6 +1,6 @@
 # Project Specification & Prompt Context
 
-> **Last Updated:** 2025-12-10
+> **Last Updated:** 2025-12-10 (After PR-03.5)
 
 ## 📌 Global Context (Paste at start of every session)
 
@@ -94,42 +94,50 @@ interface SupervisorProgram {
 
 ---
 
-### ✅ PR-03: Program Builder UI Shell, Workbench Logic & Drag-and-Drop
+### ✅ PR-03/03.5: Program Builder UI Shell, Workbench Logic & UX Enhancements
 
 **Status:** Completed  
-**Goal:** Build the foundational UI layout with 2-column split-pane, implement workbench state management, and add drag-and-drop reordering.
+**Goal:** Build the foundational UI layout with 2-column split-pane, implement workbench state management, add drag-and-drop reordering, and enhance UX with program descriptions and course detail modals.
 
 **Components Built:**
 
 1.  ✅ `src/hooks/useProgramBuilder.ts`: Custom hook managing all builder logic
-    - State: `programTitle`, `selectedCourses`, `searchQuery`, `activeFilters`, `filteredCourses`
-    - Actions: `addCourse`, `removeCourse`, `reorderCourses`, `updateTitle`, `toggleFilter`, `setSearch`, `saveDraft`
+    - State: `programTitle`, `programDescription`, `selectedCourses`, `searchQuery`, `activeFilters`, `filteredCourses`
+    - Actions: `addCourse`, `removeCourse`, `reorderCourses`, `updateTitle`, `updateDescription`, `toggleFilter`, `setSearch`, `saveDraft`
     - Mock data: 6 realistic courses with types (ILT/Self-Paced) and levels (Basic/Advanced)
-2.  ✅ `src/components/ProgramBuilder.tsx`: 2-column split-pane layout (60/40)
-    - **Left Column (Workbench):** Editable title, course cards with metadata, Remove (✕) button, Save Draft button
-    - **Right Column (Catalog):** Search input, filter toggles (Self-Paced, ILT, Advanced), course listing with Add button
+2.  ✅ `src/components/ProgramBuilder.tsx`: 2-column split-pane layout (60/40) with modals
+    - **Left Column (Workbench):** Editable title, description textarea, drag-sortable course cards, Remove (✕) button, Save Draft button
+    - **Right Column (Catalog):** Search input, filter toggles (Self-Paced, ILT, Advanced), clickable course listing with Add button
     - Integrated DndContext with closestCenter collision detection
     - Integrated SortableContext with verticalListSortingStrategy
+    - Click handlers with `e.stopPropagation()` to prevent modal opening on action buttons
+    - Renders CourseDetailModal when course is clicked
 3.  ✅ `src/components/SortableCourseItem.tsx`: Wrapper component for drag-and-drop
     - Uses `useSortable` hook from dnd-kit
     - Renders GripVertical icon from lucide-react
     - Applies transform, transition, and drag attributes
     - Opacity feedback (50% while dragging)
-4.  ✅ `src/components/PageContent.tsx`: Updated to render ProgramBuilder by default, with conditional rendering for saved program drafts
-5.  ✅ `src/components/SidebarNav.tsx`: Navigation component with "Program Builder" menu item and saved programs list
-6.  ✅ `src/App.tsx`: Added `currentView` state management and view routing
+4.  ✅ `src/components/common/CourseDetailModal.tsx`: Course information modal
+    - Uses shadcn/ui Dialog components
+    - Displays course title, code, level, type, and description
+    - Simple close button in footer
+5.  ✅ `src/components/PageContent.tsx`: Updated to render ProgramBuilder by default, with conditional rendering for saved program drafts
+6.  ✅ `src/components/SidebarNav.tsx`: Navigation component with "Program Builder" menu item and saved programs list
+7.  ✅ `src/App.tsx`: Added `currentView` state management and view routing
 
 **Functional Requirements:**
 
 - [x] **Layout:** Split-pane flexbox layout with left column (60%) and right column (40%)
+- [x] **Program Title & Description:** Editable input and textarea for program metadata
 - [x] **Workbench:** Display selected courses with metadata (type, level, code)
 - [x] **Add Courses:** Click "Add" button to add courses from catalog (duplicate prevention)
-- [x] **Remove Courses:** Click "✕" button to remove from selection
+- [x] **Remove Courses:** Click "✕" button to remove from selection (with stopPropagation)
 - [x] **Reorder:** Drag course cards using GripVertical icon to reorder
 - [x] **Search:** Text search filters courses by title (case-insensitive)
 - [x] **Filter:** Toggle buttons for type (Self-Paced, ILT) and level (Advanced) with OR/AND logic
-- [x] **Styling:** Distinct blue styling (bg-blue-50, border-blue-200) for selected courses
-- [x] **Save Draft:** Button action logs to console and shows alert (persistence to come in PR-05)
+- [x] **Course Details Modal:** Click any course card to view details in shadcn/ui Dialog
+- [x] **Styling:** Distinct blue styling (bg-blue-50, border-blue-200) for selected courses; cursor-pointer on clickable rows
+- [x] **Save Draft:** Button action logs to console and shows alert (persistence to come in PR-04)
 - [x] **Responsive:** Both columns independently scrollable, fill screen height minus header
 
 **Architecture Notes:**
@@ -274,10 +282,13 @@ https://phillipsx-pims-stage.azurewebsites.net/api
     models.ts                  # ✅ TypeScript interfaces (LegacyProgram, CourseCatalogItem, SupervisorProgram)
 ```
 
-**Key Files Added in PR-03:**
+**Key Files Added in PR-03/03.5:**
 
-- `src/hooks/useProgramBuilder.ts`: Custom hook with all builder logic (state, filters, actions)
-- `src/components/ProgramBuilder.tsx`: Core 2-column builder interface (workbench + catalog)
+- `src/hooks/useProgramBuilder.ts`: Custom hook with all builder logic (state, filters, actions, description)
+- `src/components/ProgramBuilder.tsx`: Core 2-column builder interface (workbench + catalog + modal)
 - `src/components/SortableCourseItem.tsx`: Drag-and-drop wrapper component with grip icon
+- `src/components/common/CourseDetailModal.tsx`: Course detail modal with shadcn/ui Dialog
 - `src/components/PageContent.tsx`: Updated for routing between views
 - `src/components/SidebarNav.tsx`: Navigation with currentView state
+- `src/lib/utils.ts`: Utility function for className merging (cn helper)
+- Removed legacy components: CatalogColumn.tsx, CourseCard.tsx, ProgramCard.tsx, ProgramList.tsx

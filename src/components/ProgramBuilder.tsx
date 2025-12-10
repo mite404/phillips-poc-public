@@ -1,4 +1,5 @@
-import { useProgramBuilder } from "../hooks/useProgramBuilder";
+import { useState } from "react";
+import { useProgramBuilder, Course } from "../hooks/useProgramBuilder";
 import {
   DndContext,
   closestCenter,
@@ -10,12 +11,15 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableCourseItem } from "./SortableCourseItem";
+import { CourseDetailModal } from "./common/CourseDetailModal";
 
 type FilterKey = "Self-Paced" | "ILT" | "Advanced";
 
 export function ProgramBuilder() {
+  const [activeCourse, setActiveCourse] = useState<Course | null>(null);
   const {
     programTitle,
+    programDescription,
     selectedCourses,
     searchQuery,
     activeFilters,
@@ -24,6 +28,7 @@ export function ProgramBuilder() {
     removeCourse,
     reorderCourses,
     updateTitle,
+    updateDescription,
     toggleFilter,
     setSearch,
     saveDraft,
@@ -44,13 +49,20 @@ export function ProgramBuilder() {
       {/* Left Column - My Program (60%) */}
       <div className="flex-[0.6] flex flex-col border border-slate-300 rounded-lg">
         {/* Header */}
-        <div className="p-4 border-b border-slate-300">
+        <div className="p-4 border-b border-slate-300 space-y-2">
           <input
             type="text"
             value={programTitle}
             onChange={(e) => updateTitle(e.target.value)}
             placeholder="My Program (Click to rename...)"
             className="w-full text-xl font-semibold bg-transparent border-none outline-none focus:ring-0"
+          />
+          <textarea
+            value={programDescription}
+            onChange={(e) => updateDescription(e.target.value)}
+            placeholder="Add a description for this program..."
+            rows={2}
+            className="w-full p-2 text-sm text-slate-600 bg-transparent resize-none outline-none placeholder:text-slate-400"
           />
         </div>
 
@@ -73,7 +85,10 @@ export function ProgramBuilder() {
                 <div className="space-y-2">
                   {selectedCourses.map((course) => (
                     <SortableCourseItem key={course.id} id={course.id}>
-                      <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100">
+                      <div
+                        onClick={() => setActiveCourse(course)}
+                        className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100 cursor-pointer"
+                      >
                         <div className="flex-1">
                           <h3 className="font-medium text-slate-900">{course.title}</h3>
                           <p className="text-sm text-slate-600">
@@ -85,7 +100,10 @@ export function ProgramBuilder() {
                             {course.code}
                           </span>
                           <button
-                            onClick={() => removeCourse(course.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeCourse(course.id);
+                            }}
                             className="px-2 py-1 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded"
                             title="Remove course"
                           >
@@ -147,7 +165,8 @@ export function ProgramBuilder() {
             {filteredCourses.map((course) => (
               <div
                 key={course.id}
-                className="flex items-center justify-between p-3 border border-slate-200 rounded hover:bg-slate-50"
+                onClick={() => setActiveCourse(course)}
+                className="flex items-center justify-between p-3 border border-slate-200 rounded hover:bg-slate-50 cursor-pointer"
               >
                 <div className="flex-1">
                   <h3 className="font-medium text-slate-900">{course.title}</h3>
@@ -155,7 +174,10 @@ export function ProgramBuilder() {
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-slate-500 font-mono">{course.code}</span>
                   <button
-                    onClick={() => addCourse(course)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addCourse(course);
+                    }}
                     className="px-3 py-1 bg-phillips-blue text-white text-sm rounded hover:bg-blue-700"
                   >
                     Add
@@ -171,6 +193,12 @@ export function ProgramBuilder() {
           </div>
         </div>
       </div>
+
+      <CourseDetailModal
+        course={activeCourse}
+        isOpen={!!activeCourse}
+        onClose={() => setActiveCourse(null)}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 # Implementation Progress Tracker
 
-> **Last Updated:** 2025-12-10 (Updated after PR-03 & PR-04)
+> **Last Updated:** 2025-12-10 (Updated after PR-03 & PR-03.5)
 
 This document tracks the completion status of each PR and its associated tasks.
 
@@ -62,9 +62,43 @@ This document tracks the completion status of each PR and its associated tasks.
 ### Architecture Decisions:
 
 - **Custom Hook over Context:** Used `useProgramBuilder` for simplicity and testability
-- **No shadcn/ui:** Pure Tailwind + vanilla HTML for lightweight, fast iteration
+- **Pure Tailwind + HTML:** No shadcn/ui components except Dialog for modal
 - **dnd-kit Integration:** Minimal config (PointerSensor, KeyboardSensor)
 - **Mock Data in Hook:** Centralized course definitions for easy API swap later
+- **shadcn/ui Dialog:** Single shadcn component for course detail modal
+- **Event Handling:** Proper `stopPropagation()` to prevent modal on action buttons
+
+---
+
+## PR-03.5: UX Enhancements (Program Description & Course Detail Modal)
+
+**Status:** ✅ **COMPLETE**
+
+### Completed:
+
+- [x] Add `programDescription` state to `useProgramBuilder`
+- [x] Add `updateDescription(text)` action to hook
+- [x] Add textarea in ProgramBuilder header for description
+  - [x] Styling: transparent bg, no resize, no border except on focus
+  - [x] Positioned below title input
+- [x] Create `CourseDetailModal` component using shadcn/ui Dialog
+  - [x] Display course code, level, type, and description
+  - [x] Simple close button
+  - [x] Grid layout for metadata
+- [x] Wire up modal interactions in ProgramBuilder
+  - [x] Add `activeCourse` state for modal trigger
+  - [x] Make course rows clickable with `onClick={() => setActiveCourse(course)}`
+  - [x] Add `e.stopPropagation()` to "Add" and "Remove" buttons
+  - [x] Add `cursor-pointer` styling to clickable rows
+  - [x] Render modal at bottom of component
+- [x] Install shadcn/ui infrastructure
+  - [x] Create `src/lib/utils.ts` with `cn()` helper
+  - [x] Install Dialog component via shadcn CLI
+  - [x] Install clsx and tailwind-merge dependencies
+- [x] Add path alias resolution
+  - [x] Configure `@/` alias in vite.config.ts
+- [x] Clean up legacy components
+  - [x] Removed CatalogColumn.tsx, CourseCard.tsx, ProgramCard.tsx, ProgramList.tsx
 
 ---
 
@@ -129,14 +163,19 @@ This document tracks the completion status of each PR and its associated tasks.
 
 ## 🎯 Current Sprint Focus
 
-**Active PR:** PR-03 Completed ✅ → PR-04 Ready to Start
+**Active PR:** PR-03/03.5 Completed ✅ → PR-04 Ready to Start
 
-**Completed in PR-03:**
+**Completed in PR-03/03.5:**
 
 - Full 2-column builder UI with search, filtering, add, remove, and drag-and-drop reordering
+- Program description textarea for metadata
+- Course detail modal with shadcn/ui Dialog (single shadcn component used)
 - Custom hook architecture for clean separation of concerns
 - Mock data + filtering logic (OR/AND combined logic)
 - DndContext integration with visual feedback
+- Proper event handling with stopPropagation on action buttons
+- Path alias configuration for vite and imports
+- Clean codebase with legacy components removed
 
 **Immediate Next Steps (PR-04):**
 
