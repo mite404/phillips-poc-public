@@ -1,4 +1,15 @@
 import { useProgramBuilder } from "../hooks/useProgramBuilder";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableCourseItem } from "./SortableCourseItem";
 
 type FilterKey = "Self-Paced" | "ILT" | "Advanced";
 
@@ -11,11 +22,22 @@ export function ProgramBuilder() {
     filteredCourses,
     addCourse,
     removeCourse,
+    reorderCourses,
     updateTitle,
     toggleFilter,
     setSearch,
     saveDraft,
   } = useProgramBuilder();
+
+  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      reorderCourses(active.id as string, over.id as string);
+    }
+  };
 
   return (
     <div className="flex h-full gap-4">
@@ -39,33 +61,43 @@ export function ProgramBuilder() {
               Insert Courses Here...
             </div>
           ) : (
-            <div className="space-y-2">
-              {selectedCourses.map((course) => (
-                <div
-                  key={course.id}
-                  className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100"
-                >
-                  <div className="flex-1">
-                    <h3 className="font-medium text-slate-900">{course.title}</h3>
-                    <p className="text-sm text-slate-600">
-                      {course.type} • {course.level}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-slate-500 font-mono">
-                      {course.code}
-                    </span>
-                    <button
-                      onClick={() => removeCourse(course.id)}
-                      className="px-2 py-1 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded"
-                      title="Remove course"
-                    >
-                      ✕
-                    </button>
-                  </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={selectedCourses.map((c) => c.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-2">
+                  {selectedCourses.map((course) => (
+                    <SortableCourseItem key={course.id} id={course.id}>
+                      <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100">
+                        <div className="flex-1">
+                          <h3 className="font-medium text-slate-900">{course.title}</h3>
+                          <p className="text-sm text-slate-600">
+                            {course.type} • {course.level}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm text-slate-500 font-mono">
+                            {course.code}
+                          </span>
+                          <button
+                            onClick={() => removeCourse(course.id)}
+                            className="px-2 py-1 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded"
+                            title="Remove course"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    </SortableCourseItem>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
           )}
         </div>
 

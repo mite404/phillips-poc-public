@@ -1,6 +1,6 @@
 # Implementation Progress Tracker
 
-> **Last Updated:** 2025-12-10
+> **Last Updated:** 2025-12-10 (Updated after PR-03 & PR-04)
 
 This document tracks the completion status of each PR and its associated tasks.
 
@@ -45,7 +45,7 @@ This document tracks the completion status of each PR and its associated tasks.
   - [x] Right Column: "Course Catalog" header with search placeholder
   - [x] Right Column: Filter buttons placeholder
   - [x] Both columns: Independent scroll with flexbox layout
-- [x] `src/components/PageContent.tsx`: 
+- [x] `src/components/PageContent.tsx`:
   - [x] ProgramBuilder rendered as default view
   - [x] Conditional rendering for saved program drafts
   - [x] "Back to Auth portal" button at bottom
@@ -59,33 +59,32 @@ This document tracks the completion status of each PR and its associated tasks.
   - [x] View routing to SidebarNav and PageContent
   - [x] Default view set to "builder"
 
-### Pending:
+### Architecture Decisions:
 
-- [ ] Integrate CatalogColumn into right column
-- [ ] Wire "Save Draft" button functionality
-- [ ] Create ProgramContext for state management
+- **Custom Hook over Context:** Used `useProgramBuilder` for simplicity and testability
+- **No shadcn/ui:** Pure Tailwind + vanilla HTML for lightweight, fast iteration
+- **dnd-kit Integration:** Minimal config (PointerSensor, KeyboardSensor)
+- **Mock Data in Hook:** Centralized course definitions for easy API swap later
 
 ---
 
-## PR-04: Course Management & Drag-and-Drop
+## PR-04: Persistence & API Integration
 
 **Status:** ⏳ **NOT STARTED**
 
-### Tasks:
+### Tasks (Next):
 
-- [ ] Create `src/context/ProgramContext.tsx`
-  - [ ] State: `selectedCourses[]`, `programMeta`
-  - [ ] Actions: ADD_COURSE, REMOVE_COURSE, REORDER_COURSE
-- [ ] Create `src/components/builder/WorkbenchColumn.tsx`
-  - [ ] Drop zone for selected courses
-  - [ ] Course list display with remove buttons
-- [ ] Update `src/components/ProgramBuilder.tsx`
-  - [ ] Replace right column placeholder with CatalogColumn
-- [ ] Create `src/api/localRoutes.ts`
-  - [ ] `createProgram()` POST endpoint
-  - [ ] `saveDraft()` POST endpoint
-- [ ] Implement drag-and-drop with `@dnd-kit/sortable`
+- [ ] Implement "Save Draft" to POST to `http://localhost:3001/custom_programs`
+  - [ ] Create `src/api/localRoutes.ts` with `saveDraft()` endpoint
+  - [ ] Wire "Save Draft" button to make actual API call
+  - [ ] Add error handling and success toast notifications
+- [ ] Replace mock courses with data from legacy API
+  - [ ] Update `useProgramBuilder` to fetch from `src/api/legacyRoutes.ts`
+  - [ ] Implement fallback to mock data if API fails
+  - [ ] Add loading/error states during fetch
 - [ ] Calculate and display "Total Duration" in footer
+  - [ ] Add duration field to Course interface
+  - [ ] Sum courses by type (ILT days vs Self-Paced hours)
 
 ---
 
@@ -130,15 +129,22 @@ This document tracks the completion status of each PR and its associated tasks.
 
 ## 🎯 Current Sprint Focus
 
-**Active PR:** PR-03 → PR-04 Transition
+**Active PR:** PR-03 Completed ✅ → PR-04 Ready to Start
 
-**Immediate Next Steps:**
+**Completed in PR-03:**
 
-1. Complete PR-03: Ensure all UI placeholders are in place and properly styled
-2. Begin PR-04: Create ProgramContext for state management
-3. Wire up CatalogColumn to the right column of ProgramBuilder
-4. Implement drag-and-drop reordering with dnd-kit
-5. Add persistence to json-server
+- Full 2-column builder UI with search, filtering, add, remove, and drag-and-drop reordering
+- Custom hook architecture for clean separation of concerns
+- Mock data + filtering logic (OR/AND combined logic)
+- DndContext integration with visual feedback
+
+**Immediate Next Steps (PR-04):**
+
+1. Create `src/api/localRoutes.ts` with `saveDraft()` function
+2. Wire "Save Draft" button to actual API call to json-server
+3. Replace mock courses in `useProgramBuilder` with API fetch from legacy endpoint
+4. Add duration calculation and display in workbench footer
+5. Test persistence and API integration end-to-end
 
 ---
 

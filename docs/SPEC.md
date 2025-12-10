@@ -5,15 +5,17 @@
 ## 📌 Global Context (Paste at start of every session)
 
 **Project:** Phillips Education POC (Supervisor Program Builder)  
-**Stack:** Vite, React 19, TypeScript, Tailwind CSS v4, shadcn/ui, Bun  
-**Key Dependencies:** `@dnd-kit` (drag-drop), `react-router-dom` v7, `sonner` (toasts), `json-server`, `lucide-react` (icons)
+**Stack:** Vite, React 19, TypeScript, Tailwind CSS v4, Bun  
+**Key Dependencies:** `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`, `react-router-dom` v7, `json-server`, `lucide-react` (icons)
 
 **Architecture:**
 
+- **Philosophy:** Stripped-down, HTML-focused components. Rapid prototyping of layout and functionality before adding complex UI libraries.
+- **State Management:** Custom hooks (e.g., `useProgramBuilder`) for business logic; React hooks for component state.
+- **Styling:** Pure Tailwind CSS utilities (no shadcn/ui for now—added later if needed).
+- **Drag-and-Drop:** `@dnd-kit` for reordering; vanilla HTML/buttons for interactions.
 - **Hybrid Data:** Read from Legacy API (`src/api/legacyRoutes.ts`), Write to Local JSON Server (`src/api/localRoutes.ts`).
 - **Resilience:** If Legacy API fails/CORS, catch error and return data from `src/data/*.json`.
-- **Styling:** Shadcn/ui components for interactives; Tailwind grid/flex for layout.
-- **State:** React Context for the Builder session.
 
 **Data Interfaces:**
 
@@ -92,67 +94,60 @@ interface SupervisorProgram {
 
 ---
 
-### 🚧 PR-03: Program Builder UI Shell & Navigation
+### ✅ PR-03: Program Builder UI Shell, Workbench Logic & Drag-and-Drop
 
-**Status:** In Progress  
-**Goal:** Build the foundational UI layout with 2-column split-pane and navigation state management.
+**Status:** Completed  
+**Goal:** Build the foundational UI layout with 2-column split-pane, implement workbench state management, and add drag-and-drop reordering.
 
 **Components Built:**
 
-1.  ✅ `src/components/ProgramBuilder.tsx`: 2-column split-pane layout (60/40)
-    - Left Column: "My Program" workbench with editable title input and "Save Draft" button
-    - Right Column: "Course Catalog" with search input and filter placeholder
-2.  ✅ `src/components/PageContent.tsx`: Updated to render ProgramBuilder by default, with conditional rendering for saved program drafts
-3.  ✅ `src/components/SidebarNav.tsx`: Navigation component with "Program Builder" menu item and saved programs list
-4.  ✅ `src/App.tsx`: Added `currentView` state management and view routing
+1.  ✅ `src/hooks/useProgramBuilder.ts`: Custom hook managing all builder logic
+    - State: `programTitle`, `selectedCourses`, `searchQuery`, `activeFilters`, `filteredCourses`
+    - Actions: `addCourse`, `removeCourse`, `reorderCourses`, `updateTitle`, `toggleFilter`, `setSearch`, `saveDraft`
+    - Mock data: 6 realistic courses with types (ILT/Self-Paced) and levels (Basic/Advanced)
+2.  ✅ `src/components/ProgramBuilder.tsx`: 2-column split-pane layout (60/40)
+    - **Left Column (Workbench):** Editable title, course cards with metadata, Remove (✕) button, Save Draft button
+    - **Right Column (Catalog):** Search input, filter toggles (Self-Paced, ILT, Advanced), course listing with Add button
+    - Integrated DndContext with closestCenter collision detection
+    - Integrated SortableContext with verticalListSortingStrategy
+3.  ✅ `src/components/SortableCourseItem.tsx`: Wrapper component for drag-and-drop
+    - Uses `useSortable` hook from dnd-kit
+    - Renders GripVertical icon from lucide-react
+    - Applies transform, transition, and drag attributes
+    - Opacity feedback (50% while dragging)
+4.  ✅ `src/components/PageContent.tsx`: Updated to render ProgramBuilder by default, with conditional rendering for saved program drafts
+5.  ✅ `src/components/SidebarNav.tsx`: Navigation component with "Program Builder" menu item and saved programs list
+6.  ✅ `src/App.tsx`: Added `currentView` state management and view routing
 
 **Functional Requirements:**
 
 - [x] **Layout:** Split-pane flexbox layout with left column (60%) and right column (40%)
-- [x] **Default View:** ProgramBuilder displayed on login as "New Program"
-- [x] **Navigation:** SidebarNav with Program Builder button and saved program links
-- [x] **Saved Programs:** Conditional rendering for clicked saved programs (prog_101, prog_102, prog_103)
+- [x] **Workbench:** Display selected courses with metadata (type, level, code)
+- [x] **Add Courses:** Click "Add" button to add courses from catalog (duplicate prevention)
+- [x] **Remove Courses:** Click "✕" button to remove from selection
+- [x] **Reorder:** Drag course cards using GripVertical icon to reorder
+- [x] **Search:** Text search filters courses by title (case-insensitive)
+- [x] **Filter:** Toggle buttons for type (Self-Paced, ILT) and level (Advanced) with OR/AND logic
+- [x] **Styling:** Distinct blue styling (bg-blue-50, border-blue-200) for selected courses
+- [x] **Save Draft:** Button action logs to console and shows alert (persistence to come in PR-05)
 - [x] **Responsive:** Both columns independently scrollable, fill screen height minus header
-- [x] **Polish:** Tailwind styling with border, padding, and spacing utilities
 
-**Next Steps (PR-04):**
+**Architecture Notes:**
 
-- [ ] **State:** Create `ProgramContext` to manage selected courses
-- [ ] **Integration:** Wire Course Catalog (CatalogColumn) to right column
-- [ ] **Reorder:** Use `@dnd-kit/sortable` for drag-and-drop course ordering
-- [ ] **Save:** Implement "Save Draft" button to persist to json-server
+- **No Context API:** Used custom hook instead of React Context for simplicity at this stage
+- **No shadcn/ui:** Pure Tailwind + vanilla HTML to keep components lightweight and fast to iterate
+- **dnd-kit for DX:** Minimal configuration for drag-and-drop (PointerSensor, KeyboardSensor)
+- **Mock Data in Hook:** Centralized course definitions make it easy to swap with API data later
 
-**Prompt Strategy:**
+**Next Steps (PR-05):**
 
-> "PR-03 establishes the UI shell. The ProgramBuilder component is now ready. Next, we'll integrate the Course Catalog into the right column and implement state management for selected courses. Then we'll add drag-and-drop reordering and persistence."
-
----
-
-### ⏭️ PR-04: Course Management & Drag-and-Drop
-
-**Status:** Not Started  
-**Goal:** Integrate Course Catalog into the builder, implement state management, and enable drag-and-drop reordering.
-
-**Components to Build/Update:**
-
-1.  `src/context/ProgramContext.tsx`: Store `selectedCourses[]` and `programMeta`
-2.  `src/components/builder/WorkbenchColumn.tsx`: Drop zone with sortable course list
-3.  `src/components/ProgramBuilder.tsx`: Wire up CatalogColumn to right column
-4.  `src/api/localRoutes.ts`: Implement `createProgram()` and `saveDraft()` endpoints
-
-**Functional Requirements:**
-
-- [ ] **State:** Create Context Provider with ADD_COURSE, REMOVE_COURSE, REORDER_COURSE actions
-- [ ] **Integration:** Render CatalogColumn in right column of ProgramBuilder
-- [ ] **Add:** CatalogColumn "Add to Program" dispatches to context
-- [ ] **Reorder:** Use `@dnd-kit/sortable` for drag-and-drop course ordering
-- [ ] **Remove:** "X" button on each course in left column workbench
-- [ ] **Stats:** Real-time calculation of "Total Duration" in footer
-- [ ] **Save:** "Save Draft" button POSTs payload to `http://localhost:3001/custom_programs`
+- [ ] **Persistence:** Implement "Save Draft" to POST to `http://localhost:3001/custom_programs`
+- [ ] **API Integration:** Replace mock courses with data from legacy API
+- [ ] **Roster:** Build student assignment UI (when program is published)
 
 **Prompt Strategy:**
 
-> "PR-04 wires up the builder. Create a ProgramContext to manage selected courses. Integrate the Course Catalog component into the right column. Add drag-and-drop reordering with dnd-kit. Finally, implement persistence to json-server."
+> "PR-03 completed the full builder loop: search, add, reorder, and remove courses. The UI is clean and HTML-focused. Next, we'll persist the draft to json-server and integrate real course data from the legacy API."
 
 ---
 
@@ -239,17 +234,18 @@ https://phillipsx-pims-stage.azurewebsites.net/api
   /api
     utils.ts                    # ✅ Fetch wrapper (base URLs, error handling)
     legacyRoutes.ts            # ✅ getCatalog() with fallback
-    localRoutes.ts             # ⏳ To be implemented in PR-04
+    localRoutes.ts             # ⏳ To be implemented in PR-05
   /components
     App.tsx                     # ✅ Main app with userType & currentView state
     PageContent.tsx            # ✅ Primary page renderer, shows ProgramBuilder or saved program
     SidebarNav.tsx             # ✅ Navigation with "Program Builder" button and saved programs list
-    ProgramBuilder.tsx         # ✅ 2-column split-pane UI (60/40 layout)
+    ProgramBuilder.tsx         # ✅ 2-column split-pane with workbench + catalog + drag-drop
+    SortableCourseItem.tsx      # ✅ Wrapper for dnd-kit sortable items with GripVertical icon
     ProgramList.tsx            # ✅ Legacy program listing (from API)
     ProgramCard.tsx            # ✅ Legacy program card display
     /builder
       CatalogColumn.tsx        # ✅ Search + Filter + Course Grid
-      WorkbenchColumn.tsx      # ⏳ To be implemented in PR-04
+      WorkbenchColumn.tsx      # ⏳ To be implemented (extracted from ProgramBuilder if needed)
       RosterColumn.tsx         # ⏳ To be implemented in PR-05
     /student                   # ⏳ To be implemented in PR-06
       StudentDashboard.tsx
@@ -259,15 +255,17 @@ https://phillipsx-pims-stage.azurewebsites.net/api
       CourseCard.tsx           # ✅ Course display card with badges
       EnrollmentModal.tsx      # ⏳ To be implemented in PR-05
       StatusBadge.tsx          # ⏳ To be implemented in PR-05
-    /ui                        # ✅ Shadcn/ui components
+    /ui                        # ⏳ Shadcn/ui components (not used yet)
       badge.tsx
       button.tsx
       card.tsx
       input.tsx
       skeleton.tsx
       sonner.tsx
+  /hooks
+    useProgramBuilder.ts       # ✅ Custom hook managing builder state & actions
   /context
-    ProgramContext.tsx         # ⏳ To be implemented in PR-04
+    ProgramContext.tsx         # ⏳ To be implemented in PR-05 (if needed)
   /data                        # ✅ Static fallback JSON files
     mockCourses.json
     mockStudents.json
@@ -278,6 +276,8 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 
 **Key Files Added in PR-03:**
 
-- `src/components/ProgramBuilder.tsx`: Core 2-column builder interface
+- `src/hooks/useProgramBuilder.ts`: Custom hook with all builder logic (state, filters, actions)
+- `src/components/ProgramBuilder.tsx`: Core 2-column builder interface (workbench + catalog)
+- `src/components/SortableCourseItem.tsx`: Drag-and-drop wrapper component with grip icon
 - `src/components/PageContent.tsx`: Updated for routing between views
 - `src/components/SidebarNav.tsx`: Navigation with currentView state

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { arrayMove } from "@dnd-kit/sortable";
 
 export interface Course {
   id: string;
@@ -95,6 +96,14 @@ export function useProgramBuilder() {
     setSelectedCourses((prev) => prev.filter((c) => c.id !== courseId));
   };
 
+  const reorderCourses = (activeId: string, overId: string) => {
+    setSelectedCourses((courses) => {
+      const oldIndex = courses.findIndex((c) => c.id === activeId);
+      const newIndex = courses.findIndex((c) => c.id === overId);
+      return arrayMove(courses, oldIndex, newIndex);
+    });
+  };
+
   const updateTitle = (newTitle: string) => {
     setProgramTitle(newTitle);
   };
@@ -126,6 +135,7 @@ export function useProgramBuilder() {
     // Actions
     addCourse,
     removeCourse,
+    reorderCourses,
     updateTitle,
     toggleFilter,
     setSearch,
