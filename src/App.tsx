@@ -1,21 +1,46 @@
-import { Toaster } from "@/components/ui/sonner";
-import { CatalogColumn } from "@/components/builder/CatalogColumn";
+import "./App.css";
+import { useState } from "react";
+import { PageContent } from "./components/PageContent";
+import { SidebarNav } from "./components/SidebarNav";
 
 function App() {
-  return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header / Nav would go here */}
-      <header className="bg-white border-b p-4 mb-6">
-        <h1 className="text-2xl font-bold text-phillips-blue">Phillips Education</h1>
-      </header>
+  const [userType, setUserType] = useState<"supervisor" | "student" | null>(null);
 
-      <main className="container mx-auto px-4 py-6">
-        <CatalogColumn />
-      </main>
-
-      <Toaster />
-    </div>
-  );
+  if (userType === null) {
+    return (
+      <div className="flex h-screen">
+        {/* button container */}
+        <div className="flex flex-col items-center justify-center flex-1">
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 active:bg-blue-600 mx-auto"
+            onClick={() => setUserType("supervisor")}
+          >
+            Education Supervisor
+          </button>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 active:bg-blue-600 mx-auto"
+            onClick={() => setUserType("student")}
+          >
+            Student
+          </button>
+        </div>
+      </div>
+    );
+  } else if (userType === "supervisor") {
+    return (
+      <>
+        <SidebarNav />
+        <PageContent userType={userType} setUserType={setUserType} />
+      </>
+    );
+  } else {
+    return (
+      <>
+        <SidebarNav />
+        <PageContent userType={userType} setUserType={setUserType} />
+      </>
+    );
+  }
 }
 
 export default App;
