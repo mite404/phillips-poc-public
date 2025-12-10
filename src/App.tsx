@@ -5,6 +5,7 @@ import { SidebarNav } from "./components/SidebarNav";
 
 function App() {
   const [userType, setUserType] = useState<"supervisor" | "student" | null>(null);
+  const [currentView, setCurrentView] = useState<string>("builder");
 
   if (userType === null) {
     return (
@@ -29,15 +30,23 @@ function App() {
   } else if (userType === "supervisor") {
     return (
       <div className="flex flex-1 overflow-hidden">
-        <SidebarNav />
-        <PageContent userType={userType} setUserType={setUserType} />
+        <SidebarNav currentView={currentView} onNavigate={setCurrentView} />
+        <PageContent
+          userType={userType}
+          setUserType={setUserType}
+          currentView={currentView}
+        />
       </div>
     );
   } else {
     return (
       <div className="flex flex-1 overflow-hidden">
-        <SidebarNav />
-        <PageContent userType={userType} setUserType={setUserType} />
+        <SidebarNav currentView={currentView} onNavigate={setCurrentView} />
+        <PageContent
+          userType={userType}
+          setUserType={setUserType}
+          currentView={currentView}
+        />
       </div>
     );
   }
