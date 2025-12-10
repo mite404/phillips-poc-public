@@ -1,6 +1,6 @@
 # Project Specification & Prompt Context
 
-> **Last Updated:** 2025-12-05
+> **Last Updated:** 2025-12-10
 
 ## 📌 Global Context (Paste at start of every session)
 
@@ -92,36 +92,74 @@ interface SupervisorProgram {
 
 ---
 
-### 🚧 PR-03: The Workbench (Center Column)
+### 🚧 PR-03: Program Builder UI Shell & Navigation
 
-**Status:** Not Started  
-**Goal:** The "Canvas" where the Program is assembled and saved.
+**Status:** In Progress  
+**Goal:** Build the foundational UI layout with 2-column split-pane and navigation state management.
 
-**Components to Build:**
+**Components Built:**
 
-1.  `src/context/ProgramContext.tsx`: Store `selectedCourses[]` and `programMeta`
-2.  `src/components/builder/WorkbenchColumn.tsx`: The drop zone with sortable course list
-3.  `src/api/localRoutes.ts`: Implement `createProgram()` POST endpoint
+1.  ✅ `src/components/ProgramBuilder.tsx`: 2-column split-pane layout (60/40)
+    - Left Column: "My Program" workbench with editable title input and "Save Draft" button
+    - Right Column: "Course Catalog" with search input and filter placeholder
+2.  ✅ `src/components/PageContent.tsx`: Updated to render ProgramBuilder by default, with conditional rendering for saved program drafts
+3.  ✅ `src/components/SidebarNav.tsx`: Navigation component with "Program Builder" menu item and saved programs list
+4.  ✅ `src/App.tsx`: Added `currentView` state management and view routing
 
 **Functional Requirements:**
 
-- [ ] **State:** Create a Context Provider wrapping the BuilderLayout
-- [ ] **Add:** Update `CatalogColumn` to dispatch `ADD_COURSE` to context
-- [ ] **Reorder:** Use `@dnd-kit/sortable` to allow dragging items up/down
-- [ ] **Remove:** "X" button on each item in the Workbench
-- [ ] **Stats:** Real-time calculation of "Total Duration" in footer
-- [ ] **Save:** "Publish" button POSTs payload to `http://localhost:3001/custom_programs`
+- [x] **Layout:** Split-pane flexbox layout with left column (60%) and right column (40%)
+- [x] **Default View:** ProgramBuilder displayed on login as "New Program"
+- [x] **Navigation:** SidebarNav with Program Builder button and saved program links
+- [x] **Saved Programs:** Conditional rendering for clicked saved programs (prog_101, prog_102, prog_103)
+- [x] **Responsive:** Both columns independently scrollable, fill screen height minus header
+- [x] **Polish:** Tailwind styling with border, padding, and spacing utilities
+
+**Next Steps (PR-04):**
+
+- [ ] **State:** Create `ProgramContext` to manage selected courses
+- [ ] **Integration:** Wire Course Catalog (CatalogColumn) to right column
+- [ ] **Reorder:** Use `@dnd-kit/sortable` for drag-and-drop course ordering
+- [ ] **Save:** Implement "Save Draft" button to persist to json-server
 
 **Prompt Strategy:**
 
-> "We are moving to PR-03. Create a `ProgramContext` to manage the array of selected courses. Then, implement the `WorkbenchColumn` using `dnd-kit` Sortable strategy. Finally, wire up the Publish button to save to our json-server."
+> "PR-03 establishes the UI shell. The ProgramBuilder component is now ready. Next, we'll integrate the Course Catalog into the right column and implement state management for selected courses. Then we'll add drag-and-drop reordering and persistence."
 
 ---
 
-### ⏭️ PR-04: Roster & Assignment (Right Column)
+### ⏭️ PR-04: Course Management & Drag-and-Drop
 
 **Status:** Not Started  
-**Goal:** The "Distribution" phase. Assigning the program to real users.
+**Goal:** Integrate Course Catalog into the builder, implement state management, and enable drag-and-drop reordering.
+
+**Components to Build/Update:**
+
+1.  `src/context/ProgramContext.tsx`: Store `selectedCourses[]` and `programMeta`
+2.  `src/components/builder/WorkbenchColumn.tsx`: Drop zone with sortable course list
+3.  `src/components/ProgramBuilder.tsx`: Wire up CatalogColumn to right column
+4.  `src/api/localRoutes.ts`: Implement `createProgram()` and `saveDraft()` endpoints
+
+**Functional Requirements:**
+
+- [ ] **State:** Create Context Provider with ADD_COURSE, REMOVE_COURSE, REORDER_COURSE actions
+- [ ] **Integration:** Render CatalogColumn in right column of ProgramBuilder
+- [ ] **Add:** CatalogColumn "Add to Program" dispatches to context
+- [ ] **Reorder:** Use `@dnd-kit/sortable` for drag-and-drop course ordering
+- [ ] **Remove:** "X" button on each course in left column workbench
+- [ ] **Stats:** Real-time calculation of "Total Duration" in footer
+- [ ] **Save:** "Save Draft" button POSTs payload to `http://localhost:3001/custom_programs`
+
+**Prompt Strategy:**
+
+> "PR-04 wires up the builder. Create a ProgramContext to manage selected courses. Integrate the Course Catalog component into the right column. Add drag-and-drop reordering with dnd-kit. Finally, implement persistence to json-server."
+
+---
+
+### ⏭️ PR-05: Roster & Assignment (Right Column)
+
+**Status:** Not Started  
+**Goal:** The "Distribution" phase. Assigning programs to real users.
 
 **Components to Build:**
 
@@ -142,11 +180,11 @@ interface SupervisorProgram {
 
 **Prompt Strategy:**
 
-> "Time for PR-04. Let's build the Roster Sidebar. It needs to fetch students and display their status. Please also build the `EnrollmentModal` which takes a `courseId`, fetches the schedule inventory, and lets me select a class."
+> "Time for PR-05. Let's build the Roster Sidebar. It needs to fetch students and display their status. Please also build the `EnrollmentModal` which takes a `courseId`, fetches the schedule inventory, and lets me select a class."
 
 ---
 
-### ⏭️ PR-05: Student Experience (The Consumer)
+### ⏭️ PR-06: Student Experience (The Consumer)
 
 **Status:** Not Started  
 **Goal:** The view for "Liam" or "Ethan" to see what was assigned.
@@ -166,7 +204,7 @@ interface SupervisorProgram {
 
 **Prompt Strategy:**
 
-> "Let's switch personas for PR-05. Create the Student Dashboard. It needs to read the assignment we created in the previous step. Show an 'Action Center' at the top that prompts the user to book a date for their ILT course."
+> "Let's switch personas for PR-06. Create the Student Dashboard. It needs to read the assignment we created in the previous step. Show an 'Action Center' at the top that prompts the user to book a date for their ILT course."
 
 ---
 
@@ -201,20 +239,26 @@ https://phillipsx-pims-stage.azurewebsites.net/api
   /api
     utils.ts                    # ✅ Fetch wrapper (base URLs, error handling)
     legacyRoutes.ts            # ✅ getCatalog() with fallback
-    localRoutes.ts             # ⏳ To be implemented in PR-03
+    localRoutes.ts             # ⏳ To be implemented in PR-04
   /components
+    App.tsx                     # ✅ Main app with userType & currentView state
+    PageContent.tsx            # ✅ Primary page renderer, shows ProgramBuilder or saved program
+    SidebarNav.tsx             # ✅ Navigation with "Program Builder" button and saved programs list
+    ProgramBuilder.tsx         # ✅ 2-column split-pane UI (60/40 layout)
+    ProgramList.tsx            # ✅ Legacy program listing (from API)
+    ProgramCard.tsx            # ✅ Legacy program card display
     /builder
       CatalogColumn.tsx        # ✅ Search + Filter + Course Grid
-      WorkbenchColumn.tsx      # ⏳ To be implemented in PR-03
-      RosterColumn.tsx         # ⏳ To be implemented in PR-04
-    /student                   # ⏳ To be implemented in PR-05
+      WorkbenchColumn.tsx      # ⏳ To be implemented in PR-04
+      RosterColumn.tsx         # ⏳ To be implemented in PR-05
+    /student                   # ⏳ To be implemented in PR-06
       StudentDashboard.tsx
       ActionCenter.tsx
       Timeline.tsx
     /common
       CourseCard.tsx           # ✅ Course display card with badges
-      EnrollmentModal.tsx      # ⏳ To be implemented in PR-04
-      StatusBadge.tsx          # ⏳ To be implemented in PR-04
+      EnrollmentModal.tsx      # ⏳ To be implemented in PR-05
+      StatusBadge.tsx          # ⏳ To be implemented in PR-05
     /ui                        # ✅ Shadcn/ui components
       badge.tsx
       button.tsx
@@ -223,11 +267,17 @@ https://phillipsx-pims-stage.azurewebsites.net/api
       skeleton.tsx
       sonner.tsx
   /context
-    ProgramContext.tsx         # ⏳ To be implemented in PR-03
+    ProgramContext.tsx         # ⏳ To be implemented in PR-04
   /data                        # ✅ Static fallback JSON files
     mockCourses.json
     mockStudents.json
     mockSchedules.json
   /types
-    models.ts                  # ✅ TypeScript interfaces
+    models.ts                  # ✅ TypeScript interfaces (LegacyProgram, CourseCatalogItem, SupervisorProgram)
 ```
+
+**Key Files Added in PR-03:**
+
+- `src/components/ProgramBuilder.tsx`: Core 2-column builder interface
+- `src/components/PageContent.tsx`: Updated for routing between views
+- `src/components/SidebarNav.tsx`: Navigation with currentView state
