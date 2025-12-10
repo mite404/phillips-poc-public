@@ -1,88 +1,21 @@
-import { useState } from "react";
-
-interface Course {
-  id: string;
-  title: string;
-  code: string;
-  type: "ILT" | "Self-Paced";
-  level: "Basic" | "Advanced";
-}
-
-const MOCK_COURSES: Course[] = [
-  {
-    id: "1",
-    title: "Haas CNC Mill Certification",
-    code: "C101",
-    type: "ILT",
-    level: "Basic",
-  },
-  {
-    id: "2",
-    title: "Advanced Haas Mill Programming",
-    code: "C102",
-    type: "ILT",
-    level: "Advanced",
-  },
-  {
-    id: "3",
-    title: "CNC Safety Fundamentals",
-    code: "C201",
-    type: "Self-Paced",
-    level: "Basic",
-  },
-  {
-    id: "4",
-    title: "Precision Measurement Techniques",
-    code: "C301",
-    type: "ILT",
-    level: "Advanced",
-  },
-  {
-    id: "5",
-    title: "Shop Floor Leadership",
-    code: "C401",
-    type: "Self-Paced",
-    level: "Advanced",
-  },
-  {
-    id: "6",
-    title: "Machine Maintenance Basics",
-    code: "C501",
-    type: "Self-Paced",
-    level: "Basic",
-  },
-];
+import { useProgramBuilder } from "../hooks/useProgramBuilder";
 
 type FilterKey = "Self-Paced" | "ILT" | "Advanced";
 
 export function ProgramBuilder() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<Record<FilterKey, boolean>>({
-    "Self-Paced": false,
-    ILT: false,
-    Advanced: false,
-  });
-
-  const toggleFilter = (key: FilterKey) => {
-    setFilters((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const filteredCourses = MOCK_COURSES.filter((course) => {
-    // Search filter
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
-
-    // Type filters (Self-Paced or ILT)
-    const typeFiltersActive = filters["Self-Paced"] || filters["ILT"];
-    const matchesType =
-      !typeFiltersActive ||
-      (filters["Self-Paced"] && course.type === "Self-Paced") ||
-      (filters["ILT"] && course.type === "ILT");
-
-    // Level filter (Advanced)
-    const matchesLevel = !filters["Advanced"] || course.level === "Advanced";
-
-    return matchesSearch && matchesType && matchesLevel;
-  });
+  const {
+    programTitle,
+    selectedCourses,
+    searchQuery,
+    activeFilters,
+    filteredCourses,
+    addCourse,
+    removeCourse,
+    updateTitle,
+    toggleFilter,
+    setSearch,
+    saveDraft,
+  } = useProgramBuilder();
 
   return (
     <div className="flex h-full gap-4">
@@ -92,6 +25,8 @@ export function ProgramBuilder() {
         <div className="p-4 border-b border-slate-300">
           <input
             type="text"
+            value={programTitle}
+            onChange={(e) => updateTitle(e.target.value)}
             placeholder="My Program (Click to rename...)"
             className="w-full text-xl font-semibold bg-transparent border-none outline-none focus:ring-0"
           />
@@ -99,14 +34,47 @@ export function ProgramBuilder() {
 
         {/* Body - Scrollable */}
         <div className="flex-1 overflow-y-auto p-4">
-          <div className="flex items-center justify-center h-full text-slate-400 text-lg">
-            Insert Courses Here...
-          </div>
+          {selectedCourses.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-slate-400 text-lg">
+              Insert Courses Here...
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {selectedCourses.map((course) => (
+                <div
+                  key={course.id}
+                  className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100"
+                >
+                  <div className="flex-1">
+                    <h3 className="font-medium text-slate-900">{course.title}</h3>
+                    <p className="text-sm text-slate-600">
+                      {course.type} • {course.level}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-slate-500 font-mono">
+                      {course.code}
+                    </span>
+                    <button
+                      onClick={() => removeCourse(course.id)}
+                      className="px-2 py-1 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded"
+                      title="Remove course"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Footer - Sticky */}
         <div className="p-4 border-t border-slate-300 bg-white">
-          <button className="bg-phillips-blue text-white px-6 py-2 rounded hover:bg-blue-700">
+          <button
+            onClick={saveDraft}
+            className="bg-phillips-blue text-white px-6 py-2 rounded hover:bg-blue-700"
+          >
             Save Draft
           </button>
         </div>
@@ -121,7 +89,7 @@ export function ProgramBuilder() {
             type="text"
             placeholder="Search courses..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-phillips-blue"
           />
           <div className="flex gap-2">
@@ -130,7 +98,7 @@ export function ProgramBuilder() {
                 key={filterKey}
                 onClick={() => toggleFilter(filterKey)}
                 className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  filters[filterKey]
+                  activeFilters[filterKey]
                     ? "bg-phillips-blue text-white"
                     : "border border-slate-300 text-slate-700 hover:bg-slate-50"
                 }`}
@@ -155,7 +123,7 @@ export function ProgramBuilder() {
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-slate-500 font-mono">{course.code}</span>
                   <button
-                    onClick={() => console.log("Add course:", course)}
+                    onClick={() => addCourse(course)}
                     className="px-3 py-1 bg-phillips-blue text-white text-sm rounded hover:bg-blue-700"
                   >
                     Add
