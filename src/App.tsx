@@ -28,17 +28,17 @@ function App() {
     );
   } else if (userType === "supervisor") {
     return (
-      <>
+      <div className="flex flex-1 overflow-hidden">
         <SidebarNav />
         <PageContent userType={userType} setUserType={setUserType} />
-      </>
+      </div>
     );
   } else {
     return (
-      <>
+      <div className="flex flex-1 overflow-hidden">
         <SidebarNav />
         <PageContent userType={userType} setUserType={setUserType} />
-      </>
+      </div>
     );
   }
 }
