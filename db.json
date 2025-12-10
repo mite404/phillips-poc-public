@@ -1,34 +1,15 @@
 {
-  "custom_programs": [
+  "programs": [
     {
       "id": "prog_101",
-      "title": "Q3 Machinist Ramp-up",
-      "description": "Safety and basic operation track for new hires.",
       "supervisorId": "pat_mann_guid",
-      "isPublished": true,
-      "createdAt": "2025-10-27T10:00:00Z",
-      "courses": [
-        { "courseId": 116, "sequenceOrder": 1 },
-        { "courseId": 11, "sequenceOrder": 2 }
-      ]
+      "programName": "Q3 Safety Ramp-up",
+      "description": "Mandatory safety training.",
+      "tags": ["Safety", "Onboarding"],
+      "courseSequence": [116, 11, 9],
+      "published": true,
+      "createdAt": "2025-12-01T10:00:00Z"
     }
   ],
-  "assignments": [
-    {
-      "id": "assign_001",
-      "programId": "prog_101",
-      "learnerId": 1511,
-      "status": "Pending Selection",
-      "assignedDate": "2025-12-01T10:00:00Z"
-    }
-  ],
-  "enrollments": [
-    {
-      "id": "enroll_999",
-      "learnerId": 1512,
-      "courseId": 116,
-      "classId": 5451,
-      "status": "Registered"
-    }
-  ]
+  "program_registrations": []
 }
