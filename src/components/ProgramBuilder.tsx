@@ -185,8 +185,8 @@ export function ProgramBuilder() {
                 disabled={isLoading}
                 className={`px-3 py-1 rounded-full text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   activeFilters[filterKey]
-                    ? "bg-phillips-blue text-white"
-                    : "border border-slate-300 text-slate-700 hover:bg-slate-50"
+                    ? "!bg-gray-100 !text-slate-900 border-2 border-slate-300 font-bold shadow-sm"
+                    : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50"
                 }`}
               >
                 {filterKey}
