@@ -82,7 +82,7 @@ export function CourseDetailModal({
         <DialogFooter>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-100 text-slate-700 rounded hover:bg-slate-200"
+            className="bg-gray-100! text-slate-700! border-slate-300 outline border-2 outline-gray-400 px-4 py-2 rounded hover:bg-slate-200! hover:border-slate-400"
           >
             Close
           </button>
@@ -92,7 +92,7 @@ export function CourseDetailModal({
                 onBookClick();
                 onClose();
               }}
-              className="px-4 py-2 bg-phillips-blue text-white rounded hover:bg-blue-700"
+              className="bg-gray-100! text-black! border-slate-300 outline border-2 outline-gray-400 px-4 py-2 rounded hover:bg-slate-200! hover:border-slate-400"
             >
               Book Class
             </button>
