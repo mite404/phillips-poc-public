@@ -17,9 +17,6 @@ dist-ssr
 .env.local
 .env.*.local
 
-# Local database (may contain user data)
-db.json
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
