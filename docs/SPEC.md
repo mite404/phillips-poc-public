@@ -1,6 +1,7 @@
 # Project Specification & Prompt Context
 
-> **Last Updated:** 2025-12-11 (After PR-08: Progress Detail View - Feature Complete)
+> **Last Updated:** 2025-12-11  
+> **Project Status:** ✅ COMPLETE (v1.0 POC)
 
 ## 📌 Global Context (Paste at start of every session)
 
@@ -524,3 +525,71 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 **Demo Feature:**
 
 The ProgramProgressCard includes an interactive "Play God" mode where supervisors can click status badges to toggle course completion during demonstrations. This allows real-time visualization of progress bar updates without requiring actual enrollment data. A subtle hint at the bottom of each card explains this feature to users.
+
+---
+
+### ✅ PR-09: Student Polish (Bug Fixes & UI)
+
+**Status:** Completed  
+**Goal:** Fix missing "Book Class" button and standardize modal button styling.
+
+**Fixes Implemented:**
+
+1. ✅ **StudentDashboard.tsx**
+   - Fixed `onBookClick` prop logic in CourseDetailModal
+   - Updated `handleCourseClick` to accept and set `programId` parameter
+   - Set `pendingEnrollment` when opening course detail modal
+   - Updated all `handleCourseClick` calls to pass `programId`
+
+2. ✅ **CourseDetailModal.tsx**
+   - Updated "Close" button styling
+   - Updated "Book Class" button styling
+   - Applied consistent gray outline theme
+
+3. ✅ **EnrollmentModal.tsx**
+   - Updated "Cancel" button styling
+   - Updated "Confirm Enrollment" button styling
+   - Applied consistent gray outline theme
+
+**Button Style Standard:**
+
+```css
+bg-gray-100! text-slate-700! border-slate-300 outline border-2 outline-gray-400 px-4 py-2 rounded hover:bg-slate-200! hover:border-slate-400
+```
+
+**Flow Fixed:**
+Click Course → Detail Modal Opens → "Book Class" Button Visible (ILT courses) → Click "Book Class" → Enrollment Modal Opens ✅
+
+---
+
+### ✅ PR-10: Supervisor Polish (Final UX)
+
+**Status:** Completed  
+**Goal:** Apply final UI polish to supervisor views for production-ready appearance.
+
+**Enhancements Implemented:**
+
+1. ✅ **ProgramBuilder.tsx - Catalog Filter Styles**
+   - **Active State:** `!bg-gray-100 !text-slate-900 border-2 border-slate-300 font-bold shadow-sm`
+   - **Inactive State:** `bg-white text-slate-500 border border-slate-200 hover:bg-slate-50`
+   - Improved contrast and visibility for active filters
+
+2. ✅ **ProgramManager.tsx - Enhanced Interactivity**
+   - Added "Tags included in Program:" label for context
+   - Made course cards clickable with `onClick` handlers
+   - Added `cursor-pointer hover:bg-slate-50 transition-colors` styling
+   - Integrated `CourseDetailModal` for course details
+   - Added `activeCourse` state management
+
+3. ✅ **ProgramProgressCard.tsx - Catalog Number Alignment**
+   - Centered catalog number between course title and status badge
+   - Right-aligned catalog numbers with fixed width (`w-12`)
+   - Created flush vertical alignment across all entries
+   - Applied even spacing with `gap-4` flexbox
+
+**Result:**
+
+- Supervisor views now have consistent, polished UI
+- All interactive elements have proper hover states
+- Course details accessible from all relevant views
+- Improved readability and professional appearance

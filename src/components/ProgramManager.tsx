@@ -4,6 +4,7 @@ import { legacyApi } from "@/api/legacyRoutes";
 import type { SupervisorProgram, CourseCatalogItem } from "@/types/models";
 import { Skeleton } from "./ui/skeleton";
 import { RosterList } from "./RosterList";
+import { CourseDetailModal } from "./common/CourseDetailModal";
 import { toast } from "sonner";
 
 interface ProgramManagerProps {
@@ -14,10 +15,15 @@ interface HydratedCourse extends CourseCatalogItem {
   id: string; // String ID for React keys
 }
 
+interface Course extends CourseCatalogItem {
+  id: string;
+}
+
 export function ProgramManager({ programId }: ProgramManagerProps) {
   const [program, setProgram] = useState<SupervisorProgram | null>(null);
   const [hydratedCourses, setHydratedCourses] = useState<HydratedCourse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeCourse, setActiveCourse] = useState<Course | null>(null);
 
   useEffect(() => {
     async function loadProgramData() {
@@ -107,7 +113,10 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
         <h1 className="text-3xl font-bold text-slate-900">{program.programName}</h1>
         {program.description && <p className="text-slate-600">{program.description}</p>}
         {program.tags.length > 0 && (
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-slate-500">
+              Tags included in Program:
+            </span>
             {program.tags.map((tag, idx) => (
               <span
                 key={idx}
@@ -142,7 +151,8 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
                 {hydratedCourses.map((course, index) => (
                   <div
                     key={course.id}
-                    className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded"
+                    onClick={() => setActiveCourse(course)}
+                    className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded cursor-pointer hover:bg-slate-50 transition-colors"
                   >
                     {/* Sequence Number */}
                     <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-phillips-blue text-white rounded-full text-sm font-bold">
@@ -181,6 +191,13 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
           />
         </div>
       </div>
+
+      {/* Course Detail Modal */}
+      <CourseDetailModal
+        course={activeCourse}
+        isOpen={!!activeCourse}
+        onClose={() => setActiveCourse(null)}
+      />
     </div>
   );
 }
