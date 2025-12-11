@@ -1,16 +1,18 @@
 import { ProgramBuilder } from "./ProgramBuilder";
 import { ProgramManager } from "./ProgramManager";
+import { StudentDashboard } from "./student/StudentDashboard";
 
 export function PageContent(props: {
   userType: "supervisor" | "student";
   setUserType: (userType: "supervisor" | "student" | null) => void;
   currentView: string;
 }) {
-  const { setUserType, currentView } = props;
+  const { userType, setUserType, currentView } = props;
 
   // Check if viewing a saved program (UUID format or specific IDs)
   const isProgramView =
     currentView !== "builder" &&
+    currentView !== "programs" &&
     (currentView.match(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     ) ||
@@ -24,7 +26,9 @@ export function PageContent(props: {
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-hidden">
-        {isProgramView ? (
+        {userType === "student" && currentView === "programs" ? (
+          <StudentDashboard />
+        ) : isProgramView ? (
           <ProgramManager programId={currentView} />
         ) : (
           <div className="h-full p-8">
@@ -36,7 +40,7 @@ export function PageContent(props: {
       {/* Footer */}
       <div className="p-4 border-t border-slate-300">
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 active:bg-blue-600 mx-auto block"
+          className="!bg-slate-200 !text-slate-700 border-2 border-slate-300 px-4 py-2 rounded hover:bg-slate-300 hover:border-slate-400 mx-auto block font-medium"
           onClick={() => setUserType(null)}
         >
           Back to Auth Portal

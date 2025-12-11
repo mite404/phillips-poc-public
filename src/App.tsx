@@ -8,22 +8,32 @@ function App() {
   const [userType, setUserType] = useState<"supervisor" | "student" | null>(null);
   const [currentView, setCurrentView] = useState<string>("builder");
 
+  // Set initial view based on user type
+  const handleSetUserType = (type: "supervisor" | "student" | null) => {
+    setUserType(type);
+    if (type === "student") {
+      setCurrentView("programs");
+    } else if (type === "supervisor") {
+      setCurrentView("builder");
+    }
+  };
+
   if (userType === null) {
     return (
       <>
         <Toaster position="top-right" />
         <div className="flex h-screen">
           {/* button container */}
-          <div className="flex flex-col items-center justify-center flex-1">
+          <div className="flex flex-col items-center justify-center flex-1 gap-3">
             <button
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 active:bg-blue-600 mx-auto"
-              onClick={() => setUserType("supervisor")}
+              className="!bg-slate-200 !text-slate-700 px-6 py-3 rounded hover:!bg-slate-300 hover:border-slate-400 mx-auto font-medium"
+              onClick={() => handleSetUserType("supervisor")}
             >
               Education Supervisor
             </button>
             <button
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 active:bg-blue-600 mx-auto"
-              onClick={() => setUserType("student")}
+              className="!bg-slate-200 !text-slate-700 px-6 py-3 rounded hover:!bg-slate-300 hover:border-slate-400 mx-auto font-medium"
+              onClick={() => handleSetUserType("student")}
             >
               Student
             </button>
@@ -36,10 +46,14 @@ function App() {
       <>
         <Toaster position="top-right" />
         <div className="flex flex-1 overflow-hidden">
-          <SidebarNav currentView={currentView} onNavigate={setCurrentView} />
+          <SidebarNav
+            currentView={currentView}
+            onNavigate={setCurrentView}
+            userType={userType}
+          />
           <PageContent
             userType={userType}
-            setUserType={setUserType}
+            setUserType={handleSetUserType}
             currentView={currentView}
           />
         </div>
@@ -50,10 +64,14 @@ function App() {
       <>
         <Toaster position="top-right" />
         <div className="flex flex-1 overflow-hidden">
-          <SidebarNav currentView={currentView} onNavigate={setCurrentView} />
+          <SidebarNav
+            currentView={currentView}
+            onNavigate={setCurrentView}
+            userType={userType}
+          />
           <PageContent
             userType={userType}
-            setUserType={setUserType}
+            setUserType={handleSetUserType}
             currentView={currentView}
           />
         </div>

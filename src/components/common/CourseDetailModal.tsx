@@ -11,10 +11,18 @@ interface CourseDetailModalProps {
   course: Course | null;
   isOpen: boolean;
   onClose: () => void;
+  onBookClick?: () => void;
 }
 
-export function CourseDetailModal({ course, isOpen, onClose }: CourseDetailModalProps) {
+export function CourseDetailModal({
+  course,
+  isOpen,
+  onClose,
+  onBookClick,
+}: CourseDetailModalProps) {
   if (!course) return null;
+
+  const showBookButton = onBookClick && course.trainingTypeName.includes("ILT");
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -78,6 +86,17 @@ export function CourseDetailModal({ course, isOpen, onClose }: CourseDetailModal
           >
             Close
           </button>
+          {showBookButton && (
+            <button
+              onClick={() => {
+                onBookClick();
+                onClose();
+              }}
+              className="px-4 py-2 bg-phillips-blue text-white rounded hover:bg-blue-700"
+            >
+              Book Class
+            </button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
