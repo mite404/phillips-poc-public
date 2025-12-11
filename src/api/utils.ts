@@ -3,8 +3,11 @@
  * Centralized fetch wrapper with error handling
  */
 
-export const LEGACY_API_BASE = 'https://phillipsx-pims-stage.azurewebsites.net/api';
-export const LOCAL_API_BASE = 'http://localhost:3001';
+export const LEGACY_API_BASE =
+  import.meta.env.VITE_LEGACY_API_BASE ||
+  "https://phillipsx-pims-stage.azurewebsites.net/api";
+export const LOCAL_API_BASE =
+  import.meta.env.VITE_LOCAL_API_BASE || "http://localhost:3001";
 
 /**
  * Generic fetch wrapper with error parsing
@@ -14,7 +17,7 @@ export async function fetchApi<T>(url: string, options?: RequestInit): Promise<T
     const response = await fetch(url, {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...options?.headers,
       },
     });
@@ -26,7 +29,7 @@ export async function fetchApi<T>(url: string, options?: RequestInit): Promise<T
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Fetch error:', error);
+    console.error("Fetch error:", error);
     throw error;
   }
 }

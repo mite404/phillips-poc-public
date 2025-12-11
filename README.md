@@ -1,73 +1,121 @@
-# React + TypeScript + Vite
+# Phillips Education POC
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + TypeScript + Vite application for managing educational programs. This POC integrates with a legacy Phillips API to display program catalogs and includes a mock JSON server for local data management.
 
-Currently, two official plugins are available:
+## 🚀 Quick Start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Prerequisites
 
-## React Compiler
+- [Bun](https://bun.sh/) (package manager)
+- Node.js 18+ (for compatibility)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Environment Setup
 
-## Expanding the ESLint configuration
+1. **Clone the repository**
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+   ```bash
+   git clone <repository-url>
+   cd phillips-poc
+   ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. **Install dependencies**
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+   ```bash
+   bun install
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+3. **Configure environment variables**
+
+   ```bash
+   cp .env.example .env
+   ```
+
+4. **Edit `.env` with your API endpoints**
+
+   ```env
+   VITE_LEGACY_API_BASE=https://your-api-endpoint.com/api
+   VITE_LOCAL_API_BASE=http://localhost:3001
+   ```
+
+   **⚠️ IMPORTANT:** Never commit `.env` to version control!
+
+### Development
+
+Start both the Vite dev server and json-server concurrently:
+
+```bash
+bun dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+This will start:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Vite dev server** on `http://localhost:5173`
+- **JSON Server** on `http://localhost:3001`
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Other Commands
+
+```bash
+bun run build        # TypeScript compilation + Vite build
+bun run lint         # Run ESLint
+bun run preview      # Preview production build
+bun run server       # Run json-server only
 ```
+
+## 📂 Project Structure
+
+```
+src/
+├── api/              # API integration layer
+│   ├── utils.ts      # Fetch wrapper with base URLs
+│   ├── legacyRoutes.ts   # Legacy API calls
+│   └── localRoutes.ts    # Local json-server calls
+├── components/       # React components
+├── hooks/            # Custom React hooks
+├── types/            # TypeScript type definitions
+└── data/             # Static fallback JSON files
+```
+
+## 🔒 Security
+
+This repository contains sanitized example data only:
+
+- All student data uses `@example.com` email addresses (RFC 2606 reserved domain)
+- API endpoints are configured via environment variables
+- Sensitive configuration is excluded from version control
+
+## 📚 Documentation
+
+- [SPEC.md](docs/SPEC.md) - Full project specification
+- [IMPLEMENTATION.md](docs/IMPLEMENTATION.md) - Implementation progress tracker
+- [GETTING_STARTED_PR04.md](docs/GETTING_STARTED_PR04.md) - PR-04 tutorial guide
+
+## 🛠️ Tech Stack
+
+- **Frontend:** React 19, TypeScript, Vite
+- **Styling:** Tailwind CSS v4 (with @tailwindcss/vite plugin)
+- **UI Components:** shadcn/ui (New York style, Lucide icons)
+- **State Management:** React hooks, custom hooks
+- **Routing:** React Router DOM v7
+- **Mock API:** json-server (port 3001)
+- **Package Manager:** Bun
+
+## 🏗️ Architecture
+
+- **Hybrid Data Model:** Read from Legacy API, write to local json-server
+- **Lightweight Persistence:** Store course IDs only, not full objects
+- **Fallback Strategy:** Automatically uses local JSON if API fails
+- **Pure Tailwind + HTML:** Minimal shadcn/ui usage for rapid prototyping
+
+## 📝 License
+
+This is a proof-of-concept project for demonstration purposes.
+
+---
+
+## React + Vite Configuration
+
+This template uses [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react) with Babel for Fast Refresh.
+
+### Expanding the ESLint configuration
+
+For production applications, we recommend updating the ESLint configuration to enable type-aware lint rules. See the [original React + Vite template documentation](https://github.com/vitejs/vite-plugin-react) for details.
