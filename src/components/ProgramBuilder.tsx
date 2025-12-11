@@ -228,7 +228,7 @@ export function ProgramBuilder() {
                         e.stopPropagation();
                         addCourse(course);
                       }}
-                      className="px-3 py-1 bg-phillips-blue text-white text-sm rounded hover:bg-blue-700"
+                      className="px-3 py-1 !bg-gray-100 text-black outline border-2 !outline-gray-400 hover:!bg-slate-200 hover:border-slate-400 text-sm rounded hover:bg-blue-700"
                     >
                       Add
                     </button>

@@ -26,13 +26,13 @@ function App() {
           {/* button container */}
           <div className="flex flex-col items-center justify-center flex-1 gap-3">
             <button
-              className="!bg-slate-200 !text-slate-700 px-6 py-3 rounded hover:!bg-slate-300 hover:border-slate-400 mx-auto font-medium"
+              className="!bg-gray-100 !text-slate-700 px-6 py-3 rounded hover:!bg-slate-200 hover:border-slate-400 mx-auto font-medium"
               onClick={() => handleSetUserType("supervisor")}
             >
               Education Supervisor
             </button>
             <button
-              className="!bg-slate-200 !text-slate-700 px-6 py-3 rounded hover:!bg-slate-300 hover:border-slate-400 mx-auto font-medium"
+              className="!bg-gray-100 !text-slate-700 px-6 py-3 rounded hover:!bg-slate-200 hover:border-slate-400 mx-auto font-medium"
               onClick={() => handleSetUserType("student")}
             >
               Student
