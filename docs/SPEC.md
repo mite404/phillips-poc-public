@@ -1,6 +1,6 @@
 # Project Specification & Prompt Context
 
-> **Last Updated:** 2025-12-11 (After PR-05)
+> **Last Updated:** 2025-12-11 (After PR-06 and UI refinements)
 
 ## 📌 Global Context (Paste at start of every session)
 
@@ -307,27 +307,37 @@ interface CourseEnrollment {
 
 ---
 
-### ⏭️ PR-06: Student Experience (The Consumer)
+### ✅ PR-06: Student Experience (The Consumer)
 
-**Status:** Not Started  
-**Goal:** The view for "Liam" or "Ethan" to see what was assigned.
+**Status:** Completed  
+**Goal:** Student view to see assigned programs and book classes.
 
-**Components to Build:**
+**Components Built:**
 
-1.  `src/components/student/StudentDashboard.tsx`: Main container
-2.  `src/components/student/ActionCenter.tsx`: High-vis alerts for pending actions
-3.  `src/components/student/Timeline.tsx`: Vertical progress view
+1.  `src/components/student/StudentDashboard.tsx`: Two-column dashboard with Accordion UI
+2.  `src/components/common/CourseDetailModal.tsx`: Updated with optional "Book Class" button
+3.  `src/components/SidebarNav.tsx`: Updated with userType prop for conditional navigation
 
 **Functional Requirements:**
 
-- [ ] **Context:** Mock the logged-in user as "Liam" (ID: 1511)
-- [ ] **Fetch:** Get `assignments` from local DB where `learnerId === 1511`
-- [ ] **Action Center:** If status is "Pending Selection," show a big "Book Now" card
-- [ ] **Timeline:** Render the list of courses. Status = Locked until previous is done (visual only)
+- [x] **Context:** Mock logged-in user as Bob Martinez (ID: 1511)
+- [x] **Fetch:** Get assignments, enrollments, and catalog in parallel
+- [x] **Hydration:** Transform program/course IDs to full objects
+- [x] **Two-Column Layout:** Assigned Programs (left) | Completed Programs (right)
+- [x] **Accordion UI:** Expandable program cards with nested course lists
+- [x] **Status Badges:** Pending/Registered for assigned, Complete for completed
+- [x] **Two-Step Flow:** Click course → Detail modal → Book Class → Enrollment modal
+- [x] **Enrollment:** Book ILT classes with date/location selection
+- [x] **Visual Feedback:** Green checkmarks for enrolled courses
 
-**Prompt Strategy:**
+**Implementation Notes:**
 
-> "Let's switch personas for PR-06. Create the Student Dashboard. It needs to read the assignment we created in the previous step. Show an 'Action Center' at the top that prompts the user to book a date for their ILT course."
+- Used shadcn/ui Accordion component for expandable program cards
+- CourseDetailModal conditionally shows "Book Class" button for ILT courses only
+- EnrollmentModal reused from PR-05 (supervisor force-enroll flow)
+- Mock completed program added for demo purposes
+- Student navigation shows only "Account" and "My Programs"
+- Data fetching pattern matches supervisor view (parallel fetch + hydration)
 
 ---
 
@@ -371,10 +381,8 @@ https://phillipsx-pims-stage.azurewebsites.net/api
     ProgramManager.tsx         # ✅ Program viewer with hydration logic (left: courses, right: roster)
     RosterList.tsx             # ✅ Student roster with assign/enroll UI (used by ProgramManager)
     SortableCourseItem.tsx      # ✅ Wrapper for dnd-kit sortable items with GripVertical icon
-    /student                   # ⏳ To be implemented in PR-06
-      StudentDashboard.tsx
-      ActionCenter.tsx
-      Timeline.tsx
+    /student                   # ✅ Implemented in PR-06
+      StudentDashboard.tsx     # ✅ Two-column dashboard with accordion UI
     /common
       CourseDetailModal.tsx    # ✅ Course detail modal with shadcn/ui Dialog
       EnrollmentModal.tsx      # ✅ Class selection modal (used by RosterList)
@@ -423,3 +431,20 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 - `src/types/models.ts`: Added LearnerProfile, ClassSchedule, CourseInventory, ProgramAssignment, CourseEnrollment
 - `src/components/PageContent.tsx`: Updated to route to ProgramManager for program IDs
 - `db.json`: Added enrollments collection
+
+**Key Files Added/Modified in PR-06:**
+
+- `src/components/student/StudentDashboard.tsx`: Two-column dashboard with accordion layout
+- `src/components/common/CourseDetailModal.tsx`: Added optional onBookClick prop for "Book Class" button
+- `src/components/SidebarNav.tsx`: Added userType prop, conditional menu rendering
+- `src/components/PageContent.tsx`: Route to StudentDashboard for student view
+- `src/components/App.tsx`: Pass userType to SidebarNav, set initial view based on user type
+- `src/components/ui/accordion.tsx`: Installed shadcn/ui Accordion component
+
+**UI Refinements (Post PR-06):**
+
+- Updated button styling globally: transparent defaults with `!important` overrides where needed
+- Fixed navigation alignment: removed double padding, unified font sizes and colors
+- Accordion headers: white backgrounds for assigned programs, light green for completed
+- Consistent button patterns: "Save Draft" and "Back to Auth Portal" use outline/border style
+- Auth portal buttons: Use Phillips brand blue with proper contrast

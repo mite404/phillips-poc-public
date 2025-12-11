@@ -1,6 +1,6 @@
 # Implementation Progress Tracker
 
-> **Last Updated:** 2025-12-11 (Updated after PR-05)
+> **Last Updated:** 2025-12-11 (Updated after PR-06 and UI refinements)
 
 This document tracks the completion status of each PR and its associated tasks.
 
@@ -197,48 +197,77 @@ This document tracks the completion status of each PR and its associated tasks.
 
 ## PR-06: Student Experience
 
-**Status:** ⏳ **NOT STARTED**
+**Status:** ✅ **COMPLETE**
 
-### Tasks:
+### Completed:
 
-- [ ] Create `src/components/student/StudentDashboard.tsx`
-  - [ ] Main container for student view
-- [ ] Create `src/components/student/ActionCenter.tsx`
-  - [ ] High-visibility alerts for pending actions
-  - [ ] "Book Now" card for class selection
-- [ ] Create `src/components/student/Timeline.tsx`
-  - [ ] Vertical progress timeline
-  - [ ] Course status display (Locked/Active/Complete)
-- [ ] Implement student-specific data fetching
-  - [ ] Mock logged-in user (ID: 1511)
-  - [ ] Fetch assignments from local DB
+- [x] Create `src/components/student/StudentDashboard.tsx`
+  - [x] Two-column layout: Assigned Programs (left) | Completed Programs (right)
+  - [x] Accordion UI using shadcn/ui Accordion component
+  - [x] Data fetching and hydration (assignments → programs → courses)
+  - [x] Status badges (Pending/Registered for assigned, Complete for completed)
+  - [x] Mock completed program for demo purposes
+- [x] Implement two-step interaction flow
+  - [x] Click course → Opens CourseDetailModal
+  - [x] Click "Book Class" (ILT only) → Opens EnrollmentModal
+  - [x] Confirm enrollment → Updates local state with checkmarks
+- [x] Update `src/components/common/CourseDetailModal.tsx`
+  - [x] Add optional `onBookClick` prop
+  - [x] Conditionally render "Book Class" button for ILT courses
+- [x] Update `src/components/SidebarNav.tsx`
+  - [x] Add `userType` prop ('supervisor' | 'student')
+  - [x] Conditional menu rendering based on user type
+  - [x] Student view: Only "Account" and "My Programs"
+  - [x] Supervisor view: Full menu (Account, Program Builder, Student Progress)
+- [x] Update `src/components/PageContent.tsx`
+  - [x] Route to StudentDashboard when userType="student" and currentView="programs"
+- [x] Update `src/App.tsx`
+  - [x] Pass userType prop to SidebarNav
+  - [x] Set initial view based on user type (programs for student, builder for supervisor)
+- [x] Install shadcn/ui Accordion component
+- [x] Student-specific data fetching
+  - [x] Mock logged-in user: Bob Martinez (ID: 1511)
+  - [x] Fetch assignments, enrollments, and catalog in parallel
+  - [x] Hydrate program and course data from IDs
+
+### Architecture Notes:
+
+- **Two-Column Dashboard:** Clean separation of active vs completed programs
+- **Accordion Pattern:** Expandable program cards with nested course lists
+- **Hydration Logic:** Fetches lightweight IDs from db.json, reconstructs full objects from Legacy API
+- **Enrollment Flow:** Course detail → Book class → Select session → Confirm
+- **Visual Distinction:** Assigned (white/gray), Completed (green tint), Enrolled (green checkmarks)
 
 ---
 
 ## 🎯 Current Sprint Focus
 
-**Active PR:** PR-05 Completed ✅ → PR-06 Ready to Start
+**Active PR:** PR-06 Completed ✅
 
-**Completed in PR-05:**
+**Completed in PR-06:**
 
-- Program Manager component with hydration logic (lightweight IDs → full Course objects)
-- Split-screen layout: Course sequence (left) + Student roster (right)
-- Student roster with three-state status system (Unassigned → Pending → Registered)
-- Assignment UI: "Assign" button to create program assignments
-- Enrollment UI: "Force Enroll" modal with class schedule selection
-- API extensions for reading programs and creating assignments/enrollments
-- TypeScript interfaces for LearnerProfile, ClassSchedule, ProgramAssignment, CourseEnrollment
-- Parallel data fetching for performance
-- Toast notifications for user feedback
+- StudentDashboard component with two-column accordion layout
+- Student-specific navigation (My Programs only)
+- Two-step enrollment flow: Course detail → Book class modal
+- Enrollment status tracking (Pending/Registered/Complete)
+- Visual distinction between assigned and completed programs
+- Mock logged-in user (Bob Martinez, ID: 1511)
+- Data hydration from assignments → programs → courses
 
-**Immediate Next Steps (PR-06 - Student Experience):**
+**Recent UI Refinements:**
 
-1. Create `src/components/student/StudentDashboard.tsx` for student view
-2. Build `src/components/student/ActionCenter.tsx` for pending actions
-3. Create `src/components/student/Timeline.tsx` for progress visualization
-4. Implement student-specific data fetching (mock logged-in user ID: 1511)
-5. Fetch assignments from local DB and display course timeline
-6. Test student experience flow end-to-end
+- Fixed button styling across the app (transparent defaults with `!important` overrides)
+- Updated navigation alignment (removed double padding, unified text styles)
+- Accordion styling with light backgrounds for readability
+- Consistent outline/border button patterns (Save Draft, Back to Auth Portal)
+- Auth portal button styling with Phillips brand colors
+
+**Current State:**
+
+- Full supervisor workflow complete (Build → Assign → Enroll)
+- Full student workflow complete (View assignments → Book classes)
+- Both user types have dedicated navigation and views
+- All core POC features implemented
 
 ---
 
