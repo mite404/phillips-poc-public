@@ -1,6 +1,6 @@
 # Project Specification & Prompt Context
 
-> **Last Updated:** 2025-12-10 (After PR-04)
+> **Last Updated:** 2025-12-11 (After PR-05)
 
 ## 📌 Global Context (Paste at start of every session)
 
@@ -21,34 +21,67 @@
 
 ```typescript
 interface CourseCatalogItem {
-  // CORE IDENTIFIERS
-  courseId: number; // Needed for linking
-  courseTitle: string; // Needed for Search & Display
-
-  // UI METADATA (Needed for the Card visuals & Filtering)
+  courseId: number;
+  courseTitle: string;
   levelName: string; // "Basic", "Advanced"
   trainingTypeName: string; // "ILT", "eLearning"
-  totalDays: number; // For duration calc
-  hours: number | null; // For duration calc
-  previewImageUrl: string | null; // The thumbnail
-
-  // EXTRA DETAILS (Optional but good for "View Details" modal)
+  totalDays: number;
+  hours: number | null;
+  previewImageUrl: string | null;
   prices: { isFree: boolean; price?: number; currency?: string }[];
   skills?: { skillName: string }[];
 }
 
 interface SupervisorProgram {
   id: string; // UUID
-  supervisorId: string; // UUID (e.g. "pat_mann_guid")
+  supervisorId: string;
   programName: string;
   description: string;
   tags: string[];
-
-  // The Sequence is just the IDs. Order in array = Sequence order.
-  courseSequence: number[];
-
+  courseSequence: number[]; // Lightweight: IDs only, not full objects
   published: boolean;
   createdAt: string;
+}
+
+interface LearnerProfile {
+  learner_Data_Id: number;
+  learnerId: string; // GUID
+  learnerName: string;
+  emailId: string;
+  location: string;
+  status: "Active" | "Inactive";
+  currentEnrollment: { productName: string; learnerStatusTag: string } | null;
+}
+
+interface ClassSchedule {
+  classId: number;
+  location: string;
+  startDate: string; // ISO date
+  endDate: string; // ISO date
+  seats: number;
+  type: "ILT" | "Online";
+}
+
+interface CourseInventory {
+  courseId: number;
+  classes: ClassSchedule[];
+}
+
+interface ProgramAssignment {
+  id: string; // UUID
+  learnerId: string; // GUID
+  programId: string; // UUID
+  assignedDate: string; // ISO date
+  status: "Pending" | "Registered";
+}
+
+interface CourseEnrollment {
+  id: string; // UUID
+  learnerId: string; // GUID
+  programId: string; // UUID
+  courseId: number;
+  classId: number;
+  enrolledDate: string; // ISO date
 }
 ```
 
@@ -238,31 +271,39 @@ interface SupervisorProgram {
 
 ---
 
-### ⏭️ PR-05: Roster & Assignment (Right Column)
+### ✅ PR-05: Program Manager & Enrollment
 
-**Status:** Not Started  
-**Goal:** The "Distribution" phase. Assigning programs to real users.
+**Status:** Completed  
+**Goal:** Read saved programs, hydrate course data, and enable student enrollment.
 
-**Components to Build:**
+**Components Built:**
 
-1.  `src/components/builder/RosterColumn.tsx`: List of students with status indicators
-2.  `src/components/common/EnrollmentModal.tsx`: The "Force Enroll" UI
-3.  `src/api/legacyRoutes.ts`: Implement `getRoster()` and `getInventory(courseId)`
+1.  ✅ `src/components/ProgramManager.tsx`: Main program viewer with hydration logic
+2.  ✅ `src/components/RosterList.tsx`: Student roster with assignment/enrollment UI
+3.  ✅ `src/components/common/EnrollmentModal.tsx`: Class selection modal
+4.  ✅ `src/api/localRoutes.ts`: Extended with `getProgramById`, `assignProgram`, `enrollStudent`
+5.  ✅ `src/api/legacyRoutes.ts`: Implemented `getRoster()` and `getInventory(courseId)`
 
 **Functional Requirements:**
 
-- [ ] **Slide-in:** Sidebar should only be active/visible if `program.isPublished === true`
-- [ ] **Data:** Load students from `mockStudents.json` (simulating Legacy API)
-- [ ] **Visuals:** Status Badges (Green="Enrolled", Yellow="Pending", Gray="Unassigned")
-- [ ] **Force Enroll:**
-  - Click "Enroll" button on a student
-  - Open Modal with class schedule options
-  - Fetch Schedule for the _first_ course in the program via `getInventory(courseId)`
-  - User selects a Date → Click Confirm → Update Local State to "Registered"
+- [x] **Program View:** Load program by ID, hydrate course data (match IDs to full objects)
+- [x] **Split Layout:** Course sequence (left) + Student roster (right)
+- [x] **Hydration Logic:** Transform lightweight `courseSequence: [116, 11, 9]` to full Course objects
+- [x] **Student Status:** Unassigned → Pending → Registered
+- [x] **Assign:** Click "Assign" to create program assignment
+- [x] **Force Enroll:** Click "Force Enroll" to open modal with class inventory
+- [x] **Enrollment:** Select class session, confirm enrollment, save to local json-server
+- [x] **Data Fetching:** Learners, assignments, enrollments fetched in parallel
+- [x] **Status Badges:** Green (Registered), Yellow (Pending), None (Unassigned)
 
-**Prompt Strategy:**
+**Implementation Notes:**
 
-> "Time for PR-05. Let's build the Roster Sidebar. It needs to fetch students and display their status. Please also build the `EnrollmentModal` which takes a `courseId`, fetches the schedule inventory, and lets me select a class."
+- Hydration pattern: IDs stored in db.json, full objects reconstructed from Legacy API
+- Three-state student status system based on local assignment/enrollment records
+- Class inventory fetched on-demand when enrolling first course
+- All assignments and enrollments POST to local json-server
+- Parallel data fetching for performance
+- Toast notifications for user feedback
 
 ---
 
@@ -320,26 +361,23 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 /src
   /api
     utils.ts                    # ✅ Fetch wrapper (base URLs, error handling)
-    legacyRoutes.ts            # ✅ getCatalog() with fallback to Courses.json
-    localRoutes.ts             # ✅ saveProgram() to json-server
+    legacyRoutes.ts            # ✅ getCatalog(), getRoster(), getInventory() with fallbacks
+    localRoutes.ts             # ✅ saveProgram(), getProgramById(), assignProgram(), enrollStudent()
   /components
     App.tsx                     # ✅ Main app with userType & currentView state
-    PageContent.tsx            # ✅ Primary page renderer, shows ProgramBuilder or saved program
+    PageContent.tsx            # ✅ Primary page renderer, routes to ProgramBuilder or ProgramManager
     SidebarNav.tsx             # ✅ Navigation with "Program Builder" button and saved programs list
-    ProgramBuilder.tsx         # ✅ 2-column split-pane with workbench + catalog + drag-drop + loading states
+    ProgramBuilder.tsx         # ✅ 2-column split-pane builder (workbench + catalog + drag-drop)
+    ProgramManager.tsx         # ✅ Program viewer with hydration logic (left: courses, right: roster)
+    RosterList.tsx             # ✅ Student roster with assign/enroll UI (used by ProgramManager)
     SortableCourseItem.tsx      # ✅ Wrapper for dnd-kit sortable items with GripVertical icon
-    /builder
-      CatalogColumn.tsx        # ✅ Search + Filter + Course Grid
-      WorkbenchColumn.tsx      # ⏳ To be implemented (extracted from ProgramBuilder if needed)
-      RosterColumn.tsx         # ⏳ To be implemented in PR-05
     /student                   # ⏳ To be implemented in PR-06
       StudentDashboard.tsx
       ActionCenter.tsx
       Timeline.tsx
     /common
       CourseDetailModal.tsx    # ✅ Course detail modal with shadcn/ui Dialog
-      EnrollmentModal.tsx      # ⏳ To be implemented in PR-05
-      StatusBadge.tsx          # ⏳ To be implemented in PR-05
+      EnrollmentModal.tsx      # ✅ Class selection modal (used by RosterList)
     /ui                        # ✅ Shadcn/ui components
       dialog.tsx
       skeleton.tsx
@@ -374,3 +412,14 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 - `src/components/common/CourseDetailModal.tsx`: Updated to display real API course properties
 - `src/App.tsx`: Added Sonner Toaster component for toast notifications
 - `src/api/legacyRoutes.ts`: Updated fallback data import (mockCourses.json → Courses.json)
+
+**Key Files Added/Modified in PR-05:**
+
+- `src/components/ProgramManager.tsx`: New component for viewing saved programs with hydration
+- `src/components/RosterList.tsx`: New component for student roster with assign/enroll UI
+- `src/components/common/EnrollmentModal.tsx`: New modal for class selection during enrollment
+- `src/api/localRoutes.ts`: Extended with getProgramById(), assignProgram(), enrollStudent()
+- `src/api/legacyRoutes.ts`: Implemented getRoster() and getInventory() with fallbacks
+- `src/types/models.ts`: Added LearnerProfile, ClassSchedule, CourseInventory, ProgramAssignment, CourseEnrollment
+- `src/components/PageContent.tsx`: Updated to route to ProgramManager for program IDs
+- `db.json`: Added enrollments collection

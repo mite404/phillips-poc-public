@@ -1,10 +1,14 @@
 /**
  * Local API Routes
- * POST/PUT calls to json-server running on localhost:3001
+ * POST/PUT/GET calls to json-server running on localhost:3001
  */
 
 import { fetchApi, LOCAL_API_BASE } from "./utils";
-import type { SupervisorProgram } from "@/types/models";
+import type {
+  SupervisorProgram,
+  ProgramAssignment,
+  CourseEnrollment,
+} from "@/types/models";
 
 /**
  * Save a new program to the local json-server
@@ -27,8 +31,110 @@ export async function saveProgram(
 }
 
 /**
+ * Get a specific program by ID
+ * @param id - The program UUID
+ */
+export async function getProgramById(id: string): Promise<SupervisorProgram> {
+  try {
+    const response = await fetchApi<SupervisorProgram>(
+      `${LOCAL_API_BASE}/programs/${id}`,
+    );
+    return response;
+  } catch (error) {
+    console.error("Failed to fetch program:", error);
+    throw error;
+  }
+}
+
+/**
+ * Assign a program to a student
+ * @param payload - Assignment data
+ */
+export async function assignProgram(
+  payload: Omit<ProgramAssignment, "id">,
+): Promise<ProgramAssignment> {
+  try {
+    const assignment: ProgramAssignment = {
+      id: crypto.randomUUID(),
+      ...payload,
+    };
+
+    const response = await fetchApi<ProgramAssignment>(
+      `${LOCAL_API_BASE}/program_registrations`,
+      {
+        method: "POST",
+        body: JSON.stringify(assignment),
+      },
+    );
+
+    return response;
+  } catch (error) {
+    console.error("Failed to assign program:", error);
+    throw error;
+  }
+}
+
+/**
+ * Enroll a student in a specific class for a course
+ * @param payload - Enrollment data
+ */
+export async function enrollStudent(
+  payload: Omit<CourseEnrollment, "id">,
+): Promise<CourseEnrollment> {
+  try {
+    const enrollment: CourseEnrollment = {
+      id: crypto.randomUUID(),
+      ...payload,
+    };
+
+    const response = await fetchApi<CourseEnrollment>(`${LOCAL_API_BASE}/enrollments`, {
+      method: "POST",
+      body: JSON.stringify(enrollment),
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Failed to enroll student:", error);
+    throw error;
+  }
+}
+
+/**
+ * Get all program assignments
+ */
+export async function getAssignments(): Promise<ProgramAssignment[]> {
+  try {
+    const response = await fetchApi<ProgramAssignment[]>(
+      `${LOCAL_API_BASE}/program_registrations`,
+    );
+    return response;
+  } catch (error) {
+    console.error("Failed to fetch assignments:", error);
+    throw error;
+  }
+}
+
+/**
+ * Get all course enrollments
+ */
+export async function getEnrollments(): Promise<CourseEnrollment[]> {
+  try {
+    const response = await fetchApi<CourseEnrollment[]>(`${LOCAL_API_BASE}/enrollments`);
+    return response || [];
+  } catch (error) {
+    console.error("Failed to fetch enrollments:", error);
+    throw error;
+  }
+}
+
+/**
  * Local API object for convenient access
  */
 export const localApi = {
   saveProgram,
+  getProgramById,
+  assignProgram,
+  enrollStudent,
+  getAssignments,
+  getEnrollments,
 };

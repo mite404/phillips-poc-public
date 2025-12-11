@@ -48,3 +48,47 @@ export interface ProgramRegistration {
   assignedDate: string;
   status: "Pending" | "Enrolled" | "Completed";
 }
+
+export interface LearnerProfile {
+  learner_Data_Id: number;
+  learnerId: string; // GUID
+  learnerName: string;
+  emailId: string;
+  location: string;
+  status: "Active" | "Inactive";
+  currentEnrollment: {
+    productName: string;
+    learnerStatusTag: string;
+  } | null;
+}
+
+export interface ClassSchedule {
+  classId: number;
+  location: string;
+  startDate: string; // ISO date string
+  endDate: string; // ISO date string
+  seats: number;
+  type: "ILT" | "Online";
+}
+
+export interface CourseInventory {
+  courseId: number;
+  classes: ClassSchedule[];
+}
+
+export interface ProgramAssignment {
+  id: string; // UUID
+  learnerId: string; // GUID
+  programId: string; // UUID
+  assignedDate: string; // ISO date string
+  status: "Pending" | "Registered";
+}
+
+export interface CourseEnrollment {
+  id: string; // UUID
+  learnerId: string; // GUID
+  programId: string; // UUID
+  courseId: number;
+  classId: number;
+  enrolledDate: string; // ISO date string
+}

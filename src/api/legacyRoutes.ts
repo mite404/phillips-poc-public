@@ -4,10 +4,12 @@
  */
 
 import { fetchApi, LEGACY_API_BASE } from "./utils";
-import type { CourseCatalogItem } from "@/types/models";
+import type { CourseCatalogItem, LearnerProfile, CourseInventory } from "@/types/models";
 
 // Fallback imports
 import coursesData from "@/data/Courses.json";
+import studentsData from "@/data/Students.json";
+import schedulesData from "@/data/Schedules.json";
 
 /**
  * Fetch course catalog from Legacy API
@@ -30,16 +32,50 @@ export async function getCatalog(): Promise<CourseCatalogItem[]> {
 
 /**
  * Fetch learner roster from Legacy API
- * TODO: Implement in PR-04
+ * Falls back to local Students.json if API fails
  */
-export async function getRoster() {
-  throw new Error("Not yet implemented");
+export async function getRoster(): Promise<LearnerProfile[]> {
+  try {
+    const response = await fetchApi<{ result: LearnerProfile[] }>(
+      `${LEGACY_API_BASE}/Learner/GetAllPartialValue`,
+    );
+
+    return response.result || [];
+  } catch (error) {
+    console.warn("Legacy API failed, using fallback student data:", error);
+    return studentsData as LearnerProfile[];
+  }
 }
 
 /**
  * Fetch class schedule inventory for a specific course
- * TODO: Implement in PR-04
+ * Falls back to local Schedules.json if API fails
+ * @param courseId - The numeric course ID
  */
-export async function getInventory(_courseId: number) {
-  throw new Error("Not yet implemented");
+export async function getInventory(courseId: number): Promise<CourseInventory | null> {
+  try {
+    const response = await fetchApi<{ result: CourseInventory[] }>(
+      `${LEGACY_API_BASE}/Class/Machinist/Schedules`,
+    );
+
+    // Find the inventory for this specific course
+    const inventory = response.result?.find((inv) => inv.courseId === courseId);
+    return inventory || null;
+  } catch (error) {
+    console.warn("Legacy API failed, using fallback schedule data:", error);
+
+    // Return from local schedules data
+    const schedules = schedulesData as CourseInventory[];
+    const inventory = schedules.find((inv) => inv.courseId === courseId);
+    return inventory || null;
+  }
 }
+
+/**
+ * Legacy API object for convenient access
+ */
+export const legacyApi = {
+  getCatalog,
+  getRoster,
+  getInventory,
+};

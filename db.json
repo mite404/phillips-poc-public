@@ -34,5 +34,42 @@
       "createdAt": "2025-12-11T00:00:33.394Z"
     }
   ],
-  "program_registrations": []
+  "program_registrations": [
+    {
+      "id": "aadddfff-b4d7-42da-961c-18fd1359ecb6",
+      "learnerId": "fc0670d4-3874-48b6-94b2-14b99d326e50",
+      "programId": "prog_101",
+      "assignedDate": "2025-12-11T00:35:17.640Z",
+      "status": "Pending"
+    },
+    {
+      "id": "b5aee2e7-c150-4127-a681-6c323390cf51",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "prog_101",
+      "assignedDate": "2025-12-11T00:35:20.805Z",
+      "status": "Pending"
+    },
+    {
+      "id": "93117fb5-cde1-49a7-bcd8-6dde9da409ba",
+      "learnerId": "eb7bb535-7065-4e8c-a7c8-f76d8996dec5",
+      "programId": "prog_101",
+      "assignedDate": "2025-12-11T00:35:22.053Z",
+      "status": "Pending"
+    },
+    {
+      "id": "1ef6d563-7861-42c5-b117-d2b2b49c1fd9",
+      "learnerId": "0378e7ff-0953-43a8-9461-b33acf9967a5",
+      "programId": "prog_101",
+      "assignedDate": "2025-12-11T00:35:23.145Z",
+      "status": "Pending"
+    },
+    {
+      "id": "9e73b99e-00eb-45ba-966d-afaa70d56f69",
+      "learnerId": "d5ee05d0-1cbe-4e04-a706-b23ef02014c2",
+      "programId": "prog_101",
+      "assignedDate": "2025-12-11T00:51:28.643Z",
+      "status": "Pending"
+    }
+  ],
+  "enrollments": []
 }

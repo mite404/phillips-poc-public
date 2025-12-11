@@ -1,6 +1,6 @@
 # Implementation Progress Tracker
 
-> **Last Updated:** 2025-12-10 (Updated after PR-03 & PR-03.5)
+> **Last Updated:** 2025-12-11 (Updated after PR-05)
 
 This document tracks the completion status of each PR and its associated tasks.
 
@@ -138,22 +138,60 @@ This document tracks the completion status of each PR and its associated tasks.
 
 ---
 
-## PR-05: Roster & Assignment
+## PR-05: Program Manager & Enrollment
 
-**Status:** ⏳ **NOT STARTED**
+**Status:** ✅ **COMPLETE**
 
-### Tasks:
+### Completed:
 
-- [ ] Create `src/components/builder/RosterColumn.tsx`
-  - [ ] Fetch students from mockStudents.json
-  - [ ] Display student list with status badges
-- [ ] Create `src/components/common/EnrollmentModal.tsx`
-  - [ ] Select class schedule for first course
-  - [ ] Confirm enrollment
-- [ ] Extend `src/api/legacyRoutes.ts`
-  - [ ] `getRoster()` endpoint
-  - [ ] `getInventory(courseId)` endpoint
-- [ ] Implement status badge system (Enrolled/Pending/Unassigned)
+- [x] Create `src/components/ProgramManager.tsx`
+  - [x] Fetch program by ID and catalog in parallel
+  - [x] Hydration logic: Match courseSequence IDs to full Course objects
+  - [x] Display program metadata (title, description, tags)
+  - [x] Split layout: Left (course sequence) + Right (roster)
+  - [x] Sequence numbers with circular badges
+  - [x] Duration calculation (ILT days + eLearning hours)
+- [x] Create `src/components/RosterList.tsx`
+  - [x] Fetch learners from Legacy API (fallback to Students.json)
+  - [x] Fetch assignments and enrollments from local json-server
+  - [x] Three-state status system: Unassigned → Pending → Registered
+  - [x] Status badges (green/yellow/none)
+  - [x] "Assign" button for unassigned students
+  - [x] "Force Enroll" button for pending students
+  - [x] Modal integration for enrollment
+- [x] Create `src/components/common/EnrollmentModal.tsx`
+  - [x] Fetch class inventory for first course
+  - [x] Display available class sessions with dates/locations
+  - [x] Selectable class cards with visual feedback
+  - [x] Confirm enrollment and save to json-server
+  - [x] Loading states and error handling
+- [x] Extend `src/api/localRoutes.ts`
+  - [x] `getProgramById(id)` - Fetch program from json-server
+  - [x] `assignProgram(payload)` - POST to program_registrations
+  - [x] `enrollStudent(payload)` - POST to enrollments
+  - [x] `getAssignments()` - Fetch all assignments
+  - [x] `getEnrollments()` - Fetch all enrollments
+- [x] Extend `src/api/legacyRoutes.ts`
+  - [x] `getRoster()` - Fetch learners (fallback to Students.json)
+  - [x] `getInventory(courseId)` - Fetch class schedules (fallback to Schedules.json)
+- [x] Add TypeScript interfaces to `src/types/models.ts`
+  - [x] `LearnerProfile`
+  - [x] `ClassSchedule`
+  - [x] `CourseInventory`
+  - [x] `ProgramAssignment`
+  - [x] `CourseEnrollment`
+- [x] Update `src/components/PageContent.tsx`
+  - [x] Route to ProgramManager for program IDs (UUID or prog_XXX format)
+- [x] Update `db.json`
+  - [x] Added `enrollments` collection
+
+### Architecture Notes:
+
+- **Hydration Pattern:** Lightweight IDs stored in db.json, full Course objects reconstructed from Legacy API
+- **Three-State Status:** Based on presence in assignments and enrollments local tables
+- **Parallel Fetching:** Learners, assignments, enrollments fetched concurrently
+- **On-Demand Inventory:** Class schedules fetched only when enrolling
+- **Component Structure:** ProgramManager contains RosterList; RosterList renders EnrollmentModal
 
 ---
 
@@ -179,26 +217,28 @@ This document tracks the completion status of each PR and its associated tasks.
 
 ## 🎯 Current Sprint Focus
 
-**Active PR:** PR-04 Completed ✅ → PR-05 Ready to Start
+**Active PR:** PR-05 Completed ✅ → PR-06 Ready to Start
 
-**Completed in PR-04:**
+**Completed in PR-05:**
 
-- Hybrid data architecture fully implemented (read from Legacy API, write to local json-server)
-- Course catalog fetches from Phillips X PIMS staging API with fallback to Courses.json
-- Lightweight persistence model (storing only course IDs, not full objects)
-- Real-time duration calculation based on selected courses
-- Toast notifications for save operations (loading, success, error)
-- Full TypeScript type safety with Course extending CourseCatalogItem
-- Loading states with skeleton UI during API fetch
-- Data transformation logic (rich UI objects → lightweight payload)
+- Program Manager component with hydration logic (lightweight IDs → full Course objects)
+- Split-screen layout: Course sequence (left) + Student roster (right)
+- Student roster with three-state status system (Unassigned → Pending → Registered)
+- Assignment UI: "Assign" button to create program assignments
+- Enrollment UI: "Force Enroll" modal with class schedule selection
+- API extensions for reading programs and creating assignments/enrollments
+- TypeScript interfaces for LearnerProfile, ClassSchedule, ProgramAssignment, CourseEnrollment
+- Parallel data fetching for performance
+- Toast notifications for user feedback
 
-**Immediate Next Steps (PR-05):**
+**Immediate Next Steps (PR-06 - Student Experience):**
 
-1. Create `src/components/builder/RosterColumn.tsx` for student assignment
-2. Build `src/components/common/EnrollmentModal.tsx` for class selection
-3. Implement `getRoster()` and `getInventory(courseId)` in legacyRoutes
-4. Add status badge system (Enrolled/Pending/Unassigned)
-5. Test roster and assignment flow end-to-end
+1. Create `src/components/student/StudentDashboard.tsx` for student view
+2. Build `src/components/student/ActionCenter.tsx` for pending actions
+3. Create `src/components/student/Timeline.tsx` for progress visualization
+4. Implement student-specific data fetching (mock logged-in user ID: 1511)
+5. Fetch assignments from local DB and display course timeline
+6. Test student experience flow end-to-end
 
 ---
 
