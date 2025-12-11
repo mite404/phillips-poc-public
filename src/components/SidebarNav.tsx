@@ -31,8 +31,8 @@ export function SidebarNav({ currentView, onNavigate, userType }: SidebarNavProp
                 onNavigate("builder");
               }}
               className={`w-full flex items-center justify-between px-3 py-2 text-sm font-medium
-                rounded-md transition-colors text-slate-700 hover:text-blue-600 hover:bg-slate-100 whitespace-nowrap
-                ${currentView === "builder" ? "bg-blue-50 text-phillips-blue" : "text-slate-500 hover:bg-slate-100"}`}
+                rounded-md transition-colors text-black hover:!bg-slate-200 hover:border-slate-400 whitespace-nowrap
+                ${currentView === "builder" ? "bg-blue-50 text-black" : "text-slate-700 hover:bg-slate-100"}`}
             >
               <div className="flex items-center gap-2">
                 <span>Program Builder</span>
@@ -47,7 +47,7 @@ export function SidebarNav({ currentView, onNavigate, userType }: SidebarNavProp
                   <button
                     key={program.id}
                     onClick={() => onNavigate(program.id)}
-                    className="text-left px-2 py-1 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded text-xs truncate"
+                    className="text-left px-2 py-1 ! bg-gray-100 !text-black border-slate-300 hover:!bg-slate-200 hover:border-slate-400 rounded text-xs truncate"
                   >
                     {program.title}
                   </button>
