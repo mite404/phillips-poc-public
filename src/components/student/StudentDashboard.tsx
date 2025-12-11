@@ -136,12 +136,14 @@ export function StudentDashboard() {
     }
   }
 
-  const handleCourseClick = (course: Course) => {
+  const handleCourseClick = (course: Course, programId: string) => {
     setActiveCourse(course);
+    setPendingEnrollment({ programId, courseId: course.courseId });
     setCourseDetailOpen(true);
   };
 
   const handleBookClick = (programId: string, courseId: number) => {
+    setCourseDetailOpen(false);
     setPendingEnrollment({ programId, courseId });
     setEnrollmentModalOpen(true);
   };
@@ -234,7 +236,9 @@ export function StudentDashboard() {
                             <div
                               key={course.id}
                               className="flex items-center gap-3 p-3 border rounded-lg hover:bg-slate-50 cursor-pointer transition-colors"
-                              onClick={() => handleCourseClick(course)}
+                              onClick={() =>
+                                handleCourseClick(course, hydrated.program.id)
+                              }
                             >
                               <div className="flex-shrink-0 w-8 h-8 bg-phillips-blue text-white rounded-full flex items-center justify-center text-sm font-medium">
                                 {idx + 1}
@@ -315,7 +319,7 @@ export function StudentDashboard() {
                         <div
                           key={course.id}
                           className="flex items-center gap-3 p-3 border border-green-200 rounded-lg bg-white cursor-pointer hover:bg-green-50 transition-colors"
-                          onClick={() => handleCourseClick(course)}
+                          onClick={() => handleCourseClick(course, hydrated.program.id)}
                         >
                           <div className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
                             {idx + 1}
@@ -348,8 +352,9 @@ export function StudentDashboard() {
         isOpen={courseDetailOpen}
         onClose={() => setCourseDetailOpen(false)}
         onBookClick={
-          activeCourse && pendingEnrollment
-            ? () => handleBookClick(pendingEnrollment.programId, activeCourse.courseId)
+          pendingEnrollment
+            ? () =>
+                handleBookClick(pendingEnrollment.programId, pendingEnrollment.courseId)
             : undefined
         }
       />

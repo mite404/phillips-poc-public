@@ -175,6 +175,14 @@
       "classId": 0,
       "status": "Completed",
       "enrolledDate": "2025-11-26T10:00:00Z"
+    },
+    {
+      "id": "b7b78082-e640-4067-896c-14c02c4c58f9",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "prog_102",
+      "courseId": 11,
+      "classId": 5447,
+      "enrolledDate": "2025-12-11T22:38:15.126Z"
     }
   ]
 }

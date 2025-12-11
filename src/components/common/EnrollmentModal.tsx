@@ -143,11 +143,12 @@ export function EnrollmentModal({
                         {formatDate(classSession.endDate)}
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
-                        {classSession.seats} seat{classSession.seats !== 1 ? "s" : ""} available
+                        {classSession.seats} seat{classSession.seats !== 1 ? "s" : ""}{" "}
+                        available
                       </p>
                     </div>
                     {selectedClass?.classId === classSession.classId && (
-                      <div className="flex-shrink-0 ml-3">
+                      <div className="shrink-0 ml-3">
                         <div className="w-6 h-6 bg-phillips-blue rounded-full flex items-center justify-center">
                           <span className="text-white text-xs">✓</span>
                         </div>
@@ -163,14 +164,14 @@ export function EnrollmentModal({
         <DialogFooter>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-100 text-slate-700 rounded hover:bg-slate-200"
+            className="bg-gray-100! text-slate-700! border-slate-300 outline border-2 outline-gray-400 px-4 py-2 rounded hover:bg-slate-200! hover:border-slate-400"
           >
             Cancel
           </button>
           <button
             onClick={handleEnroll}
             disabled={!selectedClass}
-            className="px-4 py-2 bg-phillips-blue text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gray-100! text-black! border-slate-300 outline border-2 outline-gray-400 px-4 py-2 rounded hover:bg-slate-200! hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Confirm Enrollment
           </button>
