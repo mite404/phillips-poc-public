@@ -1,6 +1,6 @@
 # Project Specification & Prompt Context
 
-> **Last Updated:** 2025-12-11 (After PR-06 and UI refinements)
+> **Last Updated:** 2025-12-11 (After PR-08: Progress Detail View - Feature Complete)
 
 ## 📌 Global Context (Paste at start of every session)
 
@@ -383,12 +383,16 @@ https://phillipsx-pims-stage.azurewebsites.net/api
     SortableCourseItem.tsx      # ✅ Wrapper for dnd-kit sortable items with GripVertical icon
     /student                   # ✅ Implemented in PR-06
       StudentDashboard.tsx     # ✅ Two-column dashboard with accordion UI
+    /progress                  # ✅ Implemented in PR-07/08
+      StudentProgressView.tsx  # ✅ Student progress dashboard with data hydration
+      ProgramProgressCard.tsx  # ✅ Program progress card with interactive status badges
     /common
       CourseDetailModal.tsx    # ✅ Course detail modal with shadcn/ui Dialog
       EnrollmentModal.tsx      # ✅ Class selection modal (used by RosterList)
     /ui                        # ✅ Shadcn/ui components
       dialog.tsx
       skeleton.tsx
+      progress.tsx
   /hooks
     useProgramBuilder.ts       # ✅ Custom hook managing builder state & actions
   /context
@@ -449,42 +453,74 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 - Consistent button patterns: "Save Draft" and "Back to Auth Portal" use outline/border style
 - Auth portal buttons: Use Phillips brand blue with proper contrast
 
-### ⏭️ PR-07: Student Progress Navigation
+### ✅ PR-07: Student Progress Navigation
 
+**Status:** Completed  
 **Goal:** Expose the student roster in the Global Sidebar and create the route structure.
-**Context:** The Supervisor wants to click "Student Progress" and see their list of direct reports immediately.
 
-**Tasks:**
+**Components Built:**
 
-1.  **Update `SidebarNav.tsx`:**
-    - **Data:** Fetch/Import the student roster (use `src/data/Students.json` for instant render or `legacyApi.getRoster`).
-    - **Interaction:** Clicking "Student Progress" toggles a sub-menu listing all Student Names.
-    - **Routing:** Clicking a student navigates to `/supervisor/progress/:studentId`.
-2.  **Update `PageContent.tsx`:**
-    - Handle the new route `progress_` or `/progress/:id`.
-    - Render the new `<StudentProgressView />` container.
+1.  ✅ `src/components/SidebarNav.tsx`: Updated with student progress navigation
+2.  ✅ `src/components/PageContent.tsx`: Updated to route to StudentProgressView
 
-### ⏭️ PR-08: Progress Detail View
+**Functional Requirements:**
 
-**Goal:** The "At A Glance" Dashboard for a specific student (Wireframe implementation).
+- [x] **Student Roster Navigation:** Sidebar lists student names under "Student Progress"
+- [x] **Click Navigation:** Clicking a student navigates to progress view
+- [x] **Routing:** `/supervisor/progress/:studentId` pattern implemented
+- [x] **Data Loading:** Student roster loaded from `legacyApi.getRoster()` with fallback
 
-**Tasks:**
+**Implementation Notes:**
 
-1.  **Create `src/components/progress/StudentProgressView.tsx`:**
-    - **Header:** "Ryan H.'s Progress" (Dynamic Name).
-    - **Body:** List of **Assigned Programs** (fetched from `localApi.getAssignments` filtered by student).
-2.  **Create `src/components/progress/ProgramProgressCard.tsx`:**
-    - **Layout:**
-      - **Top:** Program Title + Calculated Progress Bar (e.g., "25%").
-      - **List:** Courses within the program.
-    - **Course Rows:**
-      - Left: Course Title.
-      - Right: Status Badge ("Not Enrolled", "Incomplete", "Completed") + Code.
-3.  **Mock Logic (Option B):**
-    - Add a hidden/subtle "Mark Complete" button on the course row (or a debug toggle).
-    - Updating this changes the status locally and recalculates the Program Progress Bar (e.g., 1 of 4 done = 25%).
+- Navigation integrated into existing SidebarNav component
+- PageContent router handles `progress_{studentId}` view pattern
+- Student list fetched on sidebar mount for instant navigation
+
+---
+
+### ✅ PR-08: Progress Detail View
+
+**Status:** Completed  
+**Goal:** The "At A Glance" Dashboard for a specific student showing program progress.
+
+**Components Built:**
+
+1.  ✅ `src/components/progress/StudentProgressView.tsx`: Main progress dashboard
+2.  ✅ `src/components/progress/ProgramProgressCard.tsx`: Individual program progress card
+
+**Functional Requirements:**
+
+- [x] **Data Hydration:** Parallel fetch of student, assignments, enrollments, programs, and courses
+- [x] **Dynamic Header:** Student name displayed (e.g., "Ryan H.'s Progress")
+- [x] **Program Cards:** One card per assigned program with progress tracking
+- [x] **Progress Bar:** Real-time calculation showing completion percentage
+- [x] **Course List:** Vertical list with title, status badge, and course code
+- [x] **Status Logic:**
+  - Completed (Green): Course marked as complete
+  - Incomplete (Yellow): Course enrolled but not complete
+  - Not Enrolled (Gray): Course not yet enrolled
+- [x] **Loading States:** Skeleton placeholders during data fetch
+- [x] **Error Handling:** Error state with helpful message
+- [x] **Empty State:** Message when no programs assigned
+
+**Implementation Notes:**
+
+- **Demo Mode:** Clickable status badges allow toggling completion state for demonstration purposes
+- **Progress Calculation:** `(completedCount / totalCourses) * 100` updates in real-time
+- **Initial State:** One random course pre-marked complete to simulate ~25% progress
+- **Hydration Pattern:** Matches existing architecture (IDs → full objects from catalog)
+- **Parallel Data Fetching:** All API calls made concurrently for performance
+- **shadcn/ui Progress:** Uses Progress component for visual progress bar
+- **Color Coding:** Standard Tailwind colors (green/yellow/gray) for status clarity
 
 **Style Constraints:**
 
-- Use `shadcn/ui` **Progress** component for the bar.
-- Match the "Hand-drawn" wireframe layout: Clean rows, clear borders.
+- Clean white cards with subtle borders (border-slate-200)
+- Standard Tailwind color palette for status badges
+- Hover states on interactive elements (badges, course rows)
+- Maximum width constraint (max-w-5xl) for readability
+- Demo hint text at bottom of each card explaining interactive feature
+
+**Demo Feature:**
+
+The ProgramProgressCard includes an interactive "Play God" mode where supervisors can click status badges to toggle course completion during demonstrations. This allows real-time visualization of progress bar updates without requiring actual enrollment data. A subtle hint at the bottom of each card explains this feature to users.
