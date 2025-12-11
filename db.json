@@ -4,34 +4,23 @@
       "id": "prog_101",
       "supervisorId": "pat_mann_guid",
       "programName": "Q3 Safety Ramp-up",
-      "description": "Mandatory safety training.",
-      "tags": [
-        "Safety",
-        "Onboarding"
-      ],
-      "courseSequence": [
-        116,
-        11,
-        9
-      ],
+      "description": "Mandatory safety training for all floor staff.",
+      "tags": ["Safety", "Onboarding"],
+      "courseSequence": [116, 11, 9],
       "published": true,
+      "totalCourses": 3,
       "createdAt": "2025-12-01T10:00:00Z"
     },
     {
-      "id": "31d1bce9-d0aa-4057-b3a9-91e96b94cf9a",
+      "id": "prog_102",
       "supervisorId": "pat_mann_guid",
-      "programName": "My Program",
-      "description": "",
-      "tags": [],
-      "courseSequence": [
-        11,
-        9,
-        131,
-        116,
-        90
-      ],
-      "published": false,
-      "createdAt": "2025-12-11T00:00:33.394Z"
+      "programName": "Advanced 5-Axis Certification",
+      "description": "High-level machining certification track.",
+      "tags": ["Advanced", "Certification", "Skills"],
+      "courseSequence": [11, 131],
+      "published": true,
+      "totalCourses": 2,
+      "createdAt": "2025-11-15T10:00:00Z"
     },
     {
       "id": "de9dafc0-c1f2-4de2-ab7e-c2da38382f21",
@@ -39,30 +28,31 @@
       "programName": "Test Program",
       "description": "asdf asdf",
       "tags": [],
-      "courseSequence": [
-        116,
-        11,
-        9,
-        131,
-        90
-      ],
+      "courseSequence": [116, 11, 9, 131, 90],
       "published": false,
       "createdAt": "2025-12-11T16:08:46.048Z"
     }
   ],
   "program_registrations": [
     {
+      "id": "assign_001",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "prog_101",
+      "assignedDate": "2025-12-01T10:00:00Z",
+      "status": "Pending"
+    },
+    {
+      "id": "assign_002",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "prog_102",
+      "assignedDate": "2025-11-20T10:00:00Z",
+      "status": "Registered"
+    },
+    {
       "id": "aadddfff-b4d7-42da-961c-18fd1359ecb6",
       "learnerId": "fc0670d4-3874-48b6-94b2-14b99d326e50",
       "programId": "prog_101",
       "assignedDate": "2025-12-11T00:35:17.640Z",
-      "status": "Pending"
-    },
-    {
-      "id": "b5aee2e7-c150-4127-a681-6c323390cf51",
-      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
-      "programId": "prog_101",
-      "assignedDate": "2025-12-11T00:35:20.805Z",
       "status": "Pending"
     },
     {
@@ -87,5 +77,33 @@
       "status": "Pending"
     }
   ],
-  "enrollments": []
+  "enrollments": [
+    {
+      "id": "enroll_999",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "prog_101",
+      "courseId": 116,
+      "classId": 5451,
+      "status": "Registered",
+      "enrolledDate": "2025-12-02T10:00:00Z"
+    },
+    {
+      "id": "enroll_888",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "prog_102",
+      "courseId": 11,
+      "classId": 5447,
+      "status": "Completed",
+      "enrolledDate": "2025-11-25T10:00:00Z"
+    },
+    {
+      "id": "enroll_777",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "prog_102",
+      "courseId": 131,
+      "classId": 0,
+      "status": "Completed",
+      "enrolledDate": "2025-11-26T10:00:00Z"
+    }
+  ]
 }

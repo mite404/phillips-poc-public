@@ -159,7 +159,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
         {student?.learnerName}'s Progress
       </h2>
 
-      <div className="space-y-6 max-w-5xl">
+      <div className="space-y-8 max-w-5xl">
         {hydratedPrograms.map(({ program, courses, enrollments }) => (
           <ProgramProgressCard
             key={program.id}
