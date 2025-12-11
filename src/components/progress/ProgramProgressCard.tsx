@@ -93,7 +93,8 @@ export function ProgramProgressCard({
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate-600">Progress</span>
             <span className="font-medium text-slate-900">
-              {completedCount} of {totalCourses} courses completed ({Math.round(progressPercentage)}%)
+              {completedCount} of {totalCourses} courses completed (
+              {Math.round(progressPercentage)}%)
             </span>
           </div>
           <Progress value={progressPercentage} className="h-3" />
@@ -111,7 +112,7 @@ export function ProgramProgressCard({
             return (
               <div
                 key={course.courseId}
-                className="flex items-center justify-between py-2 px-3 rounded border border-slate-100 hover:bg-slate-50"
+                className="flex items-center py-2 px-3 rounded border border-slate-100 hover:bg-slate-50 gap-4"
               >
                 {/* Left: Course Title */}
                 <div className="flex-1 min-w-0">
@@ -120,18 +121,18 @@ export function ProgramProgressCard({
                   </p>
                 </div>
 
-                {/* Right: Status Badge and Course Code */}
-                <div className="flex items-center gap-3 ml-4">
-                  <Badge
-                    onClick={() => toggleCompletion(course.courseId)}
-                    className={badgeProps.className}
-                  >
-                    {badgeProps.text}
-                  </Badge>
-                  <span className="text-xs text-slate-500 font-mono whitespace-nowrap">
-                    #{course.courseId}
-                  </span>
-                </div>
+                {/* Center: Course Code (right-aligned, fixed width) */}
+                <span className="text-xs text-slate-400 font-mono whitespace-nowrap text-right w-12">
+                  #{course.courseId}
+                </span>
+
+                {/* Right: Status Badge */}
+                <Badge
+                  onClick={() => toggleCompletion(course.courseId)}
+                  className={badgeProps.className}
+                >
+                  {badgeProps.text}
+                </Badge>
               </div>
             );
           })}
