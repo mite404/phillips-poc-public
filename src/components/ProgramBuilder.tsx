@@ -157,7 +157,7 @@ export function ProgramBuilder() {
           )}
           <button
             onClick={saveDraft}
-            className="bg-phillips-blue text-white px-6 py-2 rounded hover:bg-blue-700"
+            className="!bg-gray-100 text-black border-2 border-slate-300 outline outline-gray px-4 py-2 rounded hover:!bg-slate-50 hover:border-slate-400 font-medium"
           >
             Save Draft
           </button>
