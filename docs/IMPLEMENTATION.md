@@ -104,21 +104,37 @@ This document tracks the completion status of each PR and its associated tasks.
 
 ## PR-04: Persistence & API Integration
 
-**Status:** ⏳ **NOT STARTED**
+**Status:** ✅ **COMPLETE**
 
-### Tasks (Next):
+### Completed:
 
-- [ ] Implement "Save Draft" to POST to `http://localhost:3001/custom_programs`
-  - [ ] Create `src/api/localRoutes.ts` with `saveDraft()` endpoint
-  - [ ] Wire "Save Draft" button to make actual API call
-  - [ ] Add error handling and success toast notifications
-- [ ] Replace mock courses with data from legacy API
-  - [ ] Update `useProgramBuilder` to fetch from `src/api/legacyRoutes.ts`
-  - [ ] Implement fallback to mock data if API fails
-  - [ ] Add loading/error states during fetch
-- [ ] Calculate and display "Total Duration" in footer
-  - [ ] Add duration field to Course interface
-  - [ ] Sum courses by type (ILT days vs Self-Paced hours)
+- [x] Implement "Save Draft" to POST to `http://localhost:3001/programs`
+  - [x] Create `src/api/localRoutes.ts` with `saveProgram()` endpoint
+  - [x] Wire "Save Draft" button to make actual API call
+  - [x] Add error handling and success toast notifications (using sonner)
+- [x] Replace mock courses with data from legacy API
+  - [x] Update `useProgramBuilder` to fetch from `src/api/legacyRoutes.ts`
+  - [x] Implement fallback to Courses.json if API fails
+  - [x] Add loading/error states during fetch
+- [x] Calculate and display "Total Duration" in footer
+  - [x] Updated Course interface to extend CourseCatalogItem
+  - [x] Sum courses by type (ILT days vs eLearning hours)
+- [x] Implement lightweight data model
+  - [x] Transform UI state (Rich Course objects) to lightweight payload (courseSequence: number[])
+  - [x] Store only course IDs in db.json, not full course objects
+  - [x] Generate UUID for program ID
+  - [x] Include program metadata (title, description, tags, supervisorId, createdAt)
+- [x] Install and configure sonner for toast notifications
+- [x] Update CourseDetailModal to use correct Course properties from API
+- [x] Fix TypeScript errors and build successfully
+
+### Architecture Notes:
+
+- **Hybrid Data Model:** READ from Legacy API (getCatalog), WRITE to local json-server
+- **Lightweight Persistence:** Only store course IDs (courseSequence: number[]), not full objects
+- **Data Transformation:** UI maintains rich Course objects, save operation extracts IDs only
+- **Fallback Strategy:** Automatically falls back to Courses.json if Legacy API fails
+- **Toast Notifications:** Using sonner for user feedback (loading, success, error states)
 
 ---
 
@@ -163,27 +179,26 @@ This document tracks the completion status of each PR and its associated tasks.
 
 ## 🎯 Current Sprint Focus
 
-**Active PR:** PR-03/03.5 Completed ✅ → PR-04 Ready to Start
+**Active PR:** PR-04 Completed ✅ → PR-05 Ready to Start
 
-**Completed in PR-03/03.5:**
+**Completed in PR-04:**
 
-- Full 2-column builder UI with search, filtering, add, remove, and drag-and-drop reordering
-- Program description textarea for metadata
-- Course detail modal with shadcn/ui Dialog (single shadcn component used)
-- Custom hook architecture for clean separation of concerns
-- Mock data + filtering logic (OR/AND combined logic)
-- DndContext integration with visual feedback
-- Proper event handling with stopPropagation on action buttons
-- Path alias configuration for vite and imports
-- Clean codebase with legacy components removed
+- Hybrid data architecture fully implemented (read from Legacy API, write to local json-server)
+- Course catalog fetches from Phillips X PIMS staging API with fallback to Courses.json
+- Lightweight persistence model (storing only course IDs, not full objects)
+- Real-time duration calculation based on selected courses
+- Toast notifications for save operations (loading, success, error)
+- Full TypeScript type safety with Course extending CourseCatalogItem
+- Loading states with skeleton UI during API fetch
+- Data transformation logic (rich UI objects → lightweight payload)
 
-**Immediate Next Steps (PR-04):**
+**Immediate Next Steps (PR-05):**
 
-1. Create `src/api/localRoutes.ts` with `saveDraft()` function
-2. Wire "Save Draft" button to actual API call to json-server
-3. Replace mock courses in `useProgramBuilder` with API fetch from legacy endpoint
-4. Add duration calculation and display in workbench footer
-5. Test persistence and API integration end-to-end
+1. Create `src/components/builder/RosterColumn.tsx` for student assignment
+2. Build `src/components/common/EnrollmentModal.tsx` for class selection
+3. Implement `getRoster()` and `getInventory(courseId)` in legacyRoutes
+4. Add status badge system (Enrolled/Pending/Unassigned)
+5. Test roster and assignment flow end-to-end
 
 ---
 

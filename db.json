@@ -5,10 +5,33 @@
       "supervisorId": "pat_mann_guid",
       "programName": "Q3 Safety Ramp-up",
       "description": "Mandatory safety training.",
-      "tags": ["Safety", "Onboarding"],
-      "courseSequence": [116, 11, 9],
+      "tags": [
+        "Safety",
+        "Onboarding"
+      ],
+      "courseSequence": [
+        116,
+        11,
+        9
+      ],
       "published": true,
       "createdAt": "2025-12-01T10:00:00Z"
+    },
+    {
+      "id": "31d1bce9-d0aa-4057-b3a9-91e96b94cf9a",
+      "supervisorId": "pat_mann_guid",
+      "programName": "My Program",
+      "description": "",
+      "tags": [],
+      "courseSequence": [
+        11,
+        9,
+        131,
+        116,
+        90
+      ],
+      "published": false,
+      "createdAt": "2025-12-11T00:00:33.394Z"
     }
   ],
   "program_registrations": []

@@ -7,7 +7,7 @@ import { fetchApi, LEGACY_API_BASE } from "./utils";
 import type { CourseCatalogItem } from "@/types/models";
 
 // Fallback imports
-import mockCoursesData from "@/data/mockCourses.json";
+import coursesData from "@/data/Courses.json";
 
 /**
  * Fetch course catalog from Legacy API
@@ -23,8 +23,8 @@ export async function getCatalog(): Promise<CourseCatalogItem[]> {
     return response.result || [];
   } catch (error) {
     console.warn("Legacy API failed, using fallback data:", error);
-    // Return the statically imported mock data
-    return mockCoursesData as CourseCatalogItem[];
+    // Return the statically imported course data
+    return coursesData as CourseCatalogItem[];
   }
 }
 

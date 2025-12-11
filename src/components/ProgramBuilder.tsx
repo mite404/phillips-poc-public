@@ -12,6 +12,7 @@ import {
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableCourseItem } from "./SortableCourseItem";
 import { CourseDetailModal } from "./common/CourseDetailModal";
+import { Skeleton } from "./ui/skeleton";
 
 type FilterKey = "Self-Paced" | "ILT" | "Advanced";
 
@@ -24,6 +25,7 @@ export function ProgramBuilder() {
     searchQuery,
     activeFilters,
     filteredCourses,
+    isLoading,
     addCourse,
     removeCourse,
     reorderCourses,
@@ -42,6 +44,30 @@ export function ProgramBuilder() {
     if (over && active.id !== over.id) {
       reorderCourses(active.id as string, over.id as string);
     }
+  };
+
+  // Calculate total duration from selected courses
+  const calculateTotalDuration = () => {
+    let totalDays = 0;
+    let totalHours = 0;
+
+    selectedCourses.forEach((course) => {
+      if (course.trainingTypeName === "ILT") {
+        totalDays += course.totalDays || 0;
+      } else if (course.trainingTypeName === "eLearning") {
+        totalHours += course.hours || 0;
+      }
+    });
+
+    const parts: string[] = [];
+    if (totalDays > 0) {
+      parts.push(`${totalDays} day${totalDays !== 1 ? "s" : ""}`);
+    }
+    if (totalHours > 0) {
+      parts.push(`${totalHours} hour${totalHours !== 1 ? "s" : ""}`);
+    }
+
+    return parts.length > 0 ? parts.join(" + ") : "0 hours";
   };
 
   return (
@@ -90,14 +116,16 @@ export function ProgramBuilder() {
                         className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100 cursor-pointer"
                       >
                         <div className="flex-1">
-                          <h3 className="font-medium text-slate-900">{course.title}</h3>
+                          <h3 className="font-medium text-slate-900">
+                            {course.courseTitle}
+                          </h3>
                           <p className="text-sm text-slate-600">
-                            {course.type} • {course.level}
+                            {course.trainingTypeName} • {course.levelName}
                           </p>
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-sm text-slate-500 font-mono">
-                            {course.code}
+                            #{course.courseId}
                           </span>
                           <button
                             onClick={(e) => {
@@ -119,8 +147,14 @@ export function ProgramBuilder() {
           )}
         </div>
 
-        {/* Footer - Sticky */}
-        <div className="p-4 border-t border-slate-300 bg-white">
+        {/* Footer - Sticky with Duration Stats */}
+        <div className="p-4 border-t border-slate-300 bg-white space-y-2">
+          {selectedCourses.length > 0 && (
+            <div className="text-sm text-slate-600">
+              <span className="font-semibold">Total Duration:</span>{" "}
+              {calculateTotalDuration()}
+            </div>
+          )}
           <button
             onClick={saveDraft}
             className="bg-phillips-blue text-white px-6 py-2 rounded hover:bg-blue-700"
@@ -140,14 +174,16 @@ export function ProgramBuilder() {
             placeholder="Search courses..."
             value={searchQuery}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-phillips-blue"
+            disabled={isLoading}
+            className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-phillips-blue disabled:bg-slate-100 disabled:cursor-not-allowed"
           />
           <div className="flex gap-2">
             {(["Self-Paced", "ILT", "Advanced"] as FilterKey[]).map((filterKey) => (
               <button
                 key={filterKey}
                 onClick={() => toggleFilter(filterKey)}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                disabled={isLoading}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   activeFilters[filterKey]
                     ? "bg-phillips-blue text-white"
                     : "border border-slate-300 text-slate-700 hover:bg-slate-50"
@@ -161,36 +197,51 @@ export function ProgramBuilder() {
 
         {/* Body - Scrollable */}
         <div className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-2">
-            {filteredCourses.map((course) => (
-              <div
-                key={course.id}
-                onClick={() => setActiveCourse(course)}
-                className="flex items-center justify-between p-3 border border-slate-200 rounded hover:bg-slate-50 cursor-pointer"
-              >
-                <div className="flex-1">
-                  <h3 className="font-medium text-slate-900">{course.title}</h3>
+          {isLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filteredCourses.map((course) => (
+                <div
+                  key={course.id}
+                  onClick={() => setActiveCourse(course)}
+                  className="flex items-center justify-between p-3 border border-slate-200 rounded hover:bg-slate-50 cursor-pointer"
+                >
+                  <div className="flex-1">
+                    <h3 className="font-medium text-slate-900">{course.courseTitle}</h3>
+                    <p className="text-xs text-slate-500">
+                      {course.trainingTypeName} • {course.levelName}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-slate-500 font-mono">
+                      #{course.courseId}
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addCourse(course);
+                      }}
+                      className="px-3 py-1 bg-phillips-blue text-white text-sm rounded hover:bg-blue-700"
+                    >
+                      Add
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-slate-500 font-mono">{course.code}</span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addCourse(course);
-                    }}
-                    className="px-3 py-1 bg-phillips-blue text-white text-sm rounded hover:bg-blue-700"
-                  >
-                    Add
-                  </button>
+              ))}
+              {filteredCourses.length === 0 && (
+                <div className="flex items-center justify-center h-full text-slate-400 text-sm">
+                  No courses found
                 </div>
-              </div>
-            ))}
-            {filteredCourses.length === 0 && (
-              <div className="flex items-center justify-center h-full text-slate-400 text-sm">
-                No courses found
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

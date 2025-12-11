@@ -5,12 +5,7 @@ export function PageContent(props: {
   setUserType: (userType: "supervisor" | "student" | null) => void;
   currentView: string;
 }) {
-  const { userType, setUserType, currentView } = props;
-  const coursesForMockProgram = [
-    { id: "course_101", title: "Haas Certification", courseSerial: "C123" },
-    { id: "course_102", title: "Haas Advanced Mill", courseSerial: "C124" },
-    { id: "course_103", title: "New Hire Onboarding", courseSerial: "C301" },
-  ];
+  const { setUserType, currentView } = props;
 
   // Check if viewing a saved program draft
   const isSavedProgram = ["prog_101", "prog_102", "prog_103"].includes(currentView);

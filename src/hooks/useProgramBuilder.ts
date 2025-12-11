@@ -1,58 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
+import { getCatalog } from "@/api/legacyRoutes";
+import { localApi } from "@/api/localRoutes";
+import type { CourseCatalogItem, SupervisorProgram } from "@/types/models";
+import { toast } from "sonner";
 
-export interface Course {
-  id: string;
-  title: string;
-  code: string;
-  type: "ILT" | "Self-Paced";
-  level: "Basic" | "Advanced";
+// Rich UI Course Model (extends CourseCatalogItem with local ID)
+export interface Course extends CourseCatalogItem {
+  id: string; // String ID for dnd-kit compatibility
 }
-
-export const MOCK_COURSES: Course[] = [
-  {
-    id: "1",
-    title: "Haas CNC Mill Certification",
-    code: "C101",
-    type: "ILT",
-    level: "Basic",
-  },
-  {
-    id: "2",
-    title: "Advanced Haas Mill Programming",
-    code: "C102",
-    type: "ILT",
-    level: "Advanced",
-  },
-  {
-    id: "3",
-    title: "CNC Safety Fundamentals",
-    code: "C201",
-    type: "Self-Paced",
-    level: "Basic",
-  },
-  {
-    id: "4",
-    title: "Precision Measurement Techniques",
-    code: "C301",
-    type: "ILT",
-    level: "Advanced",
-  },
-  {
-    id: "5",
-    title: "Shop Floor Leadership",
-    code: "C401",
-    type: "Self-Paced",
-    level: "Advanced",
-  },
-  {
-    id: "6",
-    title: "Machine Maintenance Basics",
-    code: "C501",
-    type: "Self-Paced",
-    level: "Basic",
-  },
-];
 
 type FilterKey = "Self-Paced" | "ILT" | "Advanced";
 
@@ -67,20 +23,51 @@ export function useProgramBuilder() {
     Advanced: false,
   });
 
+  // NEW: Loading state and available courses from API
+  const [isLoading, setIsLoading] = useState(true);
+  const [availableCourses, setAvailableCourses] = useState<Course[]>([]);
+
+  // Fetch courses from Legacy API on mount
+  useEffect(() => {
+    async function loadCatalog() {
+      setIsLoading(true);
+      try {
+        const catalogItems = await getCatalog();
+
+        // Transform CourseCatalogItem[] to Course[] (add string ID for dnd-kit)
+        const courses: Course[] = catalogItems.map((item) => ({
+          ...item,
+          id: String(item.courseId), // Convert numeric ID to string for dnd-kit
+        }));
+
+        setAvailableCourses(courses);
+      } catch (error) {
+        console.error("Failed to load course catalog:", error);
+        toast.error("Failed to load course catalog");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadCatalog();
+  }, []);
+
   // Filtering logic
-  const filteredCourses = MOCK_COURSES.filter((course) => {
+  const filteredCourses = availableCourses.filter((course) => {
     // Search filter
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = course.courseTitle
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
 
     // Type filters (Self-Paced or ILT)
     const typeFiltersActive = activeFilters["Self-Paced"] || activeFilters["ILT"];
     const matchesType =
       !typeFiltersActive ||
-      (activeFilters["Self-Paced"] && course.type === "Self-Paced") ||
-      (activeFilters["ILT"] && course.type === "ILT");
+      (activeFilters["Self-Paced"] && course.trainingTypeName === "eLearning") ||
+      (activeFilters["ILT"] && course.trainingTypeName === "ILT");
 
     // Level filter (Advanced)
-    const matchesLevel = !activeFilters["Advanced"] || course.level === "Advanced";
+    const matchesLevel = !activeFilters["Advanced"] || course.levelName === "Advanced";
 
     return matchesSearch && matchesType && matchesLevel;
   });
@@ -121,12 +108,43 @@ export function useProgramBuilder() {
     setSearchQuery(term);
   };
 
-  const saveDraft = () => {
-    console.log("Saving draft:", {
-      title: programTitle,
-      courses: selectedCourses,
-    });
-    alert(`Draft saved: "${programTitle}" with ${selectedCourses.length} courses`);
+  const saveDraft = async () => {
+    // Validation
+    if (!programTitle.trim()) {
+      toast.error("Program title is required");
+      return;
+    }
+
+    if (selectedCourses.length === 0) {
+      toast.error("Please add at least one course");
+      return;
+    }
+
+    try {
+      toast.loading("Saving program...");
+
+      // Transform UI state (Rich Objects) to Lightweight Payload (IDs only)
+      const payload: SupervisorProgram = {
+        id: crypto.randomUUID(), // Generate UUID
+        supervisorId: "pat_mann_guid", // Hardcoded for POC
+        programName: programTitle,
+        description: programDescription,
+        tags: [], // TODO: Add tag functionality later
+        courseSequence: selectedCourses.map((course) => course.courseId), // Extract numeric IDs
+        published: false,
+        createdAt: new Date().toISOString(),
+      };
+
+      // Save to json-server
+      await localApi.saveProgram(payload);
+
+      toast.dismiss();
+      toast.success(`Program "${programTitle}" saved successfully!`);
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Failed to save program");
+      console.error("Save error:", error);
+    }
   };
 
   return {
@@ -137,6 +155,8 @@ export function useProgramBuilder() {
     searchQuery,
     activeFilters,
     filteredCourses,
+    isLoading,
+    availableCourses,
 
     // Actions
     addCourse,

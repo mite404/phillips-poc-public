@@ -1,79 +1,34 @@
 /**
  * Local API Routes
- * GET/POST calls to local JSON Server for managing programs, assignments, and enrollments
+ * POST/PUT calls to json-server running on localhost:3001
  */
 
 import { fetchApi, LOCAL_API_BASE } from "./utils";
 import type { SupervisorProgram } from "@/types/models";
 
 /**
- * Create a new supervisor program
- * POSTs to json-server running on localhost:3001
+ * Save a new program to the local json-server
+ * @param program - The program to save (with courseSequence as array of IDs)
  */
-export async function createProgram(
-  program: Omit<SupervisorProgram, "id">
+export async function saveProgram(
+  program: SupervisorProgram,
 ): Promise<SupervisorProgram> {
-  // Generate UUID for the program
-  const id = crypto.randomUUID();
-
-  const programData: SupervisorProgram = {
-    ...program,
-    id,
-  };
-
-  const response = await fetchApi<SupervisorProgram>(
-    `${LOCAL_API_BASE}/custom_programs`,
-    {
+  try {
+    const response = await fetchApi<SupervisorProgram>(`${LOCAL_API_BASE}/programs`, {
       method: "POST",
-      body: JSON.stringify(programData),
-    }
-  );
+      body: JSON.stringify(program),
+    });
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error("Failed to save program:", error);
+    throw error;
+  }
 }
 
 /**
- * Get all supervisor programs
+ * Local API object for convenient access
  */
-export async function getPrograms(): Promise<SupervisorProgram[]> {
-  const response = await fetchApi<SupervisorProgram[]>(
-    `${LOCAL_API_BASE}/custom_programs`
-  );
-  return response;
-}
-
-/**
- * Get a specific program by ID
- */
-export async function getProgram(id: string): Promise<SupervisorProgram> {
-  const response = await fetchApi<SupervisorProgram>(
-    `${LOCAL_API_BASE}/custom_programs/${id}`
-  );
-  return response;
-}
-
-/**
- * Update an existing program
- */
-export async function updateProgram(
-  id: string,
-  updates: Partial<SupervisorProgram>
-): Promise<SupervisorProgram> {
-  const response = await fetchApi<SupervisorProgram>(
-    `${LOCAL_API_BASE}/custom_programs/${id}`,
-    {
-      method: "PATCH",
-      body: JSON.stringify(updates),
-    }
-  );
-  return response;
-}
-
-/**
- * Delete a program
- */
-export async function deleteProgram(id: string): Promise<void> {
-  await fetchApi(`${LOCAL_API_BASE}/custom_programs/${id}`, {
-    method: "DELETE",
-  });
-}
+export const localApi = {
+  saveProgram,
+};

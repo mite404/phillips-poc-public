@@ -1,6 +1,6 @@
 # Project Specification & Prompt Context
 
-> **Last Updated:** 2025-12-10 (After PR-03.5)
+> **Last Updated:** 2025-12-10 (After PR-04)
 
 ## 📌 Global Context (Paste at start of every session)
 
@@ -21,27 +21,34 @@
 
 ```typescript
 interface CourseCatalogItem {
-  courseId: number;
-  courseTitle: string;
-  levelName: string; // "Basic" | "Advanced"
-  trainingTypeName: string; // "ILT" | "eLearning"
-  totalDays: number;
-  hours: number | null;
-  previewImageUrl: string | null;
+  // CORE IDENTIFIERS
+  courseId: number; // Needed for linking
+  courseTitle: string; // Needed for Search & Display
+
+  // UI METADATA (Needed for the Card visuals & Filtering)
+  levelName: string; // "Basic", "Advanced"
+  trainingTypeName: string; // "ILT", "eLearning"
+  totalDays: number; // For duration calc
+  hours: number | null; // For duration calc
+  previewImageUrl: string | null; // The thumbnail
+
+  // EXTRA DETAILS (Optional but good for "View Details" modal)
   prices: { isFree: boolean; price?: number; currency?: string }[];
   skills?: { skillName: string }[];
 }
 
 interface SupervisorProgram {
   id: string; // UUID
-  title: string;
+  supervisorId: string; // UUID (e.g. "pat_mann_guid")
+  programName: string;
   description: string;
-  isPublished: boolean;
-  courses: {
-    sequenceOrder: number;
-    courseId: number;
-    cachedTitle?: string;
-  }[];
+  tags: string[];
+
+  // The Sequence is just the IDs. Order in array = Sequence order.
+  courseSequence: number[];
+
+  published: boolean;
+  createdAt: string;
 }
 ```
 
@@ -147,15 +154,87 @@ interface SupervisorProgram {
 - **dnd-kit for DX:** Minimal configuration for drag-and-drop (PointerSensor, KeyboardSensor)
 - **Mock Data in Hook:** Centralized course definitions make it easy to swap with API data later
 
-**Next Steps (PR-05):**
+**Next Steps (PR-04):**
 
-- [ ] **Persistence:** Implement "Save Draft" to POST to `http://localhost:3001/custom_programs`
-- [ ] **API Integration:** Replace mock courses with data from legacy API
-- [ ] **Roster:** Build student assignment UI (when program is published)
+- [x] **Persistence:** Implement "Save Draft" to POST to `http://localhost:3001/programs`
+- [x] **API Integration:** Replace mock courses with data from legacy API
+- [x] **Duration Calculation:** Display total duration in workbench footer
 
 **Prompt Strategy:**
 
 > "PR-03 completed the full builder loop: search, add, reorder, and remove courses. The UI is clean and HTML-focused. Next, we'll persist the draft to json-server and integrate real course data from the legacy API."
+
+---
+
+### ✅ PR-04: Persistence & API Integration
+
+**Status:** Completed  
+**Goal:** Implement hybrid data model—read courses from Legacy API, write lightweight programs to Local JSON Server.
+
+**Components Built/Updated:**
+
+1.  ✅ `src/api/localRoutes.ts`: New file with `saveProgram()` function
+    - POST to `http://localhost:3001/programs`
+    - Takes `SupervisorProgram` payload with lightweight `courseSequence: number[]`
+2.  ✅ `src/hooks/useProgramBuilder.ts`: Complete refactor
+    - Added `isLoading` state for fetch status
+    - Added `availableCourses: Course[]` from Legacy API
+    - `useEffect` calls `getCatalog()` on mount with fallback to `Courses.json`
+    - `saveDraft()` transforms rich Course objects → lightweight ID array
+    - Generates UUID for program ID, includes metadata (title, description, supervisorId, createdAt)
+3.  ✅ `src/components/ProgramBuilder.tsx`: Enhanced UI
+    - Loading skeleton in right column while fetching catalog
+    - Total duration calculation in footer: `"17 days + 3 hours"` format
+    - Course cards display real API data (courseId, courseTitle, levelName, trainingTypeName)
+    - Disabled search/filters during loading
+4.  ✅ `src/components/common/CourseDetailModal.tsx`: Updated to use real API properties
+    - Displays courseId, levelName, trainingTypeName, totalDays/hours
+    - Shows skills as badges
+5.  ✅ `src/App.tsx`: Added Sonner Toaster for toast notifications
+    - Position: top-right
+    - Triggers on save operations (loading, success, error)
+6.  ✅ `src/api/legacyRoutes.ts`: Updated fallback import
+    - Changed from `mockCourses.json` → `Courses.json` (per file rename)
+
+**Functional Requirements:**
+
+- [x] **Hybrid Data Model:** READ from Legacy API (`getCatalog()`), WRITE to local json-server
+- [x] **Lightweight Persistence:** Only store course IDs in `courseSequence`, not full objects
+- [x] **Data Transformation:** UI maintains rich Course objects; save operation extracts IDs only
+- [x] **API Fallback:** Automatically uses `Courses.json` if Legacy API fails
+- [x] **Loading States:** Skeleton UI during catalog fetch
+- [x] **Duration Display:** Real-time calculation based on selected courses
+- [x] **Toast Notifications:** Loading → Success/Error feedback using sonner
+- [x] **TypeScript Safety:** Full type coverage with Course extending CourseCatalogItem
+
+**Architecture Notes:**
+
+- **Hybrid Strategy:** Optimizes for read-heavy (catalog) and lightweight write (programs)
+- **No Data Duplication:** `db.json` only stores IDs; rich course data lives in Legacy API
+- **Course Transformation:**
+  ```typescript
+  // Input: selectedCourses = [{courseId: 116, courseTitle: "CNC Machining...", ...}, ...]
+  // Output: courseSequence = [116, 11, 9]
+  ```
+- **UUID Generation:** Uses native `crypto.randomUUID()` for program IDs
+- **Supervisor Context:** Hardcoded `supervisorId: "pat_mann_guid"` for POC (can be dynamic later)
+
+**Implementation Details:**
+
+- Install: `bun add sonner`
+- Endpoint: `POST http://localhost:3001/programs`
+- Payload: `SupervisorProgram` with `courseSequence: number[]`
+- Response: Returns saved program with server-generated timestamps (if json-server configured)
+
+**Testing Instructions:**
+
+1. Start dev server: `bun dev`
+2. Navigate to Program Builder
+3. Wait for course catalog to load (skeleton → courses)
+4. Add 2-3 courses, set title/description
+5. Click "Save Draft"
+6. Check `db.json` → `programs` array should contain new entry with only course IDs
+7. Toast notification confirms save success
 
 ---
 
@@ -241,16 +320,14 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 /src
   /api
     utils.ts                    # ✅ Fetch wrapper (base URLs, error handling)
-    legacyRoutes.ts            # ✅ getCatalog() with fallback
-    localRoutes.ts             # ⏳ To be implemented in PR-05
+    legacyRoutes.ts            # ✅ getCatalog() with fallback to Courses.json
+    localRoutes.ts             # ✅ saveProgram() to json-server
   /components
     App.tsx                     # ✅ Main app with userType & currentView state
     PageContent.tsx            # ✅ Primary page renderer, shows ProgramBuilder or saved program
     SidebarNav.tsx             # ✅ Navigation with "Program Builder" button and saved programs list
-    ProgramBuilder.tsx         # ✅ 2-column split-pane with workbench + catalog + drag-drop
+    ProgramBuilder.tsx         # ✅ 2-column split-pane with workbench + catalog + drag-drop + loading states
     SortableCourseItem.tsx      # ✅ Wrapper for dnd-kit sortable items with GripVertical icon
-    ProgramList.tsx            # ✅ Legacy program listing (from API)
-    ProgramCard.tsx            # ✅ Legacy program card display
     /builder
       CatalogColumn.tsx        # ✅ Search + Filter + Course Grid
       WorkbenchColumn.tsx      # ⏳ To be implemented (extracted from ProgramBuilder if needed)
@@ -260,24 +337,20 @@ https://phillipsx-pims-stage.azurewebsites.net/api
       ActionCenter.tsx
       Timeline.tsx
     /common
-      CourseCard.tsx           # ✅ Course display card with badges
+      CourseDetailModal.tsx    # ✅ Course detail modal with shadcn/ui Dialog
       EnrollmentModal.tsx      # ⏳ To be implemented in PR-05
       StatusBadge.tsx          # ⏳ To be implemented in PR-05
-    /ui                        # ⏳ Shadcn/ui components (not used yet)
-      badge.tsx
-      button.tsx
-      card.tsx
-      input.tsx
+    /ui                        # ✅ Shadcn/ui components
+      dialog.tsx
       skeleton.tsx
-      sonner.tsx
   /hooks
     useProgramBuilder.ts       # ✅ Custom hook managing builder state & actions
   /context
     ProgramContext.tsx         # ⏳ To be implemented in PR-05 (if needed)
   /data                        # ✅ Static fallback JSON files
-    mockCourses.json
-    mockStudents.json
-    mockSchedules.json
+    Courses.json               # Fallback for course catalog
+    Students.json              # Fallback for student roster
+    Schedules.json             # Fallback for class schedules
   /types
     models.ts                  # ✅ TypeScript interfaces (LegacyProgram, CourseCatalogItem, SupervisorProgram)
 ```
@@ -292,3 +365,12 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 - `src/components/SidebarNav.tsx`: Navigation with currentView state
 - `src/lib/utils.ts`: Utility function for className merging (cn helper)
 - Removed legacy components: CatalogColumn.tsx, CourseCard.tsx, ProgramCard.tsx, ProgramList.tsx
+
+**Key Files Added/Modified in PR-04:**
+
+- `src/api/localRoutes.ts`: New API layer for writing programs to json-server
+- `src/hooks/useProgramBuilder.ts`: Refactored to fetch from Legacy API, handle loading states, transform data on save
+- `src/components/ProgramBuilder.tsx`: Enhanced with loading skeleton, duration calculation, real API data
+- `src/components/common/CourseDetailModal.tsx`: Updated to display real API course properties
+- `src/App.tsx`: Added Sonner Toaster component for toast notifications
+- `src/api/legacyRoutes.ts`: Updated fallback data import (mockCourses.json → Courses.json)

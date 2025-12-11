@@ -1,28 +1,14 @@
 import { useState } from "react";
-import {
-  ChevronDown,
-  ChevronRight,
-  LayoutDashboard,
-  Settings,
-  BookOpen,
-  Users,
-} from "lucide-react";
 
 interface SidebarNavProps {
   currentView: string;
   onNavigate: (viewId: string) => void;
 }
 
-const NAV_ITEMS = [
-  { id: "account", label: "Account", icon: "User" },
-  { id: "builder", label: "Program Builder", icon: "Hammer" },
-  { id: "progress", label: "Student Progress", icon: "ChartBar" },
-];
-
-export function SidebarNav({ currentView, onNavigate }): SidebarNavProps {
+export function SidebarNav({ currentView, onNavigate }: SidebarNavProps) {
   const [isBuilderOpen, setIsBuilderOpen] = useState(false);
 
-  // mock data for sub-menu
+  // Sample data for sub-menu
   const savedPrograms = [
     { id: "prog_101", title: "Q3 Safety Ramp-up" },
     { id: "prog_102", title: "Advanced Milling" },
@@ -52,7 +38,7 @@ export function SidebarNav({ currentView, onNavigate }): SidebarNavProps {
         {/* CONDITIONAL RENDER: list appears if isBuilderOpen is true */}
         {isBuilderOpen && (
           <div className="ml-6 mt-1 flex flex-col gap-1 border-l-2 border-slate-300 pl-2">
-            {/* List: Mock Saved Programs*/}
+            {/* List: Saved Programs*/}
             {savedPrograms.map((program) => (
               <button
                 key={program.id}
