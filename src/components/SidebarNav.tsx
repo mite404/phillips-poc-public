@@ -18,8 +18,8 @@ export function SidebarNav({ currentView, onNavigate, userType }: SidebarNavProp
 
   return (
     <nav className="w-[220px] bg-slate-50 border-r border-slate-200 flex flex-col h-full p-4 text-left">
-      <div className="p-4 space-y-1">
-        <div>Account</div>
+      <div className="space-y-1">
+        <div className="px-3 py-2 text-sm font-medium text-slate-700">Account</div>
 
         {/* Supervisor Menu */}
         {userType === "supervisor" && (
@@ -30,13 +30,9 @@ export function SidebarNav({ currentView, onNavigate, userType }: SidebarNavProp
                 setIsBuilderOpen(!isBuilderOpen);
                 onNavigate("builder");
               }}
-              className={`w-full flex items-center justify-between px-3 py-2 text-sm font-medium
-                rounded-md transition-colors text-black hover:!bg-slate-200 hover:border-slate-400 whitespace-nowrap
-                ${currentView === "builder" ? "bg-blue-50 text-black" : "text-slate-700 hover:bg-slate-100"}`}
+              className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors whitespace-nowrap"
             >
-              <div className="flex items-center gap-2">
-                <span>Program Builder</span>
-              </div>
+              Program Builder
             </button>
 
             {/* CONDITIONAL RENDER: list appears if isBuilderOpen is true */}
@@ -55,7 +51,9 @@ export function SidebarNav({ currentView, onNavigate, userType }: SidebarNavProp
               </div>
             )}
 
-            <div>Student Progress</div>
+            <div className="px-3 py-2 text-sm font-medium text-slate-700">
+              Student Progress
+            </div>
           </>
         )}
 
@@ -63,13 +61,9 @@ export function SidebarNav({ currentView, onNavigate, userType }: SidebarNavProp
         {userType === "student" && (
           <button
             onClick={() => onNavigate("programs")}
-            className={`w-full flex items-center justify-between px-3 py-2 text-sm font-medium
-              rounded-md transition-colors text-slate-700 hover:text-blue-600 hover:bg-slate-100 whitespace-nowrap
-              ${currentView === "programs" ? "bg-blue-50 text-phillips-blue" : "text-slate-500 hover:bg-slate-100"}`}
+            className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors whitespace-nowrap"
           >
-            <div className="flex items-center gap-2">
-              <span>My Programs</span>
-            </div>
+            My Programs
           </button>
         )}
       </div>
