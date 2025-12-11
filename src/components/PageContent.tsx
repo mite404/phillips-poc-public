@@ -1,16 +1,18 @@
 import { ProgramBuilder } from "./ProgramBuilder";
 import { ProgramManager } from "./ProgramManager";
+import { StudentDashboard } from "./student/StudentDashboard";
 
 export function PageContent(props: {
   userType: "supervisor" | "student";
   setUserType: (userType: "supervisor" | "student" | null) => void;
   currentView: string;
 }) {
-  const { setUserType, currentView } = props;
+  const { userType, setUserType, currentView } = props;
 
   // Check if viewing a saved program (UUID format or specific IDs)
   const isProgramView =
     currentView !== "builder" &&
+    currentView !== "programs" &&
     (currentView.match(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     ) ||
@@ -24,7 +26,9 @@ export function PageContent(props: {
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-hidden">
-        {isProgramView ? (
+        {userType === "student" && currentView === "programs" ? (
+          <StudentDashboard />
+        ) : isProgramView ? (
           <ProgramManager programId={currentView} />
         ) : (
           <div className="h-full p-8">
