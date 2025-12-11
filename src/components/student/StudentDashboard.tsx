@@ -198,9 +198,9 @@ export function StudentDashboard() {
                   <AccordionItem
                     key={hydrated.program.id}
                     value={hydrated.program.id}
-                    className="border rounded-lg"
+                    className="border border-slate-200 rounded-lg overflow-hidden bg-white"
                   >
-                    <AccordionTrigger className="px-4 hover:no-underline">
+                    <AccordionTrigger className="px-4 bg-gray-300 hover:!bg-slate-50">
                       <div className="flex items-center justify-between w-full pr-2">
                         <span className="font-medium text-slate-900">
                           {hydrated.program.programName}
@@ -216,7 +216,7 @@ export function StudentDashboard() {
                         </span>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-4 pb-4">
+                    <AccordionContent className="px-4 pb-4 bg-white">
                       {hydrated.program.description && (
                         <p className="text-sm text-slate-600 mb-3">
                           {hydrated.program.description}
@@ -294,9 +294,9 @@ export function StudentDashboard() {
                 <AccordionItem
                   key={hydrated.program.id}
                   value={hydrated.program.id}
-                  className="border rounded-lg"
+                  className="border border-green-200 rounded-lg overflow-hidden bg-white"
                 >
-                  <AccordionTrigger className="px-4 hover:no-underline bg-green-100">
+                  <AccordionTrigger className="px-4 bg-gray-300 hover:!bg-green-50">
                     <div className="flex items-center justify-between w-full pr-2">
                       <span className="font-medium text-slate-900">
                         {hydrated.program.programName}
@@ -304,7 +304,7 @@ export function StudentDashboard() {
                       <span className="text-green-600 text-sm">✓ Complete</span>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4">
+                  <AccordionContent className="px-4 pb-4 bg-white">
                     {hydrated.program.description && (
                       <p className="text-sm text-slate-600 mb-3">
                         {hydrated.program.description}

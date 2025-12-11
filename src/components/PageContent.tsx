@@ -40,7 +40,7 @@ export function PageContent(props: {
       {/* Footer */}
       <div className="p-4 border-t border-slate-300">
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 active:bg-blue-600 mx-auto block"
+          className="!bg-slate-200 !text-slate-700 border-2 border-slate-300 px-4 py-2 rounded hover:bg-slate-300 hover:border-slate-400 mx-auto block font-medium"
           onClick={() => setUserType(null)}
         >
           Back to Auth Portal
