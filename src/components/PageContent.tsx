@@ -1,6 +1,7 @@
 import { ProgramBuilder } from "./ProgramBuilder";
 import { ProgramManager } from "./ProgramManager";
 import { StudentDashboard } from "./student/StudentDashboard";
+import { StudentProgressView } from "./progress/StudentProgressView";
 
 export function PageContent(props: {
   userType: "supervisor" | "student";
@@ -9,10 +10,15 @@ export function PageContent(props: {
 }) {
   const { userType, setUserType, currentView } = props;
 
+  // Check if viewing a student progress view (student_1511, student_1512, etc.)
+  const isStudentProgressView = currentView.startsWith("student_");
+  const studentId = isStudentProgressView ? currentView.replace("student_", "") : null;
+
   // Check if viewing a saved program (UUID format or specific IDs)
   const isProgramView =
     currentView !== "builder" &&
     currentView !== "programs" &&
+    !isStudentProgressView &&
     (currentView.match(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     ) ||
@@ -28,6 +34,8 @@ export function PageContent(props: {
       <div className="flex-1 overflow-hidden">
         {userType === "student" && currentView === "programs" ? (
           <StudentDashboard />
+        ) : isStudentProgressView && studentId ? (
+          <StudentProgressView studentId={studentId} />
         ) : isProgramView ? (
           <ProgramManager programId={currentView} />
         ) : (
