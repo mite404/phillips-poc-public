@@ -448,3 +448,43 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 - Accordion headers: white backgrounds for assigned programs, light green for completed
 - Consistent button patterns: "Save Draft" and "Back to Auth Portal" use outline/border style
 - Auth portal buttons: Use Phillips brand blue with proper contrast
+
+### ⏭️ PR-07: Student Progress Navigation
+
+**Goal:** Expose the student roster in the Global Sidebar and create the route structure.
+**Context:** The Supervisor wants to click "Student Progress" and see their list of direct reports immediately.
+
+**Tasks:**
+
+1.  **Update `SidebarNav.tsx`:**
+    - **Data:** Fetch/Import the student roster (use `src/data/Students.json` for instant render or `legacyApi.getRoster`).
+    - **Interaction:** Clicking "Student Progress" toggles a sub-menu listing all Student Names.
+    - **Routing:** Clicking a student navigates to `/supervisor/progress/:studentId`.
+2.  **Update `PageContent.tsx`:**
+    - Handle the new route `progress_` or `/progress/:id`.
+    - Render the new `<StudentProgressView />` container.
+
+### ⏭️ PR-08: Progress Detail View
+
+**Goal:** The "At A Glance" Dashboard for a specific student (Wireframe implementation).
+
+**Tasks:**
+
+1.  **Create `src/components/progress/StudentProgressView.tsx`:**
+    - **Header:** "Ryan H.'s Progress" (Dynamic Name).
+    - **Body:** List of **Assigned Programs** (fetched from `localApi.getAssignments` filtered by student).
+2.  **Create `src/components/progress/ProgramProgressCard.tsx`:**
+    - **Layout:**
+      - **Top:** Program Title + Calculated Progress Bar (e.g., "25%").
+      - **List:** Courses within the program.
+    - **Course Rows:**
+      - Left: Course Title.
+      - Right: Status Badge ("Not Enrolled", "Incomplete", "Completed") + Code.
+3.  **Mock Logic (Option B):**
+    - Add a hidden/subtle "Mark Complete" button on the course row (or a debug toggle).
+    - Updating this changes the status locally and recalculates the Program Progress Bar (e.g., 1 of 4 done = 25%).
+
+**Style Constraints:**
+
+- Use `shadcn/ui` **Progress** component for the bar.
+- Match the "Hand-drawn" wireframe layout: Clean rows, clear borders.
