@@ -22,9 +22,12 @@ function App() {
     return (
       <>
         <Toaster position="top-right" />
-        <div className="flex h-screen">
+        <div className="flex flex-col h-screen">
           {/* button container */}
           <div className="flex flex-col items-center justify-center flex-1 gap-3">
+            <header className="w-full flex justify-center py-4">
+              <h1 className="text-2xl font-bold">Phillips LMS POC</h1>
+            </header>
             <button
               className="bg-gray-100! text-slate-700! px-6 py-3 rounded hover:bg-slate-200! hover:border-slate-400 mx-auto font-medium"
               onClick={() => handleSetUserType("supervisor")}
