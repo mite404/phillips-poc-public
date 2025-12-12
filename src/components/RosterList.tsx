@@ -112,12 +112,12 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
 
   // Toggle select all
   const toggleSelectAll = () => {
-    if (selectedStudentIds.length === unassignedLearners.length) {
+    if (selectedStudentIds.length === learners.length) {
       // Deselect all
       setSelectedStudentIds([]);
     } else {
-      // Select all unassigned
-      setSelectedStudentIds(unassignedLearners.map((l) => l.learnerId));
+      // Select all learners
+      setSelectedStudentIds(learners.map((l) => l.learnerId));
     }
   };
 
@@ -178,13 +178,12 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
         <div className="p-4 border-b border-slate-300 bg-slate-50">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-lg font-semibold">Student Roster</h2>
-            {unassignedLearners.length > 0 && (
+            {learners.length > 0 && (
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={
-                    selectedStudentIds.length === unassignedLearners.length &&
-                    unassignedLearners.length > 0
+                    selectedStudentIds.length === learners.length && learners.length > 0
                   }
                   onChange={toggleSelectAll}
                   className="w-4 h-4 cursor-pointer"
@@ -228,18 +227,15 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                     className="p-3 border border-slate-200 rounded hover:bg-slate-50"
                   >
                     <div className="flex items-start gap-3">
-                      {/* Checkbox (only for unassigned students) */}
-                      {isUnassigned && (
-                        <div className="flex items-center pt-1">
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleStudentSelection(learner.learnerId)}
-                            className="w-4 h-4 cursor-pointer"
-                          />
-                        </div>
-                      )}
-                      {!isUnassigned && <div className="w-4" />}
+                      {/* Checkbox (for all students) */}
+                      <div className="flex items-center pt-1">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleStudentSelection(learner.learnerId)}
+                          className="w-4 h-4 cursor-pointer"
+                        />
+                      </div>
 
                       {/* Student Info */}
                       <div className="flex-1">
@@ -250,9 +246,8 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                         <p className="text-xs text-slate-500">{learner.location}</p>
                       </div>
 
-                      {/* Status & Actions */}
-                      <div className="flex flex-col items-end gap-2">
-                        {/* Status Badge */}
+                      {/* Status Badge */}
+                      <div className="flex items-center">
                         {status === "registered" && (
                           <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded font-medium">
                             ✓ Registered
@@ -263,8 +258,6 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                             ⏳ Pending
                           </span>
                         )}
-
-                        {/* Action Buttons */}
                         {status === "unassigned" && (
                           <button
                             onClick={() => handleAssignProgram(learner)}
