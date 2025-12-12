@@ -243,7 +243,11 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                           {learner.learnerName}
                         </h3>
                         <p className="text-sm text-slate-600">{learner.emailId}</p>
-                        <p className="text-xs text-slate-500">{learner.location}</p>
+                        <p className="text-xs text-slate-500">
+                          {typeof learner.location === "string"
+                            ? learner.location
+                            : learner.location?.locationName || "N/A"}
+                        </p>
                       </div>
 
                       {/* Status Badge */}
