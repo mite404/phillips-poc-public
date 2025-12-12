@@ -10,4 +10,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://phillipsx-pims-stage.azurewebsites.net",
+        changeOrigin: true, // This is the magic setting that fixes it
+        secure: false, // Helpful if staging has self-signed certs
+      },
+    },
+  },
 });
