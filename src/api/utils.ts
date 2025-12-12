@@ -3,9 +3,10 @@
  * Centralized fetch wrapper with error handling
  */
 
-export const LEGACY_API_BASE =
-  import.meta.env.VITE_LEGACY_API_BASE ||
-  "https://phillipsx-pims-stage.azurewebsites.net/api";
+// Use relative paths to leverage Vite proxy in development
+// In production, these would be overridden by environment variables
+export const LEGACY_API_BASE = import.meta.env.VITE_LEGACY_API_BASE || "/api";
+export const CONTENT_API_BASE = import.meta.env.VITE_CONTENT_API_BASE || "/content-api";
 export const LOCAL_API_BASE =
   import.meta.env.VITE_LOCAL_API_BASE || "http://localhost:3001";
 

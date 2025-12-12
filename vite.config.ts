@@ -14,8 +14,13 @@ export default defineConfig({
     proxy: {
       "/api": {
         target: "https://phillipsx-pims-stage.azurewebsites.net",
-        changeOrigin: true, // This is the magic setting that fixes it
-        secure: false, // Helpful if staging has self-signed certs
+        changeOrigin: true,
+        secure: false,
+      },
+      "/content-api": {
+        target: "https://phillipsx-content-stage.azurewebsites.net/api",
+        changeOrigin: true,
+        secure: false,
       },
     },
   },
