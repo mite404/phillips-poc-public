@@ -47,6 +47,30 @@ export async function getProgramById(id: string): Promise<SupervisorProgram> {
 }
 
 /**
+ * Update an existing program
+ * @param id - The program UUID
+ * @param updates - Partial program updates
+ */
+export async function updateProgram(
+  id: string,
+  updates: Partial<SupervisorProgram>,
+): Promise<SupervisorProgram> {
+  try {
+    const response = await fetchApi<SupervisorProgram>(
+      `${LOCAL_API_BASE}/programs/${id}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(updates),
+      },
+    );
+    return response;
+  } catch (error) {
+    console.error("Failed to update program:", error);
+    throw error;
+  }
+}
+
+/**
  * Assign a program to a student
  * @param payload - Assignment data
  */
@@ -128,13 +152,28 @@ export async function getEnrollments(): Promise<CourseEnrollment[]> {
 }
 
 /**
+ * Get all programs for a supervisor
+ */
+export async function getAllPrograms(): Promise<SupervisorProgram[]> {
+  try {
+    const response = await fetchApi<SupervisorProgram[]>(`${LOCAL_API_BASE}/programs`);
+    return response || [];
+  } catch (error) {
+    console.error("Failed to fetch programs:", error);
+    throw error;
+  }
+}
+
+/**
  * Local API object for convenient access
  */
 export const localApi = {
   saveProgram,
   getProgramById,
+  updateProgram,
   assignProgram,
   enrollStudent,
   getAssignments,
   getEnrollments,
+  getAllPrograms,
 };
