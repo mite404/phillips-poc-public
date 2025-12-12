@@ -90,7 +90,6 @@ export function CourseDetailModal({
             <button
               onClick={() => {
                 onBookClick();
-                onClose();
               }}
               className="bg-gray-100! text-black! border-slate-300 outline border-2 outline-gray-400 px-4 py-2 rounded hover:bg-slate-200! hover:border-slate-400"
             >
