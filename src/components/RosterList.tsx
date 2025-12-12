@@ -201,7 +201,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
           {selectedStudentIds.length > 0 && (
             <button
               onClick={handleBatchInvite}
-              className="mt-3 w-full px-4 py-2 bg-phillips-blue text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+              className="mt-3 w-full px-4 py-2 bg-gray-100! text-black font-semibold rounded-lg outline outline-gray border-2 hover:bg-slate-50! hover:border-slate-400 transition-colors"
             >
               Invite Selected ({selectedStudentIds.length})
             </button>
