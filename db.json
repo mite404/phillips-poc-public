@@ -183,6 +183,14 @@
       "courseId": 11,
       "classId": 5447,
       "enrolledDate": "2025-12-11T22:38:15.126Z"
+    },
+    {
+      "id": "9fe0aba9-3798-43be-b735-0bb9343a6db4",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "prog_101",
+      "courseId": 11,
+      "classId": 5447,
+      "enrolledDate": "2025-12-12T18:16:26.354Z"
     }
   ]
 }
