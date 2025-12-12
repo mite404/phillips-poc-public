@@ -1,19 +1,19 @@
 # Project Specification & Prompt Context
 
-> **Last Updated:** 2025-12-11  
-> **Project Status:** ✅ COMPLETE (v1.0 POC)
+> **Last Updated:** 2025-12-12  
+> **Project Status:** ✅ COMPLETE (v1.0 POC) - Feature Complete
 
 ## 📌 Global Context (Paste at start of every session)
 
 **Project:** Phillips Education POC (Supervisor Program Builder)  
 **Stack:** Vite, React 19, TypeScript, Tailwind CSS v4, Bun  
-**Key Dependencies:** `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`, `react-router-dom` v7, `json-server`, `lucide-react` (icons)
+**Key Dependencies:** `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`, `react-router-dom` v7, `json-server`, `lucide-react` (icons), `sonner` (toasts), `shadcn/ui` (dialogs, accordion, progress)
 
 **Architecture:**
 
 - **Philosophy:** Stripped-down, HTML-focused components. Rapid prototyping of layout and functionality before adding complex UI libraries.
 - **State Management:** Custom hooks (e.g., `useProgramBuilder`) for business logic; React hooks for component state.
-- **Styling:** Pure Tailwind CSS utilities (no shadcn/ui for now—added later if needed).
+- **Styling:** Pure Tailwind CSS utilities + shadcn/ui components + Phillips brand colors.
 - **Drag-and-Drop:** `@dnd-kit` for reordering; vanilla HTML/buttons for interactions.
 - **Hybrid Data:** Read from Legacy API (`src/api/legacyRoutes.ts`), Write to Local JSON Server (`src/api/localRoutes.ts`).
 - **Resilience:** If Legacy API fails/CORS, catch error and return data from `src/data/*.json`.
@@ -100,8 +100,8 @@ interface CourseEnrollment {
 - [x] Project Scaffold (Vite + Bun)
 - [x] Tailwind v4 + Phillips brand colors
 - [x] JSON Server Setup (`db.json` with custom_programs, assignments, enrollments)
-- [x] Static mock data (`src/data/mockCourses.json`, `mockStudents.json`, `mockSchedules.json`)
-- [x] Shadcn/ui component installation (Card, Badge, Button, Input, Skeleton, Sonner)
+- [x] Static mock data (`src/data/Courses.json`, `Students.json`, `Schedules.json`)
+- [x] Shadcn/ui component installation (Card, Badge, Button, Input, Skeleton, Sonner, Progress, Accordion)
 
 ---
 
@@ -110,93 +110,34 @@ interface CourseEnrollment {
 **Status:** Completed  
 **Goal:** Implement the "Inventory" view where Supervisors search and select courses.
 
-**Components Built:**
+**Completed:**
 
-1.  ✅ `src/api/utils.ts`: Centralized fetch wrapper with base URLs
-2.  ✅ `src/api/legacyRoutes.ts`: `getCatalog()` with automatic fallback to `mockCourses.json`
-3.  ✅ `src/components/common/CourseCard.tsx`: Card showing Image, Title, Duration, Level badge, Training Type, Price/Free indicator
-4.  ✅ `src/components/builder/CatalogColumn.tsx`: Search + Level Filter + Grid layout
-
-**Functional Requirements:**
-
-- [x] Fetch data on mount using `useEffect`
-- [x] **Search:** Client-side filter by `courseTitle` (case-insensitive)
-- [x] **Filter:** Button toggles for Level (All/Basic/Advanced)
-- [x] **Interaction:** "Add to Program" button logs to console (placeholder for Context)
-- [x] **Polish:** Skeleton loading states, error handling, results count
-
-**Implementation Notes:**
-
-- Uses Lucide React icons (`Search`, `Plus`)
-- Phillips blue branding on Advanced level badges and active filter buttons
-- Responsive grid: 1 column (mobile) → 2 columns (md) → 3 columns (lg)
-- Training type badge shows ILT vs eLearning
-- Duration logic: ILT shows days, eLearning shows hours or "Self-paced"
+- [x] `src/api/utils.ts`: Centralized fetch wrapper with base URLs
+- [x] `src/api/legacyRoutes.ts`: `getCatalog()` with automatic fallback to `Courses.json`
+- [x] `src/components/common/CourseCard.tsx`: Card showing Image, Title, Duration, Level badge, Training Type, Price/Free indicator
+- [x] `src/components/builder/CatalogColumn.tsx`: Search + Level Filter + Grid layout
+- [x] Client-side search and filtering
+- [x] Skeleton loading states and error handling
 
 ---
 
 ### ✅ PR-03/03.5: Program Builder UI Shell, Workbench Logic & UX Enhancements
 
 **Status:** Completed  
-**Goal:** Build the foundational UI layout with 2-column split-pane, implement workbench state management, add drag-and-drop reordering, and enhance UX with program descriptions and course detail modals.
+**Goal:** Build the foundational UI layout with 2-column split-pane, implement workbench state management, add drag-and-drop reordering.
 
-**Components Built:**
+**Completed:**
 
-1.  ✅ `src/hooks/useProgramBuilder.ts`: Custom hook managing all builder logic
-    - State: `programTitle`, `programDescription`, `selectedCourses`, `searchQuery`, `activeFilters`, `filteredCourses`
-    - Actions: `addCourse`, `removeCourse`, `reorderCourses`, `updateTitle`, `updateDescription`, `toggleFilter`, `setSearch`, `saveDraft`
-    - Mock data: 6 realistic courses with types (ILT/Self-Paced) and levels (Basic/Advanced)
-2.  ✅ `src/components/ProgramBuilder.tsx`: 2-column split-pane layout (60/40) with modals
-    - **Left Column (Workbench):** Editable title, description textarea, drag-sortable course cards, Remove (✕) button, Save Draft button
-    - **Right Column (Catalog):** Search input, filter toggles (Self-Paced, ILT, Advanced), clickable course listing with Add button
-    - Integrated DndContext with closestCenter collision detection
-    - Integrated SortableContext with verticalListSortingStrategy
-    - Click handlers with `e.stopPropagation()` to prevent modal opening on action buttons
-    - Renders CourseDetailModal when course is clicked
-3.  ✅ `src/components/SortableCourseItem.tsx`: Wrapper component for drag-and-drop
-    - Uses `useSortable` hook from dnd-kit
-    - Renders GripVertical icon from lucide-react
-    - Applies transform, transition, and drag attributes
-    - Opacity feedback (50% while dragging)
-4.  ✅ `src/components/common/CourseDetailModal.tsx`: Course information modal
-    - Uses shadcn/ui Dialog components
-    - Displays course title, code, level, type, and description
-    - Simple close button in footer
-5.  ✅ `src/components/PageContent.tsx`: Updated to render ProgramBuilder by default, with conditional rendering for saved program drafts
-6.  ✅ `src/components/SidebarNav.tsx`: Navigation component with "Program Builder" menu item and saved programs list
-7.  ✅ `src/App.tsx`: Added `currentView` state management and view routing
-
-**Functional Requirements:**
-
-- [x] **Layout:** Split-pane flexbox layout with left column (60%) and right column (40%)
-- [x] **Program Title & Description:** Editable input and textarea for program metadata
-- [x] **Workbench:** Display selected courses with metadata (type, level, code)
-- [x] **Add Courses:** Click "Add" button to add courses from catalog (duplicate prevention)
-- [x] **Remove Courses:** Click "✕" button to remove from selection (with stopPropagation)
-- [x] **Reorder:** Drag course cards using GripVertical icon to reorder
-- [x] **Search:** Text search filters courses by title (case-insensitive)
-- [x] **Filter:** Toggle buttons for type (Self-Paced, ILT) and level (Advanced) with OR/AND logic
-- [x] **Course Details Modal:** Click any course card to view details in shadcn/ui Dialog
-- [x] **Styling:** Distinct blue styling (bg-blue-50, border-blue-200) for selected courses; cursor-pointer on clickable rows
-- [x] **Save Draft:** Button action logs to console and shows alert (persistence to come in PR-04)
-- [x] **Responsive:** Both columns independently scrollable, fill screen height minus header
-
-**Architecture Notes:**
-
-- **No Context API:** Used custom hook instead of React Context for simplicity at this stage
-- **No shadcn/ui:** Pure Tailwind + vanilla HTML to keep components lightweight and fast to iterate
-- **dnd-kit for DX:** Minimal configuration for drag-and-drop (PointerSensor, KeyboardSensor)
-- **Mock Data in Hook:** Centralized course definitions make it easy to swap with API data later
-
-**Next Steps (PR-04):**
-
-- [x] **Persistence:** Implement "Save Draft" to POST to `http://localhost:3001/programs`
-- [x] **API Integration:** Replace mock courses with data from legacy API
-- [x] **Duration Calculation:** Display total duration in workbench footer
-
-**Prompt Strategy:**
-
-> "PR-03 completed the full builder loop: search, add, reorder, and remove courses. The UI is clean and HTML-focused. Next, we'll persist the draft to json-server and integrate real course data from the legacy API."
+- [x] `src/hooks/useProgramBuilder.ts`: Custom hook managing all builder logic
+- [x] `src/components/ProgramBuilder.tsx`: 2-column split-pane layout (60/40) with modals
+- [x] `src/components/SortableCourseItem.tsx`: Wrapper component for drag-and-drop
+- [x] `src/components/common/CourseDetailModal.tsx`: Course information modal
+- [x] `src/components/PageContent.tsx`: View routing logic
+- [x] `src/components/SidebarNav.tsx`: Navigation component with saved programs list
+- [x] Drag-and-drop course reordering with dnd-kit
+- [x] Editable program title and description
+- [x] Total duration calculation and display
+- [x] Search and filter functionality for course catalog
 
 ---
 
@@ -205,70 +146,15 @@ interface CourseEnrollment {
 **Status:** Completed  
 **Goal:** Implement hybrid data model—read courses from Legacy API, write lightweight programs to Local JSON Server.
 
-**Components Built/Updated:**
+**Completed:**
 
-1.  ✅ `src/api/localRoutes.ts`: New file with `saveProgram()` function
-    - POST to `http://localhost:3001/programs`
-    - Takes `SupervisorProgram` payload with lightweight `courseSequence: number[]`
-2.  ✅ `src/hooks/useProgramBuilder.ts`: Complete refactor
-    - Added `isLoading` state for fetch status
-    - Added `availableCourses: Course[]` from Legacy API
-    - `useEffect` calls `getCatalog()` on mount with fallback to `Courses.json`
-    - `saveDraft()` transforms rich Course objects → lightweight ID array
-    - Generates UUID for program ID, includes metadata (title, description, supervisorId, createdAt)
-3.  ✅ `src/components/ProgramBuilder.tsx`: Enhanced UI
-    - Loading skeleton in right column while fetching catalog
-    - Total duration calculation in footer: `"17 days + 3 hours"` format
-    - Course cards display real API data (courseId, courseTitle, levelName, trainingTypeName)
-    - Disabled search/filters during loading
-4.  ✅ `src/components/common/CourseDetailModal.tsx`: Updated to use real API properties
-    - Displays courseId, levelName, trainingTypeName, totalDays/hours
-    - Shows skills as badges
-5.  ✅ `src/App.tsx`: Added Sonner Toaster for toast notifications
-    - Position: top-right
-    - Triggers on save operations (loading, success, error)
-6.  ✅ `src/api/legacyRoutes.ts`: Updated fallback import
-    - Changed from `mockCourses.json` → `Courses.json` (per file rename)
-
-**Functional Requirements:**
-
-- [x] **Hybrid Data Model:** READ from Legacy API (`getCatalog()`), WRITE to local json-server
-- [x] **Lightweight Persistence:** Only store course IDs in `courseSequence`, not full objects
-- [x] **Data Transformation:** UI maintains rich Course objects; save operation extracts IDs only
-- [x] **API Fallback:** Automatically uses `Courses.json` if Legacy API fails
-- [x] **Loading States:** Skeleton UI during catalog fetch
-- [x] **Duration Display:** Real-time calculation based on selected courses
-- [x] **Toast Notifications:** Loading → Success/Error feedback using sonner
-- [x] **TypeScript Safety:** Full type coverage with Course extending CourseCatalogItem
-
-**Architecture Notes:**
-
-- **Hybrid Strategy:** Optimizes for read-heavy (catalog) and lightweight write (programs)
-- **No Data Duplication:** `db.json` only stores IDs; rich course data lives in Legacy API
-- **Course Transformation:**
-  ```typescript
-  // Input: selectedCourses = [{courseId: 116, courseTitle: "CNC Machining...", ...}, ...]
-  // Output: courseSequence = [116, 11, 9]
-  ```
-- **UUID Generation:** Uses native `crypto.randomUUID()` for program IDs
-- **Supervisor Context:** Hardcoded `supervisorId: "pat_mann_guid"` for POC (can be dynamic later)
-
-**Implementation Details:**
-
-- Install: `bun add sonner`
-- Endpoint: `POST http://localhost:3001/programs`
-- Payload: `SupervisorProgram` with `courseSequence: number[]`
-- Response: Returns saved program with server-generated timestamps (if json-server configured)
-
-**Testing Instructions:**
-
-1. Start dev server: `bun dev`
-2. Navigate to Program Builder
-3. Wait for course catalog to load (skeleton → courses)
-4. Add 2-3 courses, set title/description
-5. Click "Save Draft"
-6. Check `db.json` → `programs` array should contain new entry with only course IDs
-7. Toast notification confirms save success
+- [x] `src/api/localRoutes.ts`: `saveProgram()` function to POST to json-server
+- [x] `src/hooks/useProgramBuilder.ts`: Refactored to fetch from Legacy API with fallback
+- [x] Real API data integration with loading states
+- [x] Lightweight persistence (store only course IDs)
+- [x] UUID generation for program IDs
+- [x] Sonner toast notifications for user feedback
+- [x] Data transformation on save (rich objects → lightweight IDs)
 
 ---
 
@@ -277,34 +163,16 @@ interface CourseEnrollment {
 **Status:** Completed  
 **Goal:** Read saved programs, hydrate course data, and enable student enrollment.
 
-**Components Built:**
+**Completed:**
 
-1.  ✅ `src/components/ProgramManager.tsx`: Main program viewer with hydration logic
-2.  ✅ `src/components/RosterList.tsx`: Student roster with assignment/enrollment UI
-3.  ✅ `src/components/common/EnrollmentModal.tsx`: Class selection modal
-4.  ✅ `src/api/localRoutes.ts`: Extended with `getProgramById`, `assignProgram`, `enrollStudent`
-5.  ✅ `src/api/legacyRoutes.ts`: Implemented `getRoster()` and `getInventory(courseId)`
-
-**Functional Requirements:**
-
-- [x] **Program View:** Load program by ID, hydrate course data (match IDs to full objects)
-- [x] **Split Layout:** Course sequence (left) + Student roster (right)
-- [x] **Hydration Logic:** Transform lightweight `courseSequence: [116, 11, 9]` to full Course objects
-- [x] **Student Status:** Unassigned → Pending → Registered
-- [x] **Assign:** Click "Assign" to create program assignment
-- [x] **Force Enroll:** Click "Force Enroll" to open modal with class inventory
-- [x] **Enrollment:** Select class session, confirm enrollment, save to local json-server
-- [x] **Data Fetching:** Learners, assignments, enrollments fetched in parallel
-- [x] **Status Badges:** Green (Registered), Yellow (Pending), None (Unassigned)
-
-**Implementation Notes:**
-
-- Hydration pattern: IDs stored in db.json, full objects reconstructed from Legacy API
-- Three-state student status system based on local assignment/enrollment records
-- Class inventory fetched on-demand when enrolling first course
-- All assignments and enrollments POST to local json-server
-- Parallel data fetching for performance
-- Toast notifications for user feedback
+- [x] `src/components/ProgramManager.tsx`: Program viewer with hydration logic
+- [x] `src/components/RosterList.tsx`: Student roster with assignment/enrollment UI
+- [x] `src/components/common/EnrollmentModal.tsx`: Class selection modal
+- [x] `src/api/localRoutes.ts`: Extended with `getProgramById`, `assignProgram`, `enrollStudent`, `updateProgram`
+- [x] `src/api/legacyRoutes.ts`: Implemented `getRoster()` and `getInventory()`
+- [x] Three-state student status system (Unassigned → Pending → Registered)
+- [x] Parallel data fetching for performance
+- [x] Course hydration pattern (IDs → full objects)
 
 ---
 
@@ -313,32 +181,155 @@ interface CourseEnrollment {
 **Status:** Completed  
 **Goal:** Student view to see assigned programs and book classes.
 
-**Components Built:**
+**Completed:**
 
-1.  `src/components/student/StudentDashboard.tsx`: Two-column dashboard with Accordion UI
-2.  `src/components/common/CourseDetailModal.tsx`: Updated with optional "Book Class" button
-3.  `src/components/SidebarNav.tsx`: Updated with userType prop for conditional navigation
+- [x] `src/components/student/StudentDashboard.tsx`: Two-column dashboard with Accordion UI
+- [x] `src/components/common/CourseDetailModal.tsx`: Updated with optional "Book Class" button
+- [x] `src/components/SidebarNav.tsx`: Updated with userType prop for conditional navigation
+- [x] Two-step enrollment flow (Course detail → Book class → Enrollment modal)
+- [x] Status badges for student enrollment tracking
+- [x] Visual feedback for enrolled vs. pending courses
 
-**Functional Requirements:**
+---
 
-- [x] **Context:** Mock logged-in user as Bob Martinez (ID: 1511)
-- [x] **Fetch:** Get assignments, enrollments, and catalog in parallel
-- [x] **Hydration:** Transform program/course IDs to full objects
-- [x] **Two-Column Layout:** Assigned Programs (left) | Completed Programs (right)
-- [x] **Accordion UI:** Expandable program cards with nested course lists
-- [x] **Status Badges:** Pending/Registered for assigned, Complete for completed
-- [x] **Two-Step Flow:** Click course → Detail modal → Book Class → Enrollment modal
-- [x] **Enrollment:** Book ILT classes with date/location selection
-- [x] **Visual Feedback:** Green checkmarks for enrolled courses
+### ✅ PR-07: Student Progress Navigation
+
+**Status:** Completed  
+**Goal:** Expose the student roster in the Global Sidebar and create the route structure.
+
+**Completed:**
+
+- [x] `src/components/SidebarNav.tsx`: Student progress navigation section
+- [x] `src/components/PageContent.tsx`: Route handling for student progress views
+- [x] Student roster fetching with fallback
+- [x] Click navigation to student progress dashboards
+
+---
+
+### ✅ PR-08: Progress Detail View
+
+**Status:** Completed  
+**Goal:** The "At A Glance" Dashboard for a specific student showing program progress.
+
+**Completed:**
+
+- [x] `src/components/progress/StudentProgressView.tsx`: Main progress dashboard
+- [x] `src/components/progress/ProgramProgressCard.tsx`: Individual program progress card
+- [x] Parallel data fetching and hydration
+- [x] Progress percentage calculation with visual progress bars
+- [x] Status badges (Completed/Incomplete/Not Enrolled) with color coding
+- [x] Interactive demo mode for showcasing progress tracking
+- [x] Loading, error, and empty states
+
+---
+
+### ✅ PR-09: Student Polish (Bug Fixes & UI)
+
+**Status:** Completed  
+**Goal:** Fix missing "Book Class" button and standardize modal button styling.
+
+**Completed:**
+
+- [x] Fixed "Book Class" button visibility in StudentDashboard
+- [x] Updated `handleCourseClick` to properly pass `programId` parameter
+- [x] Fixed `onBookClick` prop logic in CourseDetailModal
+- [x] Standardized button styling across all modals (CourseDetailModal, EnrollmentModal)
+- [x] Applied consistent gray outline button theme
+- [x] Verified two-step enrollment flow works correctly
+
+**Button Style Standard:**
+
+```
+bg-gray-100! text-slate-700! border-slate-300 outline border-2 outline-gray-400 px-4 py-2 rounded hover:bg-slate-200! hover:border-slate-400
+```
+
+**Student Workflow Flow:**
+Click Course → Detail Modal Opens → "Book Class" Button Visible (ILT courses only) → Click "Book Class" → Detail Modal Closes → Enrollment Modal Opens with Schedule Selection ✅
+
+---
+
+### ✅ PR-10: Supervisor Polish (Final UX)
+
+**Status:** Completed  
+**Goal:** Apply final UI polish to supervisor views for production-ready appearance.
+
+**Completed:**
+
+- [x] **ProgramBuilder.tsx - Catalog Filter Styles:**
+  - [x] Active state: `!bg-gray-100 !text-slate-900 border-2 border-slate-300 font-bold shadow-sm`
+  - [x] Inactive state: `bg-white text-slate-500 border border-slate-200 hover:bg-slate-50`
+  - [x] Improved contrast and visibility for active filters
+- [x] **ProgramManager.tsx - Enhanced Interactivity:**
+  - [x] Added "Tags included in Program:" label for context
+  - [x] Made course cards fully clickable with `onClick` handlers
+  - [x] Added `cursor-pointer hover:bg-slate-50 transition-colors` styling
+  - [x] Integrated `CourseDetailModal` for course details viewing
+  - [x] Added `activeCourse` state management
+- [x] **ProgramProgressCard.tsx - Catalog Number Alignment:**
+  - [x] Centered catalog number between course title and status badge
+  - [x] Right-aligned with fixed width for flush vertical alignment
+  - [x] Created even spacing with proper flexbox layout
+
+---
+
+### ✅ PR-11: Batch Actions & Global Headers (Final Polish)
+
+**Status:** Completed  
+**Goal:** Complete the UI polish with batch student selection, global headers, and centered action buttons.
+
+**Completed:**
+
+- [x] **ProgramBuilder.tsx - Page Header:**
+  - [x] Added "Create Custom Program" header above 2-column layout
+  - [x] Styled as `text-3xl font-bold text-slate-800 mb-6` (between h2 and app header)
+  - [x] Removed "Publish Program" button from builder (moved to manager)
+
+- [x] **ProgramBuilder.tsx - Global Publish Button:**
+  - [x] Moved "Publish Program" button to bottom center of page (outside columns)
+  - [x] Styled with `bg-phillips-blue text-white shadow-lg` for visibility
+  - [x] Button always visible for demo purposes (doesn't disappear after publishing)
+  - [x] Shows "✓ Published" badge next to button when program is published
+
+- [x] **RosterList.tsx - Batch Student Selection:**
+  - [x] Added checkbox to the left of every student row (all students, not just unassigned)
+  - [x] Added "Select All" checkbox in Student Roster header
+  - [x] Checkboxes enabled for all student statuses (Unassigned, Pending, Registered)
+  - [x] Track `selectedStudentIds` state array for batch operations
+
+- [x] **RosterList.tsx - Batch Invite Button:**
+  - [x] Added "Invite Selected (X)" button to Student Roster header
+  - [x] Button shows count of selected students
+  - [x] Button only appears when at least one student is selected
+  - [x] Clicking button triggers batch invite (assignProgram for each selected student)
+  - [x] Toast notification: "Sent invites to X students"
+  - [x] Clears selection after successful batch invite
+
+- [x] **RosterList.tsx - Uniform Student Cards:**
+  - [x] All student cards now display uniform layout across all programs
+  - [x] Checkboxes on left side (for all students, regardless of status)
+  - [x] Student info in center (name, email, location)
+  - [x] Status badges on right (Pending/Registered) OR Assign button (for unassigned)
+  - [x] Status badges styled with color coding (yellow for Pending, green for Registered)
+
+- [x] **ProgramManager.tsx - Publish Button in Saved Programs:**
+  - [x] Added "Publish Program" button at bottom center of saved program view
+  - [x] Button only shows when `published: false`
+  - [x] Shows "✓ Published" badge when `published: true`
+  - [x] Button styled with `bg-phillips-blue text-white hover:bg-blue-700`
+  - [x] Implements `handlePublishProgram` function that updates program status in database
+
+- [x] **SidebarNav.tsx - Dynamic Program Loading:**
+  - [x] Updated to dynamically fetch saved programs from API
+  - [x] Shows "DRAFT" badge on unpublished programs
+  - [x] Loads all saved programs with their published status
+  - [x] Programs list updates when navigating between views
 
 **Implementation Notes:**
 
-- Used shadcn/ui Accordion component for expandable program cards
-- CourseDetailModal conditionally shows "Book Class" button for ILT courses only
-- EnrollmentModal reused from PR-05 (supervisor force-enroll flow)
-- Mock completed program added for demo purposes
-- Student navigation shows only "Account" and "My Programs"
-- Data fetching pattern matches supervisor view (parallel fetch + hydration)
+- **Batch Invite Logic** (RosterList.tsx:123-156): Loops through `selectedStudentIds` and calls `localApi.assignProgram()` for each, then reloads assignments and clears selection.
+- **Global Publish Button** (ProgramManager.tsx:195-212): Button positioned at bottom center with flex layout, calls `handlePublishProgram()` which uses `localApi.updateProgram()` to set `published: true`.
+- **Uniform Student Cards** (RosterList.tsx:226-267): Removed conditional checkbox rendering; all students show checkboxes. Status badges and Assign buttons positioned consistently on the right.
+- **Dynamic Sidebar** (SidebarNav.tsx:18-33): Uses `useEffect` to fetch programs on mount, displays "DRAFT" badge for unpublished programs using `!program.published` check.
 
 ---
 
@@ -358,8 +349,8 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 
 **Local JSON-Server Endpoints:**
 
-- `GET/POST /custom_programs` → Supervisor-created programs
-- `GET/POST /assignments` → Program assignments to learners
+- `GET/POST /programs` → Supervisor-created programs (now with updateProgram support)
+- `GET/POST /program_registrations` → Program assignments to learners
 - `GET/POST /enrollments` → Course enrollment records with selected class dates
 
 **Local Server:** `http://localhost:3001`
@@ -373,223 +364,83 @@ https://phillipsx-pims-stage.azurewebsites.net/api
   /api
     utils.ts                    # ✅ Fetch wrapper (base URLs, error handling)
     legacyRoutes.ts            # ✅ getCatalog(), getRoster(), getInventory() with fallbacks
-    localRoutes.ts             # ✅ saveProgram(), getProgramById(), assignProgram(), enrollStudent()
+    localRoutes.ts             # ✅ saveProgram(), getProgramById(), updateProgram(), assignProgram(), enrollStudent()
   /components
     App.tsx                     # ✅ Main app with userType & currentView state
     PageContent.tsx            # ✅ Primary page renderer, routes to ProgramBuilder or ProgramManager
-    SidebarNav.tsx             # ✅ Navigation with "Program Builder" button and saved programs list
-    ProgramBuilder.tsx         # ✅ 2-column split-pane builder (workbench + catalog + drag-drop)
-    ProgramManager.tsx         # ✅ Program viewer with hydration logic (left: courses, right: roster)
-    RosterList.tsx             # ✅ Student roster with assign/enroll UI (used by ProgramManager)
+    SidebarNav.tsx             # ✅ Navigation with dynamic program loading and DRAFT badges
+    ProgramBuilder.tsx         # ✅ 2-column split-pane builder with "Create Custom Program" header
+    ProgramManager.tsx         # ✅ Program viewer with Publish button at bottom center
+    RosterList.tsx             # ✅ Student roster with batch selection and invite functionality
     SortableCourseItem.tsx      # ✅ Wrapper for dnd-kit sortable items with GripVertical icon
-    /student                   # ✅ Implemented in PR-06
-      StudentDashboard.tsx     # ✅ Two-column dashboard with accordion UI
-    /progress                  # ✅ Implemented in PR-07/08
+    /student
+      StudentDashboard.tsx     # ✅ Two-column dashboard with accordion UI and Book Class button
+    /progress
       StudentProgressView.tsx  # ✅ Student progress dashboard with data hydration
       ProgramProgressCard.tsx  # ✅ Program progress card with interactive status badges
     /common
-      CourseDetailModal.tsx    # ✅ Course detail modal with shadcn/ui Dialog
-      EnrollmentModal.tsx      # ✅ Class selection modal (used by RosterList)
+      CourseDetailModal.tsx    # ✅ Course detail modal with shadcn/ui Dialog and Book Class button
+      EnrollmentModal.tsx      # ✅ Class selection modal (used by RosterList and StudentDashboard)
     /ui                        # ✅ Shadcn/ui components
       dialog.tsx
       skeleton.tsx
       progress.tsx
+      accordion.tsx
   /hooks
-    useProgramBuilder.ts       # ✅ Custom hook managing builder state & actions
+    useProgramBuilder.ts       # ✅ Custom hook managing builder state & actions with saveProgram support
   /context
-    ProgramContext.tsx         # ⏳ To be implemented in PR-05 (if needed)
+    ProgramContext.tsx         # ⏳ To be implemented if needed for larger scale
   /data                        # ✅ Static fallback JSON files
     Courses.json               # Fallback for course catalog
     Students.json              # Fallback for student roster
     Schedules.json             # Fallback for class schedules
   /types
-    models.ts                  # ✅ TypeScript interfaces (LegacyProgram, CourseCatalogItem, SupervisorProgram)
+    models.ts                  # ✅ TypeScript interfaces (all data models)
 ```
 
-**Key Files Added in PR-03/03.5:**
+---
 
-- `src/hooks/useProgramBuilder.ts`: Custom hook with all builder logic (state, filters, actions, description)
-- `src/components/ProgramBuilder.tsx`: Core 2-column builder interface (workbench + catalog + modal)
-- `src/components/SortableCourseItem.tsx`: Drag-and-drop wrapper component with grip icon
-- `src/components/common/CourseDetailModal.tsx`: Course detail modal with shadcn/ui Dialog
-- `src/components/PageContent.tsx`: Updated for routing between views
-- `src/components/SidebarNav.tsx`: Navigation with currentView state
-- `src/lib/utils.ts`: Utility function for className merging (cn helper)
-- Removed legacy components: CatalogColumn.tsx, CourseCard.tsx, ProgramCard.tsx, ProgramList.tsx
+## 🎯 Feature Completion Summary
 
-**Key Files Added/Modified in PR-04:**
+**v1.0 POC - All Features Complete**
 
-- `src/api/localRoutes.ts`: New API layer for writing programs to json-server
-- `src/hooks/useProgramBuilder.ts`: Refactored to fetch from Legacy API, handle loading states, transform data on save
-- `src/components/ProgramBuilder.tsx`: Enhanced with loading skeleton, duration calculation, real API data
-- `src/components/common/CourseDetailModal.tsx`: Updated to display real API course properties
-- `src/App.tsx`: Added Sonner Toaster component for toast notifications
-- `src/api/legacyRoutes.ts`: Updated fallback data import (mockCourses.json → Courses.json)
+### Supervisor Workflows
 
-**Key Files Added/Modified in PR-05:**
+- ✅ Search and filter course catalog
+- ✅ Build custom programs with drag-and-drop
+- ✅ Publish programs to make them available for assignment
+- ✅ View and manage student roster
+- ✅ Batch assign students to programs (via "Invite Selected")
+- ✅ Force enroll students in specific classes
+- ✅ Track student progress across programs
 
-- `src/components/ProgramManager.tsx`: New component for viewing saved programs with hydration
-- `src/components/RosterList.tsx`: New component for student roster with assign/enroll UI
-- `src/components/common/EnrollmentModal.tsx`: New modal for class selection during enrollment
-- `src/api/localRoutes.ts`: Extended with getProgramById(), assignProgram(), enrollStudent()
-- `src/api/legacyRoutes.ts`: Implemented getRoster() and getInventory() with fallbacks
-- `src/types/models.ts`: Added LearnerProfile, ClassSchedule, CourseInventory, ProgramAssignment, CourseEnrollment
-- `src/components/PageContent.tsx`: Updated to route to ProgramManager for program IDs
-- `db.json`: Added enrollments collection
+### Student Workflows
 
-**Key Files Added/Modified in PR-06:**
+- ✅ View assigned programs
+- ✅ View course details for courses in programs
+- ✅ Book classes for ILT courses
+- ✅ See enrollment status (Pending/Registered)
+- ✅ View progress across assigned programs
 
-- `src/components/student/StudentDashboard.tsx`: Two-column dashboard with accordion layout
-- `src/components/common/CourseDetailModal.tsx`: Added optional onBookClick prop for "Book Class" button
-- `src/components/SidebarNav.tsx`: Added userType prop, conditional menu rendering
-- `src/components/PageContent.tsx`: Route to StudentDashboard for student view
-- `src/components/App.tsx`: Pass userType to SidebarNav, set initial view based on user type
-- `src/components/ui/accordion.tsx`: Installed shadcn/ui Accordion component
+### UI/UX Polish (v1.0)
 
-**UI Refinements (Post PR-06):**
-
-- Updated button styling globally: transparent defaults with `!important` overrides where needed
-- Fixed navigation alignment: removed double padding, unified font sizes and colors
-- Accordion headers: white backgrounds for assigned programs, light green for completed
-- Consistent button patterns: "Save Draft" and "Back to Auth Portal" use outline/border style
-- Auth portal buttons: Use Phillips brand blue with proper contrast
-
-### ✅ PR-07: Student Progress Navigation
-
-**Status:** Completed  
-**Goal:** Expose the student roster in the Global Sidebar and create the route structure.
-
-**Components Built:**
-
-1.  ✅ `src/components/SidebarNav.tsx`: Updated with student progress navigation
-2.  ✅ `src/components/PageContent.tsx`: Updated to route to StudentProgressView
-
-**Functional Requirements:**
-
-- [x] **Student Roster Navigation:** Sidebar lists student names under "Student Progress"
-- [x] **Click Navigation:** Clicking a student navigates to progress view
-- [x] **Routing:** `/supervisor/progress/:studentId` pattern implemented
-- [x] **Data Loading:** Student roster loaded from `legacyApi.getRoster()` with fallback
-
-**Implementation Notes:**
-
-- Navigation integrated into existing SidebarNav component
-- PageContent router handles `progress_{studentId}` view pattern
-- Student list fetched on sidebar mount for instant navigation
+- ✅ Consistent button styling across all modals
+- ✅ Dynamic sidebar with program list and DRAFT badges
+- ✅ Uniform student roster cards with batch selection
+- ✅ Global headers for major sections
+- ✅ Centered action buttons for key flows
+- ✅ Color-coded status badges
+- ✅ Responsive layouts with proper scrolling
+- ✅ Toast notifications for all key actions
 
 ---
 
-### ✅ PR-08: Progress Detail View
+## 📝 Technical Notes
 
-**Status:** Completed  
-**Goal:** The "At A Glance" Dashboard for a specific student showing program progress.
-
-**Components Built:**
-
-1.  ✅ `src/components/progress/StudentProgressView.tsx`: Main progress dashboard
-2.  ✅ `src/components/progress/ProgramProgressCard.tsx`: Individual program progress card
-
-**Functional Requirements:**
-
-- [x] **Data Hydration:** Parallel fetch of student, assignments, enrollments, programs, and courses
-- [x] **Dynamic Header:** Student name displayed (e.g., "Ryan H.'s Progress")
-- [x] **Program Cards:** One card per assigned program with progress tracking
-- [x] **Progress Bar:** Real-time calculation showing completion percentage
-- [x] **Course List:** Vertical list with title, status badge, and course code
-- [x] **Status Logic:**
-  - Completed (Green): Course marked as complete
-  - Incomplete (Yellow): Course enrolled but not complete
-  - Not Enrolled (Gray): Course not yet enrolled
-- [x] **Loading States:** Skeleton placeholders during data fetch
-- [x] **Error Handling:** Error state with helpful message
-- [x] **Empty State:** Message when no programs assigned
-
-**Implementation Notes:**
-
-- **Demo Mode:** Clickable status badges allow toggling completion state for demonstration purposes
-- **Progress Calculation:** `(completedCount / totalCourses) * 100` updates in real-time
-- **Initial State:** One random course pre-marked complete to simulate ~25% progress
-- **Hydration Pattern:** Matches existing architecture (IDs → full objects from catalog)
-- **Parallel Data Fetching:** All API calls made concurrently for performance
-- **shadcn/ui Progress:** Uses Progress component for visual progress bar
-- **Color Coding:** Standard Tailwind colors (green/yellow/gray) for status clarity
-
-**Style Constraints:**
-
-- Clean white cards with subtle borders (border-slate-200)
-- Standard Tailwind color palette for status badges
-- Hover states on interactive elements (badges, course rows)
-- Maximum width constraint (max-w-5xl) for readability
-- Demo hint text at bottom of each card explaining interactive feature
-
-**Demo Feature:**
-
-The ProgramProgressCard includes an interactive "Play God" mode where supervisors can click status badges to toggle course completion during demonstrations. This allows real-time visualization of progress bar updates without requiring actual enrollment data. A subtle hint at the bottom of each card explains this feature to users.
-
----
-
-### ✅ PR-09: Student Polish (Bug Fixes & UI)
-
-**Status:** Completed  
-**Goal:** Fix missing "Book Class" button and standardize modal button styling.
-
-**Fixes Implemented:**
-
-1. ✅ **StudentDashboard.tsx**
-   - Fixed `onBookClick` prop logic in CourseDetailModal
-   - Updated `handleCourseClick` to accept and set `programId` parameter
-   - Set `pendingEnrollment` when opening course detail modal
-   - Updated all `handleCourseClick` calls to pass `programId`
-
-2. ✅ **CourseDetailModal.tsx**
-   - Updated "Close" button styling
-   - Updated "Book Class" button styling
-   - Applied consistent gray outline theme
-
-3. ✅ **EnrollmentModal.tsx**
-   - Updated "Cancel" button styling
-   - Updated "Confirm Enrollment" button styling
-   - Applied consistent gray outline theme
-
-**Button Style Standard:**
-
-```css
-bg-gray-100! text-slate-700! border-slate-300 outline border-2 outline-gray-400 px-4 py-2 rounded hover:bg-slate-200! hover:border-slate-400
-```
-
-**Flow Fixed:**
-Click Course → Detail Modal Opens → "Book Class" Button Visible (ILT courses) → Click "Book Class" → Enrollment Modal Opens ✅
-
----
-
-### ✅ PR-10: Supervisor Polish (Final UX)
-
-**Status:** Completed  
-**Goal:** Apply final UI polish to supervisor views for production-ready appearance.
-
-**Enhancements Implemented:**
-
-1. ✅ **ProgramBuilder.tsx - Catalog Filter Styles**
-   - **Active State:** `!bg-gray-100 !text-slate-900 border-2 border-slate-300 font-bold shadow-sm`
-   - **Inactive State:** `bg-white text-slate-500 border border-slate-200 hover:bg-slate-50`
-   - Improved contrast and visibility for active filters
-
-2. ✅ **ProgramManager.tsx - Enhanced Interactivity**
-   - Added "Tags included in Program:" label for context
-   - Made course cards clickable with `onClick` handlers
-   - Added `cursor-pointer hover:bg-slate-50 transition-colors` styling
-   - Integrated `CourseDetailModal` for course details
-   - Added `activeCourse` state management
-
-3. ✅ **ProgramProgressCard.tsx - Catalog Number Alignment**
-   - Centered catalog number between course title and status badge
-   - Right-aligned catalog numbers with fixed width (`w-12`)
-   - Created flush vertical alignment across all entries
-   - Applied even spacing with `gap-4` flexbox
-
-**Result:**
-
-- Supervisor views now have consistent, polished UI
-- All interactive elements have proper hover states
-- Course details accessible from all relevant views
-- Improved readability and professional appearance
+- **Architecture:** Hybrid data model (read from Legacy API, write to local json-server)
+- **State Management:** Custom hooks for business logic, React hooks for component state
+- **Styling:** Tailwind utilities + shadcn/ui components + Phillips brand colors
+- **Data Transformation:** Rich Course objects in UI, lightweight IDs in database
+- **Resilience:** Automatic fallback to JSON files if Legacy API fails
+- **Demo Features:** Interactive status toggling in progress cards, always-visible publish button for showcasing
+- **Batch Operations:** Efficient looping for batch invites with proper state management

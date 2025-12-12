@@ -208,6 +208,43 @@ bun dev
 
 ---
 
+## PR-11: Batch Actions & Global Headers
+
+**Status:** ✅ **COMPLETE**
+
+- [x] ProgramBuilder Page Header
+  - [x] Added "Create Custom Program" header above 2-column layout
+  - [x] Styled as text-3xl font-bold text-slate-800 mb-6
+  - [x] Positioned between page header and content columns
+- [x] Publish Program Button Placement
+  - [x] Moved from ProgramBuilder to ProgramManager (saved programs only)
+  - [x] Positioned at bottom center of page
+  - [x] Styled with bg-phillips-blue text-white shadow-lg
+  - [x] Always visible for demo purposes (shows badge when published)
+  - [x] Implements handlePublishProgram function
+- [x] RosterList Batch Student Selection
+  - [x] Added checkbox to left of every student row
+  - [x] Checkboxes enabled for ALL student statuses (not just unassigned)
+  - [x] Added "Select All" checkbox in header
+  - [x] Track selectedStudentIds state array
+- [x] RosterList Batch Invite Button
+  - [x] Added "Invite Selected (X)" button to header
+  - [x] Shows count of selected students
+  - [x] Only appears when students are selected
+  - [x] Calls localApi.assignProgram for each selected student
+  - [x] Toast notification shows success count
+  - [x] Clears selection after batch invite
+- [x] RosterList Uniform Student Cards
+  - [x] All cards display consistent layout across programs
+  - [x] Checkbox | Student Info | Status Badge/Assign Button
+  - [x] Removed conditional rendering by status
+- [x] SidebarNav Dynamic Program Loading
+  - [x] Fetch programs from API instead of hardcoded
+  - [x] Show "DRAFT" badge on unpublished programs
+  - [x] Load on component mount with useEffect
+
+---
+
 ## 🎯 Project Summary
 
 **All Features Complete - v1.0 POC**
