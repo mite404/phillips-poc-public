@@ -1,0 +1,71 @@
+[
+  {
+    "testimonialId": 1,
+    "personName": "Sarah Martinez",
+    "personTitle": "Manufacturing Technician",
+    "testimonialText": "The Haas Maintenance & Repair course was incredibly hands-on and practical. The instructors were knowledgeable and patient, making complex concepts easy to understand.",
+    "videoUrl": null,
+    "courses": [
+      {
+        "courseId": 9,
+        "courseTitle": "Haas Maintenance & Repair"
+      }
+    ]
+  },
+  {
+    "testimonialId": 2,
+    "personName": "Michael Chen",
+    "personTitle": "CNC Operator",
+    "testimonialText": "This training transformed my career. I went from basic operation to advanced programming in just a few weeks. Highly recommended for anyone serious about CNC machining.",
+    "videoUrl": null,
+    "courses": [
+      {
+        "courseId": 11,
+        "courseTitle": "Haas Advanced Mill"
+      }
+    ]
+  },
+  {
+    "testimonialId": 3,
+    "personName": "Jennifer Thompson",
+    "personTitle": "Quality Control Manager",
+    "testimonialText": "The CNC Machining & Repair program gave our team the skills they needed to reduce downtime and improve efficiency. The return on investment was immediate.",
+    "videoUrl": null,
+    "courses": [
+      {
+        "courseId": 116,
+        "courseTitle": "CNC Machining & Repair"
+      }
+    ]
+  },
+  {
+    "testimonialId": 4,
+    "personName": "Robert Williams",
+    "personTitle": "Senior Machinist",
+    "testimonialText": "After 15 years in the industry, I thought I knew it all. This advanced course showed me new techniques that have made me more efficient and precise in my work.",
+    "videoUrl": null,
+    "courses": [
+      {
+        "courseId": 11,
+        "courseTitle": "Haas Advanced Mill"
+      },
+      {
+        "courseId": 9,
+        "courseTitle": "Haas Maintenance & Repair"
+      }
+    ]
+  },
+  {
+    "testimonialId": 5,
+    "personName": "David Park",
+    "personTitle": "Production Supervisor",
+    "testimonialText": null,
+    "videoUrl": "https://example.com/testimonials/video5",
+    "courses": [
+      {
+        "courseId": 116,
+        "courseTitle": "CNC Machining & Repair"
+      }
+    ]
+  }
+]

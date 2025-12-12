@@ -92,3 +92,15 @@ export interface CourseEnrollment {
   classId: number;
   enrolledDate: string; // ISO date string
 }
+
+export interface Testimonial {
+  testimonialId: number;
+  personName: string;
+  personTitle: string;
+  testimonialText: string | null;
+  videoUrl: string | null;
+  courses: {
+    courseId: number;
+    courseTitle: string;
+  }[];
+}

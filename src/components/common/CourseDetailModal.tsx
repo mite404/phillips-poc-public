@@ -1,4 +1,7 @@
+import { useState, useEffect } from "react";
 import { Course } from "../../hooks/useProgramBuilder";
+import { legacyApi } from "@/api/legacyRoutes";
+import type { Testimonial } from "@/types/models";
 import {
   Dialog,
   DialogContent,
@@ -6,6 +9,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "../ui/dialog";
+import { ExternalLink } from "lucide-react";
 
 interface CourseDetailModalProps {
   course: Course | null;
@@ -20,6 +24,32 @@ export function CourseDetailModal({
   onClose,
   onBookClick,
 }: CourseDetailModalProps) {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loadingTestimonials, setLoadingTestimonials] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && course) {
+      loadTestimonials();
+    }
+  }, [isOpen, course]);
+
+  async function loadTestimonials() {
+    setLoadingTestimonials(true);
+    try {
+      const allTestimonials = await legacyApi.getTestimonials();
+      // Filter testimonials for this specific course
+      const filtered = allTestimonials.filter((t) =>
+        t.courses.some((c) => c.courseId === course?.courseId),
+      );
+      setTestimonials(filtered);
+    } catch (error) {
+      console.error("Failed to load testimonials:", error);
+      setTestimonials([]);
+    } finally {
+      setLoadingTestimonials(false);
+    }
+  }
+
   if (!course) return null;
 
   const showBookButton = onBookClick && course.trainingTypeName.includes("ILT");
@@ -74,6 +104,42 @@ export function CourseDetailModal({
                   >
                     {skill.skillName}
                   </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Testimonials Section */}
+          {testimonials.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-slate-500 mb-2">What People Say</p>
+              <div className="space-y-3">
+                {testimonials.map((testimonial) => (
+                  <div
+                    key={testimonial.testimonialId}
+                    className="p-3 bg-slate-50 rounded-lg border border-slate-200"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <p className="font-medium text-sm text-slate-900">
+                          {testimonial.personName}
+                        </p>
+                        <p className="text-xs text-slate-500 mb-2">
+                          {testimonial.personTitle}
+                        </p>
+                        {testimonial.testimonialText ? (
+                          <p className="text-sm text-slate-700 italic">
+                            "{testimonial.testimonialText}"
+                          </p>
+                        ) : (
+                          <div className="flex items-center gap-1 text-sm text-phillips-blue">
+                            <ExternalLink className="w-4 h-4" />
+                            <span>Video Testimonial Available</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

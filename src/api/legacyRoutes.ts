@@ -3,13 +3,19 @@
  * GET calls to Phillips X PIMS staging API with fallback to local JSON
  */
 
-import { fetchApi, LEGACY_API_BASE } from "./utils";
-import type { CourseCatalogItem, LearnerProfile, CourseInventory } from "@/types/models";
+import { fetchApi, LEGACY_API_BASE, CONTENT_API_BASE } from "./utils";
+import type {
+  CourseCatalogItem,
+  LearnerProfile,
+  CourseInventory,
+  Testimonial,
+} from "@/types/models";
 
 // Fallback imports
 import coursesData from "@/data/Courses.json";
 import studentsData from "@/data/Students.json";
 import schedulesData from "@/data/Schedules.json";
+import testimonialsData from "@/data/Testimonials.json";
 
 /**
  * Fetch course catalog from Legacy API
@@ -72,10 +78,28 @@ export async function getInventory(courseId: number): Promise<CourseInventory | 
 }
 
 /**
+ * Fetch testimonials from Content API
+ * Falls back to local Testimonials.json if API fails
+ */
+export async function getTestimonials(): Promise<Testimonial[]> {
+  try {
+    const response = await fetchApi<{ result: Testimonial[] }>(
+      `${CONTENT_API_BASE}/Testimonial/GetAllPartialValue`,
+    );
+
+    return response.result || [];
+  } catch (error) {
+    console.warn("Content API failed, using fallback testimonials data:", error);
+    return testimonialsData as Testimonial[];
+  }
+}
+
+/**
  * Legacy API object for convenient access
  */
 export const legacyApi = {
   getCatalog,
   getRoster,
   getInventory,
+  getTestimonials,
 };
