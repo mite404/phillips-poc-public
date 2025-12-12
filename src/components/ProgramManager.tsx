@@ -88,6 +88,27 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
     return parts.length > 0 ? parts.join(" + ") : "0 hours";
   };
 
+  // Publish program function
+  const handlePublishProgram = async () => {
+    if (!program) return;
+
+    try {
+      toast.loading("Publishing program...");
+
+      await localApi.updateProgram(programId, { published: true });
+
+      // Update local state
+      setProgram({ ...program, published: true });
+
+      toast.dismiss();
+      toast.success(`Program "${program.programName}" published successfully!`);
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Failed to publish program");
+      console.error("Publish error:", error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="h-full p-8 space-y-4">
@@ -110,7 +131,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
     <div className="h-full flex flex-col gap-6 p-8">
       {/* Program Header */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-slate-900">{program.programName}</h1>
+        <div className="text-3xl font-bold text-black">{program.programName}</div>
         {program.description && <p className="text-slate-600">{program.description}</p>}
         {program.tags.length > 0 && (
           <div className="flex items-center gap-2">
@@ -190,6 +211,21 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
             firstCourseId={hydratedCourses[0]?.courseId}
           />
         </div>
+      </div>
+
+      {/* Publish Program Button - Bottom Center (always visible for demo) */}
+      <div className="flex justify-center items-center gap-4 pt-4">
+        <button
+          onClick={handlePublishProgram}
+          className="px-8 py-3 bg-gray-100! text-black border-2 border-slate-300 outline outline-gray rounded hover:bg-slate-50! transition-all"
+        >
+          Publish Program
+        </button>
+        {program.published && (
+          <span className="px-4 py-2 bg-green-100 text-green-800 font-semibold rounded-lg">
+            ✓ Published
+          </span>
+        )}
       </div>
 
       {/* Course Detail Modal */}

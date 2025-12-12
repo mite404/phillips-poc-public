@@ -147,6 +147,44 @@ export function useProgramBuilder() {
     }
   };
 
+  const saveProgram = async () => {
+    // Validation
+    if (!programTitle.trim()) {
+      toast.error("Program title is required");
+      return;
+    }
+
+    if (selectedCourses.length === 0) {
+      toast.error("Please add at least one course");
+      return;
+    }
+
+    try {
+      toast.loading("Publishing program...");
+
+      // Transform UI state to payload with published: true
+      const payload: SupervisorProgram = {
+        id: crypto.randomUUID(),
+        supervisorId: "pat_mann_guid",
+        programName: programTitle,
+        description: programDescription,
+        tags: [],
+        courseSequence: selectedCourses.map((course) => course.courseId),
+        published: true, // Mark as published
+        createdAt: new Date().toISOString(),
+      };
+
+      await localApi.saveProgram(payload);
+
+      toast.dismiss();
+      toast.success(`Program "${programTitle}" published successfully!`);
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Failed to publish program");
+      console.error("Publish error:", error);
+    }
+  };
+
   return {
     // State
     programTitle,
@@ -167,5 +205,6 @@ export function useProgramBuilder() {
     toggleFilter,
     setSearch,
     saveDraft,
+    saveProgram,
   };
 }
