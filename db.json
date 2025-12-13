@@ -97,6 +97,20 @@
       ],
       "published": false,
       "createdAt": "2025-12-12T22:08:18.273Z"
+    },
+    {
+      "id": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "supervisorId": "pat_mann_guid",
+      "programName": "My Program",
+      "description": "",
+      "tags": [],
+      "courseSequence": [
+        114,
+        116,
+        9
+      ],
+      "published": false,
+      "createdAt": "2025-12-12T22:56:51.570Z"
     }
   ],
   "program_registrations": [

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-phillips-blue: #005596;
-  --color-phillips-red: #d31245;
+  --color-phillips-orange: #ff5000;
+  --color-phillips-dark: #1d1d1d;
 
   --color-background: 0 0% 100%;
   --color-foreground: 222.2 84% 4.9%;
