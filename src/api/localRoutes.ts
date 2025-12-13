@@ -1,9 +1,11 @@
 /**
  * Local API Routes
  * POST/PUT/GET calls to json-server running on localhost:3001
+ * Falls back to mock data when json-server is unavailable (production)
  */
 
 import { fetchApi, LOCAL_API_BASE } from "./utils";
+import { mockPrograms, mockAssignments, mockEnrollments } from "@/data/mockData";
 import type {
   SupervisorProgram,
   ProgramAssignment,
@@ -41,8 +43,12 @@ export async function getProgramById(id: string): Promise<SupervisorProgram> {
     );
     return response;
   } catch (error) {
-    console.error("Failed to fetch program:", error);
-    throw error;
+    console.error("Failed to fetch program from server, using mock data:", error);
+    const program = mockPrograms.find((p) => p.id === id);
+    if (!program) {
+      throw new Error(`Program ${id} not found`);
+    }
+    return program;
   }
 }
 
@@ -133,8 +139,8 @@ export async function getAssignments(): Promise<ProgramAssignment[]> {
     );
     return response;
   } catch (error) {
-    console.error("Failed to fetch assignments:", error);
-    throw error;
+    console.error("Failed to fetch assignments from server, using mock data:", error);
+    return mockAssignments;
   }
 }
 
@@ -146,8 +152,8 @@ export async function getEnrollments(): Promise<CourseEnrollment[]> {
     const response = await fetchApi<CourseEnrollment[]>(`${LOCAL_API_BASE}/enrollments`);
     return response || [];
   } catch (error) {
-    console.error("Failed to fetch enrollments:", error);
-    throw error;
+    console.error("Failed to fetch enrollments from server, using mock data:", error);
+    return mockEnrollments;
   }
 }
 
@@ -159,8 +165,8 @@ export async function getAllPrograms(): Promise<SupervisorProgram[]> {
     const response = await fetchApi<SupervisorProgram[]>(`${LOCAL_API_BASE}/programs`);
     return response || [];
   } catch (error) {
-    console.error("Failed to fetch programs:", error);
-    throw error;
+    console.error("Failed to fetch programs from server, using mock data:", error);
+    return mockPrograms;
   }
 }
 
