@@ -61,7 +61,7 @@ export function SidebarNav({
               }}
               className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors whitespace-nowrap"
             >
-              Program Builder
+              Create Program
             </button>
 
             {/* CONDITIONAL RENDER: list appears if isBuilderOpen is true */}
