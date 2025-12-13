@@ -205,7 +205,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
         </div>
 
         {/* Right Column: Student Roster */}
-        <div className="flex-[0.5] flex flex-col border border-slate-300 rounded-lg overflow-hidden">
+        <div className="flex-[0.6] flex flex-col border border-slate-300 rounded-lg overflow-hidden">
           <RosterList
             programId={programId}
             firstCourseId={hydratedCourses[0]?.courseId}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import STUDENTS from "@/data/Students.json";
+import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
-import type { SupervisorProgram } from "@/types/models";
+import type { SupervisorProgram, LearnerProfile } from "@/types/models";
 
 interface SidebarNavProps {
   currentView: string;
@@ -17,11 +17,13 @@ export function SidebarNav({
   const [isBuilderOpen, setIsBuilderOpen] = useState(false);
   const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [savedPrograms, setSavedPrograms] = useState<SupervisorProgram[]>([]);
+  const [students, setStudents] = useState<LearnerProfile[]>([]);
 
-  // Load saved programs when component mounts
+  // Load saved programs and students when component mounts
   useEffect(() => {
     if (userType === "supervisor") {
       loadSavedPrograms();
+      loadStudents();
     }
   }, [userType]);
 
@@ -31,6 +33,15 @@ export function SidebarNav({
       setSavedPrograms(programs);
     } catch (error) {
       console.error("Failed to load saved programs:", error);
+    }
+  }
+
+  async function loadStudents() {
+    try {
+      const roster = await legacyApi.getRoster();
+      setStudents(roster);
+    } catch (error) {
+      console.error("Failed to load students:", error);
     }
   }
 
@@ -94,15 +105,21 @@ export function SidebarNav({
             {isProgressOpen && (
               <div className="ml-6 mt-1 flex flex-col gap-1 border-l-2 border-slate-300 pl-2">
                 {/* List: Students */}
-                {STUDENTS.map((student) => (
-                  <button
-                    key={student.learner_Data_Id}
-                    onClick={() => onNavigate(`student_${student.learner_Data_Id}`)}
-                    className="text-left px-2 py-1 bg-gray-100! text-black! border-slate-300 hover:bg-slate-200! hover:border-slate-400 rounded text-xs truncate"
-                  >
-                    {student.learnerName}
-                  </button>
-                ))}
+                {students.length === 0 ? (
+                  <div className="text-xs text-slate-400 px-2 py-1">
+                    Loading students...
+                  </div>
+                ) : (
+                  students.map((student) => (
+                    <button
+                      key={student.learner_Data_Id}
+                      onClick={() => onNavigate(`student_${student.learner_Data_Id}`)}
+                      className="text-left px-2 py-1 bg-gray-100! text-black! border-slate-300 hover:bg-slate-200! hover:border-slate-400 rounded text-xs truncate"
+                    >
+                      {student.learnerName}
+                    </button>
+                  ))
+                )}
               </div>
             )}
           </>

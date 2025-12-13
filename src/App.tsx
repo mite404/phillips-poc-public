@@ -25,8 +25,13 @@ function App() {
         <div className="flex flex-col h-screen">
           {/* button container */}
           <div className="flex flex-col items-center justify-center flex-1 gap-3">
-            <header className="w-full flex justify-center py-4">
-              <h1 className="text-2xl font-bold">Phillips LMS POC</h1>
+            <header className="w-full flex justify-center items-center gap-2 py-4">
+              <img
+                src="/assets/philips-corp-brand-mark.png"
+                alt="Phillips Logo"
+                className="h-8"
+              />
+              <h1 className="text-2xl font-bold italic">Phillips</h1>
             </header>
             <button
               className="bg-orange-500! text-gray-950! px-6 py-3 rounded hover:bg-orange-300! hover:ring-1 hover:ring-slate-600 mx-auto font-medium"
