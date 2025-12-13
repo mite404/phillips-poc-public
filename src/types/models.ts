@@ -54,7 +54,7 @@ export interface LearnerProfile {
   learnerId: string; // GUID
   learnerName: string;
   emailId: string;
-  location: string;
+  location: string | { locationName: string };
   status: "Active" | "Inactive";
   currentEnrollment: {
     productName: string;

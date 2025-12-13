@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://phillipsx-pims-stage.azurewebsites.net/api/:path*"
+    },
+    {
+      "source": "/content-api/:path*",
+      "destination": "https://phillipsx-content-stage.azurewebsites.net/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

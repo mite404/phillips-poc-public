@@ -98,9 +98,6 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
     return "unassigned";
   };
 
-  // Get unassigned learners (eligible for batch invite)
-  const unassignedLearners = learners.filter((l) => getStudentStatus(l) === "unassigned");
-
   // Toggle individual student selection
   const toggleStudentSelection = (learnerId: string) => {
     setSelectedStudentIds((prev) =>
@@ -218,7 +215,6 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
             <div className="space-y-2">
               {learners.map((learner) => {
                 const status = getStudentStatus(learner);
-                const isUnassigned = status === "unassigned";
                 const isSelected = selectedStudentIds.includes(learner.learnerId);
 
                 return (
