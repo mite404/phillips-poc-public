@@ -34,7 +34,6 @@ export function ProgramBuilder() {
     toggleFilter,
     setSearch,
     saveDraft,
-    saveProgram,
   } = useProgramBuilder();
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));

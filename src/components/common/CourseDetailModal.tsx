@@ -25,7 +25,6 @@ export function CourseDetailModal({
   onBookClick,
 }: CourseDetailModalProps) {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [loadingTestimonials, setLoadingTestimonials] = useState(false);
 
   useEffect(() => {
     if (isOpen && course) {
@@ -34,7 +33,6 @@ export function CourseDetailModal({
   }, [isOpen, course]);
 
   async function loadTestimonials() {
-    setLoadingTestimonials(true);
     try {
       const allTestimonials = await legacyApi.getTestimonials();
       // Filter testimonials for this specific course
@@ -45,8 +43,6 @@ export function CourseDetailModal({
     } catch (error) {
       console.error("Failed to load testimonials:", error);
       setTestimonials([]);
-    } finally {
-      setLoadingTestimonials(false);
     }
   }
 
