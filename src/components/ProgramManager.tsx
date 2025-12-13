@@ -217,7 +217,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
       <div className="flex justify-center items-center gap-4 pt-4">
         <button
           onClick={handlePublishProgram}
-          className="px-8 py-3 bg-gray-100! text-black border-2 border-slate-300 outline rounded hover:bg-slate-50! transition-all"
+          className="px-8 py-3 bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded transition-all"
         >
           Publish Program
         </button>

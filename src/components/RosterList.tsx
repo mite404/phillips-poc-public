@@ -265,7 +265,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                         {status === "unassigned" && (
                           <button
                             onClick={() => handleAssignProgram(learner)}
-                            className="px-3 py-1 bg-gray-100! text-slate-700!  border-slate-300 outline border-2 outline-gray-400 rounded hover:bg-slate-200! hover:border-slate-400"
+                            className="px-3 py-1 bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded"
                           >
                             Assign
                           </button>

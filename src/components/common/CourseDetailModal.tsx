@@ -148,7 +148,7 @@ export function CourseDetailModal({
         <DialogFooter>
           <button
             onClick={onClose}
-            className="bg-gray-100! text-slate-700! border-slate-300 outline border-2 outline-gray-400 px-4 py-2 rounded hover:bg-slate-200! hover:border-slate-400"
+            className="bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded px-4 py-2"
           >
             Close
           </button>
