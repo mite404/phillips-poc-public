@@ -120,6 +120,8 @@ export function ProgramBuilder() {
                         <div
                           onClick={() => setActiveCourse(course)}
                           className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100 cursor-pointer"
+
+                          // "bg-orange-500! text-gray-950! px-6 py-3 rounded hover:bg-orange-400! hover:ring-1 hover:ring-slate-600 mx-auto font-medium"
                         >
                           <div className="flex-1">
                             <h3 className="font-medium text-slate-900">
@@ -163,7 +165,7 @@ export function ProgramBuilder() {
             )}
             <button
               onClick={saveDraft}
-              className="bg-gray-100! text-black border-2 border-slate-300 outline outline-gray px-4 py-2 rounded hover:bg-slate-50! hover:border-slate-400 font-medium"
+              className="bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded px-4 py-2 font-medium"
             >
               Save Draft
             </button>
@@ -189,10 +191,10 @@ export function ProgramBuilder() {
                   key={filterKey}
                   onClick={() => toggleFilter(filterKey)}
                   disabled={isLoading}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`px-3 py-1 rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                     activeFilters[filterKey]
-                      ? "bg-gray-100! text-slate-900! outline border-2 border-slate-300 font-bold shadow-sm"
-                      : "bg-white text-black outline border-2 border-slate-200 hover:bg-slate-50"
+                      ? "bg-orange-300! text-black outline outline-gray-400! font-bold shadow-sm ring-1"
+                      : "bg-orange-50! text-black outline outline-gray-400! hover:bg-orange-300! hover:ring-1"
                   }`}
                 >
                   {filterKey}
@@ -234,7 +236,7 @@ export function ProgramBuilder() {
                           e.stopPropagation();
                           addCourse(course);
                         }}
-                        className="px-3 py-1 !bg-gray-100 text-black outline border-2 !outline-gray-400 hover:!bg-slate-200 hover:border-slate-400 text-sm rounded hover:bg-blue-700"
+                        className="px-3 py-1 bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded"
                       >
                         Add
                       </button>

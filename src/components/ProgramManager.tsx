@@ -205,7 +205,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
         </div>
 
         {/* Right Column: Student Roster */}
-        <div className="flex-[0.5] flex flex-col border border-slate-300 rounded-lg overflow-hidden">
+        <div className="flex-[0.6] flex flex-col border border-slate-300 rounded-lg overflow-hidden">
           <RosterList
             programId={programId}
             firstCourseId={hydratedCourses[0]?.courseId}
@@ -217,7 +217,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
       <div className="flex justify-center items-center gap-4 pt-4">
         <button
           onClick={handlePublishProgram}
-          className="px-8 py-3 bg-gray-100! text-black border-2 border-slate-300 outline rounded hover:bg-slate-50! transition-all"
+          className="px-8 py-3 bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded transition-all"
         >
           Publish Program
         </button>

@@ -258,14 +258,14 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                           </span>
                         )}
                         {status === "pending" && (
-                          <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded font-medium">
-                            ⏳ Pending
+                          <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded font-medium mr-[10px]">
+                            Pending
                           </span>
                         )}
                         {status === "unassigned" && (
                           <button
                             onClick={() => handleAssignProgram(learner)}
-                            className="px-3 py-1 bg-gray-100! text-slate-700!  border-slate-300 outline border-2 outline-gray-400 rounded hover:bg-slate-200! hover:border-slate-400"
+                            className="px-3 py-1 bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-xs rounded w-32"
                           >
                             Assign
                           </button>
@@ -273,7 +273,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                         {status === "pending" && firstCourseId && (
                           <button
                             onClick={() => handleForceEnroll(learner)}
-                            className="px-3 py-1 bg-phillips-red text-white text-sm rounded hover:bg-red-700"
+                            className="px-3 py-1 bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-xs rounded w-32"
                           >
                             Force Enroll
                           </button>
