@@ -111,6 +111,24 @@
       ],
       "published": false,
       "createdAt": "2025-12-12T22:56:51.570Z"
+    },
+    {
+      "id": "8d762fa3-498b-4dd4-9df2-672bf9bbcd9b",
+      "supervisorId": "pat_mann_guid",
+      "programName": "test teest",
+      "description": "123 asdf asdf",
+      "tags": [],
+      "courseSequence": [
+        116,
+        9,
+        114,
+        127,
+        90,
+        91,
+        104
+      ],
+      "published": true,
+      "createdAt": "2025-12-15T17:11:06.853Z"
     }
   ],
   "program_registrations": [
