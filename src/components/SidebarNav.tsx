@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
 import type { SupervisorProgram, LearnerProfile } from "@/types/models";
@@ -10,40 +10,40 @@ interface SidebarNavProps {
 }
 
 export function SidebarNav({
-  currentView: _currentView,
   onNavigate,
   userType,
-}: SidebarNavProps) {
+}: Omit<SidebarNavProps, "currentView">) {
   const [isBuilderOpen, setIsBuilderOpen] = useState(false);
   const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [savedPrograms, setSavedPrograms] = useState<SupervisorProgram[]>([]);
   const [students, setStudents] = useState<LearnerProfile[]>([]);
 
-  // Load saved programs and students when component mounts
-  useEffect(() => {
-    if (userType === "supervisor") {
-      loadSavedPrograms();
-      loadStudents();
-    }
-  }, [userType]);
-
-  async function loadSavedPrograms() {
+  const loadSavedPrograms = useCallback(async () => {
     try {
       const programs = await localApi.getAllPrograms();
       setSavedPrograms(programs);
     } catch (error) {
       console.error("Failed to load saved programs:", error);
     }
-  }
+  }, []);
 
-  async function loadStudents() {
+  const loadStudents = useCallback(async () => {
     try {
       const roster = await legacyApi.getRoster();
       setStudents(roster);
     } catch (error) {
       console.error("Failed to load students:", error);
     }
-  }
+  }, []);
+
+  // Load saved programs and students when component mounts
+  useEffect(() => {
+    if (userType === "supervisor") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      loadSavedPrograms();
+      loadStudents();
+    }
+  }, [userType, loadSavedPrograms, loadStudents]);
 
   return (
     <nav className="w-[250px] bg-slate-50 border-r border-slate-200 flex flex-col h-full p-4 text-left">

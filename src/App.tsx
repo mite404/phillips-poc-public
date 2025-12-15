@@ -54,11 +54,7 @@ function App() {
       <>
         <Toaster position="top-right" />
         <div className="flex flex-1 overflow-hidden">
-          <SidebarNav
-            currentView={currentView}
-            onNavigate={setCurrentView}
-            userType={userType}
-          />
+          <SidebarNav onNavigate={setCurrentView} userType={userType} />
           <PageContent
             userType={userType}
             setUserType={handleSetUserType}
@@ -72,11 +68,7 @@ function App() {
       <>
         <Toaster position="top-right" />
         <div className="flex flex-1 overflow-hidden">
-          <SidebarNav
-            currentView={currentView}
-            onNavigate={setCurrentView}
-            userType={userType}
-          />
+          <SidebarNav onNavigate={setCurrentView} userType={userType} />
           <PageContent
             userType={userType}
             setUserType={handleSetUserType}

@@ -66,9 +66,7 @@ function programReducer(state: ProgramState, action: ProgramAction): ProgramStat
     }
 
     case "REMOVE_COURSE": {
-      const filtered = state.selectedCourses.filter(
-        (c) => c.courseId !== action.payload
-      );
+      const filtered = state.selectedCourses.filter((c) => c.courseId !== action.payload);
 
       // Re-index sequence order
       const reindexed = filtered.map((course, index) => ({
@@ -130,6 +128,7 @@ export function ProgramProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useProgram() {
   const context = useContext(ProgramContext);
   if (!context) {

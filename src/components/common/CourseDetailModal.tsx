@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Course } from "../../hooks/useProgramBuilder";
 import { legacyApi } from "@/api/legacyRoutes";
 import type { Testimonial } from "@/types/models";
@@ -26,25 +26,28 @@ export function CourseDetailModal({
 }: CourseDetailModalProps) {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
-  useEffect(() => {
-    if (isOpen && course) {
-      loadTestimonials();
-    }
-  }, [isOpen, course]);
+  const loadTestimonials = useCallback(async () => {
+    if (!course) return;
 
-  async function loadTestimonials() {
     try {
       const allTestimonials = await legacyApi.getTestimonials();
       // Filter testimonials for this specific course
       const filtered = allTestimonials.filter((t) =>
-        t.courses.some((c) => c.courseId === course?.courseId),
+        t.courses.some((c) => c.courseId === course.courseId),
       );
       setTestimonials(filtered);
     } catch (error) {
       console.error("Failed to load testimonials:", error);
       setTestimonials([]);
     }
-  }
+  }, [course]);
+
+  useEffect(() => {
+    if (isOpen && course) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      loadTestimonials();
+    }
+  }, [isOpen, course, loadTestimonials]);
 
   if (!course) return null;
 
