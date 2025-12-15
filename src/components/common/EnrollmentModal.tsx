@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
 import type { LearnerProfile, ClassSchedule, CourseInventory } from "@/types/models";
@@ -33,13 +33,7 @@ export function EnrollmentModal({
   const [selectedClass, setSelectedClass] = useState<ClassSchedule | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (isOpen) {
-      loadInventory();
-    }
-  }, [isOpen, courseId]);
-
-  async function loadInventory() {
+  const loadInventory = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await legacyApi.getInventory(courseId);
@@ -50,7 +44,13 @@ export function EnrollmentModal({
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [courseId]);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadInventory();
+    }
+  }, [isOpen, loadInventory]);
 
   const handleEnroll = async () => {
     if (!selectedClass) {

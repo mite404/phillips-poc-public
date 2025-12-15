@@ -1,0 +1,57 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if should skip
+        id: check-skip
+        env:
+          PUSH_MSG: ${{ github.event.head_commit.message || '' }}
+          PR_MSG: ${{ github.event.pull_request.title || '' }}
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            MSG="$PUSH_MSG"
+          else
+            MSG="$PR_MSG"
+          fi
+          if [[ "$MSG" == *"[skip ci]"* ]]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout code
+        if: steps.check-skip.outputs.skip != 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        if: steps.check-skip.outputs.skip != 'true'
+        uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        if: steps.check-skip.outputs.skip != 'true'
+        run: bun install
+
+      - name: Run ESLint
+        if: steps.check-skip.outputs.skip != 'true'
+        run: bun run lint
+
+      - name: Install Vercel CLI
+        if: steps.check-skip.outputs.skip != 'true'
+        run: bun add -g vercel
+
+      - name: Deploy to Vercel
+        if: steps.check-skip.outputs.skip != 'true'
+        uses: BetaHuhn/deploy-to-vercel-action@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

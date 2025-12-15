@@ -9,9 +9,9 @@ import { fetchApi, CONTENT_API_BASE } from "./utils";
  * Fetch testimonials from Content API
  * Returns all testimonials with partial values
  */
-export async function getTestimonials(): Promise<any> {
+export async function getTestimonials(): Promise<unknown[]> {
   try {
-    const response = await fetchApi<{ result: any[] }>(
+    const response = await fetchApi<{ result: unknown[] }>(
       `${CONTENT_API_BASE}/Testimonial/GetAllPartialValue`,
     );
 
@@ -26,7 +26,7 @@ export async function getTestimonials(): Promise<any> {
 /**
  * Test function to check API availability
  */
-export async function testContentAPI(): Promise<any> {
+export async function testContentAPI(): Promise<unknown> {
   try {
     // Try different possible endpoints
     const endpoints = [
