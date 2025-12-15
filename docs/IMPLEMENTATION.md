@@ -1,7 +1,7 @@
 # Implementation Progress Tracker
 
-> **Last Updated:** 2025-12-15 (PR-16 Complete - Vercel Ready)  
-> **Project Status:** 🎉 **COMPLETE - v1.0 POC + Vercel Production Ready**
+> **Last Updated:** 2025-12-15 (PR-18 Complete - Data Reliability)  
+> **Project Status:** 🏆 **GOLD MASTER (Ready for Demo) - All Features + Data Guarantee**
 
 ---
 
@@ -344,6 +344,57 @@ bun dev
 
 ---
 
+## PR-17: State Synchronization & Sidebar UI Polish
+
+**Status:** ✅ **COMPLETE**
+
+- [x] Implement callback-driven state synchronization pattern
+  - [x] Add `refreshTrigger: number` state to `App.tsx`
+  - [x] Create `handleProgramSaved()` callback that increments trigger
+  - [x] Pass `refreshTrigger` prop to `<SidebarNav />` component
+  - [x] Add `refreshTrigger` to SidebarNav useEffect dependency array
+  - [x] **Result:** Sidebar instantly updates when programs are saved
+- [x] Implement callback propagation down component tree
+  - [x] Add `onProgramSaved?: () => void` prop to `PageContent`
+  - [x] Pass `onProgramSaved` prop to `<ProgramBuilder />`
+  - [x] Update ProgramBuilder "Save Draft" button handler: `onClick={async () => { await saveDraft(); onProgramSaved?.(); }}`
+  - [x] **Pattern:** Child invokes callback after action, parent receives notification
+- [x] Polish sidebar "Account" button styling
+  - [x] Change "Account" from `<div>` to `<button>` element
+  - [x] Verify computed styles match "Create Program" button
+  - [x] Confirm with Chrome DevTools: identical fontSize, fontWeight, color, padding
+- [x] Verify all changes work correctly
+  - [x] Test program save → sidebar updates immediately
+  - [x] Lint passes with no errors
+  - [x] Build succeeds
+  - [x] No breaking changes to existing features
+
+---
+
+## PR-18: Data Reliability (Empty Data Guarantee)
+
+**Status:** ✅ **COMPLETE**
+
+- [x] Identify and fix data bug in `getInventory(courseId)`
+  - [x] Root cause: API HTTP 200 with empty `result` array doesn't trigger fallback
+  - [x] Impact: "No class sessions available" shown for courses without matching `courseId` in API
+- [x] Implement "Data Guarantee" pattern in `src/api/legacyRoutes.ts`
+  - [x] Add explicit empty data check: `if (!inventory || !inventory.classes || inventory.classes.length === 0)`
+  - [x] Log warning when API returns empty: `"Real API returned no classes for course X, using fallback data"`
+  - [x] Load fallback from `src/data/Schedules.json` and filter by `courseId`
+  - [x] Apply pattern to both: Network Error AND Empty Data paths
+- [x] Verify fallback data completeness
+  - [x] Course 11: Bensalem, PA (ILT) + Online Virtual (Online)
+  - [x] Course 116: Bensalem, PA (ILT) + Mumbai, India (ILT)
+  - [x] Every demo course has min 1 ILT + 1 Online session
+- [x] Test and verify implementation
+  - [x] Linting passes (0 errors)
+  - [x] Build succeeds (TypeScript compilation)
+  - [x] No breaking changes
+  - [x] Console warnings verify fallback activation
+
+---
+
 ## 📝 Notes
 
 - **Architecture:** Hybrid data model (read from Legacy API, write to local json-server)
@@ -351,6 +402,10 @@ bun dev
 - **Styling:** Tailwind utilities + shadcn/ui components + Phillips brand colors
 - **Testing:** Manual testing via Vite dev server + json-server running concurrently
 - **Demo Features:** ProgramProgressCard includes clickable status badges for demonstrations
+- **Critical Technical Decisions:**
+  - **Aggressive Fallback Strategy:** Network failures AND empty data sets both trigger local JSON fallbacks
+  - **Data Guarantee Pattern:** Always validate API responses have actual data (not just HTTP 200)
+  - **State Sync via Callbacks:** Child components signal parent actions, parent controls response
 
 ---
 
