@@ -16,7 +16,11 @@ import { Skeleton } from "./ui/skeleton";
 
 type FilterKey = "Self-Paced" | "ILT" | "Advanced";
 
-export function ProgramBuilder() {
+interface ProgramBuilderProps {
+  onProgramSaved?: () => void;
+}
+
+export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
   const {
     programTitle,
@@ -163,7 +167,11 @@ export function ProgramBuilder() {
               </div>
             )}
             <button
-              onClick={saveDraft}
+              onClick={async () => {
+                await saveDraft();
+                // Notify parent that a program was saved
+                onProgramSaved?.();
+              }}
               className="bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded px-4 py-2 font-medium"
             >
               Save Draft

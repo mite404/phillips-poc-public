@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 function App() {
   const [userType, setUserType] = useState<"supervisor" | "student" | null>(null);
   const [currentView, setCurrentView] = useState<string>("builder");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Set initial view based on user type
   const handleSetUserType = (type: "supervisor" | "student" | null) => {
@@ -16,6 +17,11 @@ function App() {
     } else if (type === "supervisor") {
       setCurrentView("builder");
     }
+  };
+
+  // Handler to trigger sidebar refresh when a program is saved
+  const handleProgramSaved = () => {
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   if (userType === null) {
@@ -54,11 +60,16 @@ function App() {
       <>
         <Toaster position="top-right" />
         <div className="flex flex-1 overflow-hidden">
-          <SidebarNav onNavigate={setCurrentView} userType={userType} />
+          <SidebarNav
+            onNavigate={setCurrentView}
+            userType={userType}
+            refreshTrigger={refreshTrigger}
+          />
           <PageContent
             userType={userType}
             setUserType={handleSetUserType}
             currentView={currentView}
+            onProgramSaved={handleProgramSaved}
           />
         </div>
       </>
@@ -68,11 +79,16 @@ function App() {
       <>
         <Toaster position="top-right" />
         <div className="flex flex-1 overflow-hidden">
-          <SidebarNav onNavigate={setCurrentView} userType={userType} />
+          <SidebarNav
+            onNavigate={setCurrentView}
+            userType={userType}
+            refreshTrigger={refreshTrigger}
+          />
           <PageContent
             userType={userType}
             setUserType={handleSetUserType}
             currentView={currentView}
+            onProgramSaved={handleProgramSaved}
           />
         </div>
       </>
