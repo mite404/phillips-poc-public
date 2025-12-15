@@ -7,8 +7,9 @@ export function PageContent(props: {
   userType: "supervisor" | "student";
   setUserType: (userType: "supervisor" | "student" | null) => void;
   currentView: string;
+  onProgramSaved?: () => void;
 }) {
-  const { userType, setUserType, currentView } = props;
+  const { userType, setUserType, currentView, onProgramSaved } = props;
 
   // Check if viewing a student progress view (student_1511, student_1512, etc.)
   const isStudentProgressView = currentView.startsWith("student_");
@@ -45,7 +46,7 @@ export function PageContent(props: {
           <ProgramManager programId={currentView} />
         ) : (
           <div className="h-full p-8">
-            <ProgramBuilder />
+            <ProgramBuilder onProgramSaved={onProgramSaved} />
           </div>
         )}
       </div>

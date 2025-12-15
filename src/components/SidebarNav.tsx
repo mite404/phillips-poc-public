@@ -8,11 +8,13 @@ interface SidebarNavProps {
   currentView: string;
   onNavigate: (viewId: string) => void;
   userType: "supervisor" | "student";
+  refreshTrigger: number;
 }
 
 export function SidebarNav({
   onNavigate,
   userType,
+  refreshTrigger,
 }: Omit<SidebarNavProps, "currentView">) {
   const [isBuilderOpen, setIsBuilderOpen] = useState(false);
   const [isProgressOpen, setIsProgressOpen] = useState(false);
@@ -37,14 +39,14 @@ export function SidebarNav({
     }
   }, []);
 
-  // Load saved programs and students when component mounts
+  // Load saved programs and students when component mounts or when refreshTrigger changes
   useEffect(() => {
     if (userType === "supervisor") {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       loadSavedPrograms();
       loadStudents();
     }
-  }, [userType, loadSavedPrograms, loadStudents]);
+  }, [userType, loadSavedPrograms, loadStudents, refreshTrigger]);
 
   return (
     <nav className="w-[250px] bg-slate-50 border-r border-slate-200 flex flex-col h-full p-4 text-left">
