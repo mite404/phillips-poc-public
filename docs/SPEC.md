@@ -1,7 +1,7 @@
 # Project Specification & Prompt Context
 
-> **Last Updated:** 2025-12-12  
-> **Project Status:** ✅ COMPLETE (v1.0 POC) - Feature Complete
+> **Last Updated:** 2025-12-15  
+> **Project Status:** ✅ COMPLETE (v1.0 POC) + Vercel Ready - All Features + Production Deployment + Network-First Resilience
 
 ## 📌 Global Context (Paste at start of every session)
 
@@ -330,6 +330,81 @@ Click Course → Detail Modal Opens → "Book Class" Button Visible (ILT courses
 - **Global Publish Button** (ProgramManager.tsx:195-212): Button positioned at bottom center with flex layout, calls `handlePublishProgram()` which uses `localApi.updateProgram()` to set `published: true`.
 - **Uniform Student Cards** (RosterList.tsx:226-267): Removed conditional checkbox rendering; all students show checkboxes. Status badges and Assign buttons positioned consistently on the right.
 - **Dynamic Sidebar** (SidebarNav.tsx:18-33): Uses `useEffect` to fetch programs on mount, displays "DRAFT" badge for unpublished programs using `!program.published` check.
+
+---
+
+### ✅ PR-15: Resilient Persistence Layer
+
+**Status:** Completed  
+**Goal:** Implement network-first, localStorage-fallback architecture for Vercel deployment where json-server is unavailable.
+
+**Completed:**
+
+- [x] **Created `src/data/seedData.ts`**
+  - [x] Single source of truth for initial database state
+  - [x] Mirrors complete structure from `db.json` (programs, program_registrations, enrollments)
+  - [x] Contains 7 demo programs with full course sequences
+  - [x] Contains 12 program assignments and 6 enrollments for demo purposes
+  - [x] Exports `INITIAL_DB` and `LocalDB` TypeScript interface
+
+- [x] **Created `src/api/storageUtils.ts`**
+  - [x] `initializeStorage()`: Auto-seeds localStorage with INITIAL_DB on first visit
+  - [x] `readDB()`: Retrieves DB from localStorage with validation and fallback to INITIAL_DB
+  - [x] `writeDB(db)`: Persists to localStorage with quota error handling
+  - [x] `delay(ms)`: Simulates 300ms network latency for UX consistency
+  - [x] `clearStorage()`: Debug utility to reset to seed state
+  - [x] SSR-safe with `typeof window` checks
+
+- [x] **Refactored `src/api/localRoutes.ts` (All 8 methods)**
+  - [x] Implemented network-first, localStorage-fallback pattern for:
+    - [x] `getAllPrograms()` - Fetch programs with fallback
+    - [x] `getProgramById()` - Fetch single program with fallback
+    - [x] `saveProgram()` - Save new program with fallback
+    - [x] `updateProgram()` - Update existing program with fallback
+    - [x] `getAssignments()` - Fetch all assignments with fallback
+    - [x] `assignProgram()` - Create new assignment with fallback
+    - [x] `getEnrollments()` - Fetch all enrollments with fallback
+    - [x] `enrollStudent()` - Create new enrollment with fallback
+  - [x] Uses `import.meta.env.PROD` to detect production mode
+  - [x] Development: Tries json-server first, falls back to localStorage
+  - [x] Production (Vercel): Skips network entirely, uses localStorage only
+  - [x] Proper error handling with console warnings for fallback state
+
+- [x] **Deleted `src/data/mockData.ts`**
+  - [x] Replaced by `seedData.ts` to prevent data duplication
+  - [x] Ensures single source of truth for demo data
+
+- [x] **Production-Ready Deployment**
+  - [x] No localhost API calls in production mode
+  - [x] Automatic seed data seeding on first Vercel load
+  - [x] Graceful degradation when localStorage quota exceeded
+  - [x] 300ms delay for UX consistency between dev and production
+
+---
+
+### ✅ PR-16: Fix Student Progress View (Vercel Deployment)
+
+**Status:** Completed  
+**Goal:** Fix CORS errors on Vercel by replacing hardcoded fetch() with localStorage-backed API.
+
+**Completed:**
+
+- [x] **Identified Root Cause**
+  - [x] `StudentProgressView.tsx` had hardcoded `fetch("http://localhost:3001/programs")` (lines 118-122)
+  - [x] Bypassed the PR-15 localStorage fallback infrastructure
+  - [x] Caused CORS errors on Vercel: "Access to fetch at 'http://localhost:3001/programs' from origin 'https://phillips-poc-public.vercel.app' has been blocked by CORS"
+
+- [x] **Implemented Fix**
+  - [x] Replaced direct fetch helper with `localApi.getAllPrograms()` call
+  - [x] Single-line change leveraged existing infrastructure
+  - [x] Now uses network-first, localStorage-fallback pattern from PR-15
+
+- [x] **Verified Production Behavior**
+  - [x] No CORS errors on Vercel deployment
+  - [x] Student progress loads successfully on production
+  - [x] Works in both development and production modes
+  - [x] No breaking changes to existing functionality
+  - [x] Linting and build passes
 
 ---
 
