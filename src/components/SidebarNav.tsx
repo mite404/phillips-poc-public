@@ -51,7 +51,9 @@ export function SidebarNav({
   return (
     <nav className="w-[250px] bg-slate-50 border-r border-slate-200 flex flex-col h-full p-4 text-left">
       <div className="space-y-1">
-        <div className="px-3 py-2 text-sm font-medium text-slate-700">Account</div>
+        <button className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors whitespace-nowrap">
+          Account
+        </button>
 
         {/* Supervisor Menu */}
         {userType === "supervisor" && (
