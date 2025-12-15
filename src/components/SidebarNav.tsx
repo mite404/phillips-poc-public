@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
 import type { SupervisorProgram, LearnerProfile } from "@/types/models";
+import { clearStorage } from "@/api/storageUtils";
 
 interface SidebarNavProps {
   currentView: string;
@@ -134,6 +135,19 @@ export function SidebarNav({
             My Programs
           </button>
         )}
+
+        {/* RESET DEMO DATA BTN */}
+        <button
+          onClick={async () => {
+            clearStorage();
+            // Reset db.json by calling a reset endpoint (you'd need to create this)
+            // For now, just reload to see seed data
+            window.location.reload();
+          }}
+          className="text-xs text-slate-400 hover:text-red-500 mt-auto p-4"
+        >
+          Reset Demo Data
+        </button>
       </div>
     </nav>
   );
