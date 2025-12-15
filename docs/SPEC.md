@@ -408,6 +408,35 @@ Click Course → Detail Modal Opens → "Book Class" Button Visible (ILT courses
 
 ---
 
+### ✅ PR-17: State Synchronization & Sidebar UI Polish
+
+**Status:** Completed  
+**Goal:** Implement callback-driven state synchronization pattern and polish sidebar styling.
+
+**Completed:**
+
+- [x] **State Synchronization Pattern (App → SidebarNav)**
+  - [x] Added `refreshTrigger: number` state in `App.tsx` (incremented on program save)
+  - [x] Created `handleProgramSaved()` callback that increments trigger
+  - [x] Passed `refreshTrigger` prop to `<SidebarNav />`
+  - [x] Added `refreshTrigger` to `SidebarNav` useEffect dependency array
+  - [x] **Result:** Sidebar re-fetches saved programs when trigger changes, displays new programs instantly
+
+- [x] **Callback Propagation (PageContent → ProgramBuilder)**
+  - [x] Added `onProgramSaved?: () => void` prop to `PageContent`
+  - [x] Passed prop down to `<ProgramBuilder />`
+  - [x] `ProgramBuilder` invokes callback after successful `saveDraft()` (async)
+  - [x] **Pattern:** `onClick={async () => { await saveDraft(); onProgramSaved?.(); }}`
+  - [x] **Benefit:** Child notifies parent that an action occurred, parent decides response
+
+- [x] **Sidebar UI Polish - "Account" Button**
+  - [x] Changed "Account" from `<div>` to `<button>` element (SidebarNav.tsx:51)
+  - [x] Both "Account" and "Create Program" now have identical computed styles
+  - [x] Browser default button styling now matches perfectly
+  - [x] Verified with Chrome DevTools: `fontSize`, `fontWeight`, `color`, `padding` all identical
+
+---
+
 ## 🛠️ Data Dictionary (for reference)
 
 **Legacy API Base URL:**
