@@ -102,13 +102,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     fetchData();
   }, [studentId]);
 
-  // Helper function to fetch all programs from json-server
+  // Helper function to fetch all programs (uses network-first, localStorage-fallback)
   async function fetchAllPrograms(): Promise<SupervisorProgram[]> {
-    const response = await fetch("http://localhost:3001/programs");
-    if (!response.ok) {
-      throw new Error("Failed to fetch programs");
-    }
-    return response.json();
+    return localApi.getAllPrograms();
   }
 
   // Loading state
