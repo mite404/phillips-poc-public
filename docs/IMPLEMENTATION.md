@@ -1,7 +1,7 @@
 # Implementation Progress Tracker
 
-> **Last Updated:** 2025-12-11 (PR-10 Complete - v1.0 POC Released)  
-> **Project Status:** 🎉 **COMPLETE - v1.0 POC**
+> **Last Updated:** 2025-12-15 (PR-16 Complete - Vercel Ready)  
+> **Project Status:** 🎉 **COMPLETE - v1.0 POC + Vercel Production Ready**
 
 ---
 
@@ -291,6 +291,56 @@ bun dev
 - Both user types have dedicated navigation and views
 - All UI polish complete with consistent styling
 - All core POC features implemented and tested
+
+---
+
+## PR-15: Resilient Persistence Layer
+
+**Status:** ✅ **COMPLETE**
+
+- [x] Create `src/data/seedData.ts` with INITIAL_DB mirroring db.json structure
+  - [x] Export LocalDB TypeScript interface
+  - [x] Include 7 demo programs with full course sequences
+  - [x] Include 12 program registrations (assignments)
+  - [x] Include 6 enrollments
+- [x] Create `src/api/storageUtils.ts` with localStorage management utilities
+  - [x] `initializeStorage()` - Auto-seed on first visit
+  - [x] `readDB()` - Read with validation and fallback
+  - [x] `writeDB()` - Write with quota error handling
+  - [x] `delay()` - 300ms latency simulation
+  - [x] `clearStorage()` - Debug utility
+  - [x] SSR-safe with `typeof window` checks
+- [x] Refactor `src/api/localRoutes.ts` - Network-first, localStorage-fallback for all 8 methods
+  - [x] `getAllPrograms()` with fallback
+  - [x] `getProgramById()` with fallback
+  - [x] `saveProgram()` with fallback
+  - [x] `updateProgram()` with fallback
+  - [x] `getAssignments()` with fallback
+  - [x] `assignProgram()` with fallback
+  - [x] `getEnrollments()` with fallback
+  - [x] `enrollStudent()` with fallback
+  - [x] Implement `import.meta.env.PROD` check for production mode detection
+  - [x] Development mode: Try json-server, fallback to localStorage
+  - [x] Production mode: Use localStorage only (no localhost calls)
+- [x] Delete `src/data/mockData.ts` - Replaced by seedData.ts
+- [x] Verify production build succeeds
+- [x] Verify no localhost API calls in production mode
+
+---
+
+## PR-16: Fix Student Progress View (Vercel Deployment)
+
+**Status:** ✅ **COMPLETE**
+
+- [x] Identify root cause: Hardcoded `fetch("http://localhost:3001/programs")` in StudentProgressView.tsx
+- [x] Replace direct fetch helper with `localApi.getAllPrograms()` call
+  - [x] Single-line change leveraging existing infrastructure
+  - [x] Maintains full functionality with proper fallback
+- [x] Verify CORS errors resolved on Vercel deployment
+- [x] Test student progress loads successfully in production
+- [x] Confirm works in both dev and production modes
+- [x] Verify linting passes with no new errors
+- [x] Verify build succeeds
 
 ---
 
