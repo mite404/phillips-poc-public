@@ -1,11 +1,12 @@
 /**
  * Local API Routes
- * POST/PUT/GET calls to json-server running on localhost:3001
- * Falls back to mock data when json-server is unavailable (production)
+ * Network-first (json-server), localStorage-fallback architecture
+ * - Development: Tries json-server first, falls back to localStorage
+ * - Production: Uses localStorage directly (no json-server on Vercel)
  */
 
 import { fetchApi, LOCAL_API_BASE } from "./utils";
-import { mockPrograms, mockAssignments, mockEnrollments } from "@/data/mockData";
+import { initializeStorage, readDB, writeDB, delay } from "./storageUtils";
 import type {
   SupervisorProgram,
   ProgramAssignment,
@@ -13,23 +14,24 @@ import type {
 } from "@/types/models";
 
 /**
- * Save a new program to the local json-server
- * @param program - The program to save (with courseSequence as array of IDs)
+ * Get all programs for a supervisor
  */
-export async function saveProgram(
-  program: SupervisorProgram,
-): Promise<SupervisorProgram> {
-  try {
-    const response = await fetchApi<SupervisorProgram>(`${LOCAL_API_BASE}/programs`, {
-      method: "POST",
-      body: JSON.stringify(program),
-    });
-
-    return response;
-  } catch (error) {
-    console.error("Failed to save program:", error);
-    throw error;
+export async function getAllPrograms(): Promise<SupervisorProgram[]> {
+  // 1. Try network (dev only)
+  if (!import.meta.env.PROD) {
+    try {
+      const response = await fetchApi<SupervisorProgram[]>(`${LOCAL_API_BASE}/programs`);
+      return response || [];
+    } catch {
+      console.warn("json-server offline, using localStorage");
+    }
   }
+
+  // 2. Fallback to localStorage
+  initializeStorage();
+  await delay(300);
+  const db = readDB();
+  return db.programs;
 }
 
 /**
@@ -37,19 +39,58 @@ export async function saveProgram(
  * @param id - The program UUID
  */
 export async function getProgramById(id: string): Promise<SupervisorProgram> {
-  try {
-    const response = await fetchApi<SupervisorProgram>(
-      `${LOCAL_API_BASE}/programs/${id}`,
-    );
-    return response;
-  } catch (error) {
-    console.error("Failed to fetch program from server, using mock data:", error);
-    const program = mockPrograms.find((p) => p.id === id);
-    if (!program) {
-      throw new Error(`Program ${id} not found`);
+  // 1. Try network (dev only)
+  if (!import.meta.env.PROD) {
+    try {
+      const response = await fetchApi<SupervisorProgram>(
+        `${LOCAL_API_BASE}/programs/${id}`,
+      );
+      return response;
+    } catch {
+      console.warn("json-server offline, using localStorage");
     }
-    return program;
   }
+
+  // 2. Fallback to localStorage
+  initializeStorage();
+  await delay(300);
+  const db = readDB();
+  const program = db.programs.find((p) => p.id === id);
+
+  if (!program) {
+    throw new Error(`Program ${id} not found`);
+  }
+
+  return program;
+}
+
+/**
+ * Save a new program
+ * @param program - The program to save (with courseSequence as array of IDs)
+ */
+export async function saveProgram(
+  program: SupervisorProgram,
+): Promise<SupervisorProgram> {
+  // 1. Try network (dev only)
+  if (!import.meta.env.PROD) {
+    try {
+      const response = await fetchApi<SupervisorProgram>(`${LOCAL_API_BASE}/programs`, {
+        method: "POST",
+        body: JSON.stringify(program),
+      });
+      return response;
+    } catch {
+      console.warn("json-server offline, using localStorage");
+    }
+  }
+
+  // 2. Fallback to localStorage
+  initializeStorage();
+  await delay(300);
+  const db = readDB();
+  db.programs.push(program);
+  writeDB(db);
+  return program;
 }
 
 /**
@@ -61,113 +102,157 @@ export async function updateProgram(
   id: string,
   updates: Partial<SupervisorProgram>,
 ): Promise<SupervisorProgram> {
-  try {
-    const response = await fetchApi<SupervisorProgram>(
-      `${LOCAL_API_BASE}/programs/${id}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(updates),
-      },
-    );
-    return response;
-  } catch (error) {
-    console.error("Failed to update program:", error);
-    throw error;
+  // 1. Try network (dev only)
+  if (!import.meta.env.PROD) {
+    try {
+      const response = await fetchApi<SupervisorProgram>(
+        `${LOCAL_API_BASE}/programs/${id}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify(updates),
+        },
+      );
+      return response;
+    } catch {
+      console.warn("json-server offline, using localStorage");
+    }
   }
-}
 
-/**
- * Assign a program to a student
- * @param payload - Assignment data
- */
-export async function assignProgram(
-  payload: Omit<ProgramAssignment, "id">,
-): Promise<ProgramAssignment> {
-  try {
-    const assignment: ProgramAssignment = {
-      id: crypto.randomUUID(),
-      ...payload,
-    };
+  // 2. Fallback to localStorage
+  initializeStorage();
+  await delay(300);
+  const db = readDB();
+  const programIndex = db.programs.findIndex((p) => p.id === id);
 
-    const response = await fetchApi<ProgramAssignment>(
-      `${LOCAL_API_BASE}/program_registrations`,
-      {
-        method: "POST",
-        body: JSON.stringify(assignment),
-      },
-    );
-
-    return response;
-  } catch (error) {
-    console.error("Failed to assign program:", error);
-    throw error;
+  if (programIndex === -1) {
+    throw new Error(`Program ${id} not found`);
   }
-}
 
-/**
- * Enroll a student in a specific class for a course
- * @param payload - Enrollment data
- */
-export async function enrollStudent(
-  payload: Omit<CourseEnrollment, "id">,
-): Promise<CourseEnrollment> {
-  try {
-    const enrollment: CourseEnrollment = {
-      id: crypto.randomUUID(),
-      ...payload,
-    };
+  // Merge updates into existing program
+  db.programs[programIndex] = {
+    ...db.programs[programIndex],
+    ...updates,
+  };
 
-    const response = await fetchApi<CourseEnrollment>(`${LOCAL_API_BASE}/enrollments`, {
-      method: "POST",
-      body: JSON.stringify(enrollment),
-    });
-
-    return response;
-  } catch (error) {
-    console.error("Failed to enroll student:", error);
-    throw error;
-  }
+  writeDB(db);
+  return db.programs[programIndex];
 }
 
 /**
  * Get all program assignments
  */
 export async function getAssignments(): Promise<ProgramAssignment[]> {
-  try {
-    const response = await fetchApi<ProgramAssignment[]>(
-      `${LOCAL_API_BASE}/program_registrations`,
-    );
-    return response;
-  } catch (error) {
-    console.error("Failed to fetch assignments from server, using mock data:", error);
-    return mockAssignments;
+  // 1. Try network (dev only)
+  if (!import.meta.env.PROD) {
+    try {
+      const response = await fetchApi<ProgramAssignment[]>(
+        `${LOCAL_API_BASE}/program_registrations`,
+      );
+      return response || [];
+    } catch {
+      console.warn("json-server offline, using localStorage");
+    }
   }
+
+  // 2. Fallback to localStorage
+  initializeStorage();
+  await delay(300);
+  const db = readDB();
+  return db.program_registrations;
+}
+
+/**
+ * Assign a program to a student
+ * @param payload - Assignment data (without id)
+ */
+export async function assignProgram(
+  payload: Omit<ProgramAssignment, "id">,
+): Promise<ProgramAssignment> {
+  const assignment: ProgramAssignment = {
+    id: crypto.randomUUID(),
+    ...payload,
+  };
+
+  // 1. Try network (dev only)
+  if (!import.meta.env.PROD) {
+    try {
+      const response = await fetchApi<ProgramAssignment>(
+        `${LOCAL_API_BASE}/program_registrations`,
+        {
+          method: "POST",
+          body: JSON.stringify(assignment),
+        },
+      );
+      return response;
+    } catch {
+      console.warn("json-server offline, using localStorage");
+    }
+  }
+
+  // 2. Fallback to localStorage
+  initializeStorage();
+  await delay(300);
+  const db = readDB();
+  db.program_registrations.push(assignment);
+  writeDB(db);
+  return assignment;
 }
 
 /**
  * Get all course enrollments
  */
 export async function getEnrollments(): Promise<CourseEnrollment[]> {
-  try {
-    const response = await fetchApi<CourseEnrollment[]>(`${LOCAL_API_BASE}/enrollments`);
-    return response || [];
-  } catch (error) {
-    console.error("Failed to fetch enrollments from server, using mock data:", error);
-    return mockEnrollments;
+  // 1. Try network (dev only)
+  if (!import.meta.env.PROD) {
+    try {
+      const response = await fetchApi<CourseEnrollment[]>(
+        `${LOCAL_API_BASE}/enrollments`,
+      );
+      return response || [];
+    } catch {
+      console.warn("json-server offline, using localStorage");
+    }
   }
+
+  // 2. Fallback to localStorage
+  initializeStorage();
+  await delay(300);
+  const db = readDB();
+  return db.enrollments;
 }
 
 /**
- * Get all programs for a supervisor
+ * Enroll a student in a specific class for a course
+ * @param payload - Enrollment data (without id)
  */
-export async function getAllPrograms(): Promise<SupervisorProgram[]> {
-  try {
-    const response = await fetchApi<SupervisorProgram[]>(`${LOCAL_API_BASE}/programs`);
-    return response || [];
-  } catch (error) {
-    console.error("Failed to fetch programs from server, using mock data:", error);
-    return mockPrograms;
+export async function enrollStudent(
+  payload: Omit<CourseEnrollment, "id">,
+): Promise<CourseEnrollment> {
+  const enrollment: CourseEnrollment = {
+    id: crypto.randomUUID(),
+    ...payload,
+  };
+
+  // 1. Try network (dev only)
+  if (!import.meta.env.PROD) {
+    try {
+      const response = await fetchApi<CourseEnrollment>(`${LOCAL_API_BASE}/enrollments`, {
+        method: "POST",
+        body: JSON.stringify(enrollment),
+      });
+      return response;
+    } catch {
+      console.warn("json-server offline, using localStorage");
+    }
   }
+
+  // 2. Fallback to localStorage
+  initializeStorage();
+  await delay(300);
+  const db = readDB();
+  db.enrollments.push(enrollment);
+  writeDB(db);
+  return enrollment;
 }
 
 /**

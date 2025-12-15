@@ -1,0 +1,228 @@
+/**
+ * Seed Data - Initial Database State
+ * This data is used to initialize localStorage on first visit
+ * Mirrors the structure of db.json for consistency
+ */
+
+import type {
+  SupervisorProgram,
+  ProgramAssignment,
+  CourseEnrollment,
+} from "@/types/models";
+
+export interface LocalDB {
+  programs: SupervisorProgram[];
+  program_registrations: ProgramAssignment[];
+  enrollments: CourseEnrollment[];
+}
+
+export const INITIAL_DB: LocalDB = {
+  programs: [
+    {
+      id: "prog_101",
+      supervisorId: "pat_mann_guid",
+      programName: "Q3 Safety Ramp-up",
+      description: "Mandatory safety training for all floor staff.",
+      tags: ["Safety", "Onboarding"],
+      courseSequence: [116, 11, 9],
+      published: true,
+      createdAt: "2025-12-01T10:00:00Z",
+    },
+    {
+      id: "prog_102",
+      supervisorId: "pat_mann_guid",
+      programName: "Advanced 5-Axis Certification",
+      description: "High-level machining certification track.",
+      tags: ["Advanced", "Certification", "Skills"],
+      courseSequence: [11, 131],
+      published: false,
+      createdAt: "2025-11-15T10:00:00Z",
+    },
+    {
+      id: "de9dafc0-c1f2-4de2-ab7e-c2da38382f21",
+      supervisorId: "pat_mann_guid",
+      programName: "Test Program",
+      description: "asdf asdf",
+      tags: [],
+      courseSequence: [116, 11, 9, 131, 90],
+      published: false,
+      createdAt: "2025-12-11T16:08:46.048Z",
+    },
+    {
+      id: "fdaddc5f-6250-49a2-b59b-56c1c058df1f",
+      supervisorId: "pat_mann_guid",
+      programName: "My Program",
+      description: "",
+      tags: [],
+      courseSequence: [90, 11, 9, 116, 131],
+      published: false,
+      createdAt: "2025-12-11T21:37:23.288Z",
+    },
+    {
+      id: "eb0a5559-50d6-43fa-9751-4b9ecd9c5f6d",
+      supervisorId: "pat_mann_guid",
+      programName: "My Custom Program",
+      description: "asdfsdfsdfsdf\nasdfsdaf\n\nadsf",
+      tags: [],
+      courseSequence: [116, 9, 11, 131],
+      published: false,
+      createdAt: "2025-12-12T19:34:24.656Z",
+    },
+    {
+      id: "3a1eb4ac-6579-4ad0-862a-9d9397607872",
+      supervisorId: "pat_mann_guid",
+      programName: "test 123",
+      description: "asdf asdf",
+      tags: [],
+      courseSequence: [104, 9, 114, 127],
+      published: false,
+      createdAt: "2025-12-12T22:08:18.273Z",
+    },
+    {
+      id: "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      supervisorId: "pat_mann_guid",
+      programName: "My Program",
+      description: "",
+      tags: [],
+      courseSequence: [114, 116, 9],
+      published: false,
+      createdAt: "2025-12-12T22:56:51.570Z",
+    },
+  ],
+  program_registrations: [
+    {
+      id: "assign_001",
+      learnerId: "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      programId: "prog_101",
+      assignedDate: "2025-12-01T10:00:00Z",
+      status: "Pending",
+    },
+    {
+      id: "assign_002",
+      learnerId: "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      programId: "prog_102",
+      assignedDate: "2025-11-20T10:00:00Z",
+      status: "Registered",
+    },
+    {
+      id: "aadddfff-b4d7-42da-961c-18fd1359ecb6",
+      learnerId: "fc0670d4-3874-48b6-94b2-14b99d326e50",
+      programId: "prog_101",
+      assignedDate: "2025-12-11T00:35:17.640Z",
+      status: "Pending",
+    },
+    {
+      id: "93117fb5-cde1-49a7-bcd8-6dde9da409ba",
+      learnerId: "eb7bb535-7065-4e8c-a7c8-f76d8996dec5",
+      programId: "prog_101",
+      assignedDate: "2025-12-11T00:35:22.053Z",
+      status: "Pending",
+    },
+    {
+      id: "1ef6d563-7861-42c5-b117-d2b2b49c1fd9",
+      learnerId: "0378e7ff-0953-43a8-9461-b33acf9967a5",
+      programId: "prog_101",
+      assignedDate: "2025-12-11T00:35:23.145Z",
+      status: "Pending",
+    },
+    {
+      id: "9e73b99e-00eb-45ba-966d-afaa70d56f69",
+      learnerId: "d5ee05d0-1cbe-4e04-a706-b23ef02014c2",
+      programId: "prog_101",
+      assignedDate: "2025-12-11T00:51:28.643Z",
+      status: "Pending",
+    },
+    {
+      id: "3a9a1528-84bb-435c-80b1-4a7d6ad4056a",
+      learnerId: "fc0670d4-3874-48b6-94b2-14b99d326e50",
+      programId: "prog_102",
+      assignedDate: "2025-12-11T21:10:16.853Z",
+      status: "Pending",
+    },
+    {
+      id: "3339f525-94f6-412e-9642-67c1d2927925",
+      learnerId: "eb7bb535-7065-4e8c-a7c8-f76d8996dec5",
+      programId: "prog_102",
+      assignedDate: "2025-12-11T21:10:18.773Z",
+      status: "Pending",
+    },
+    {
+      id: "73316037-e04c-464f-a7b7-0e1f90ad0eb9",
+      learnerId: "0378e7ff-0953-43a8-9461-b33acf9967a5",
+      programId: "prog_102",
+      assignedDate: "2025-12-11T21:39:32.498Z",
+      status: "Pending",
+    },
+    {
+      id: "63bded56-0f09-416f-a97c-e7c55cea2c62",
+      learnerId: "d5ee05d0-1cbe-4e04-a706-b23ef02014c2",
+      programId: "prog_102",
+      assignedDate: "2025-12-11T21:51:47.804Z",
+      status: "Pending",
+    },
+    {
+      id: "34aa4d93-9d87-4eaa-b7b2-8d44d5c2a2bc",
+      learnerId: "fc0670d4-3874-48b6-94b2-14b99d326e50",
+      programId: "prog_103",
+      assignedDate: "2025-12-11T21:51:52.139Z",
+      status: "Pending",
+    },
+    {
+      id: "5288cb45-0ef3-4036-84bb-6bcee98156b0",
+      learnerId: "fc0670d4-3874-48b6-94b2-14b99d326e50",
+      programId: "prog_101",
+      assignedDate: "2025-12-12T18:31:19.409Z",
+      status: "Pending",
+    },
+  ],
+  enrollments: [
+    {
+      id: "enroll_999",
+      learnerId: "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      programId: "prog_101",
+      courseId: 116,
+      classId: 5451,
+      enrolledDate: "2025-12-02T10:00:00Z",
+    },
+    {
+      id: "enroll_888",
+      learnerId: "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      programId: "prog_102",
+      courseId: 11,
+      classId: 5447,
+      enrolledDate: "2025-11-25T10:00:00Z",
+    },
+    {
+      id: "enroll_777",
+      learnerId: "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      programId: "prog_102",
+      courseId: 131,
+      classId: 0,
+      enrolledDate: "2025-11-26T10:00:00Z",
+    },
+    {
+      id: "b7b78082-e640-4067-896c-14c02c4c58f9",
+      learnerId: "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      programId: "prog_102",
+      courseId: 11,
+      classId: 5447,
+      enrolledDate: "2025-12-11T22:38:15.126Z",
+    },
+    {
+      id: "9fe0aba9-3798-43be-b735-0bb9343a6db4",
+      learnerId: "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      programId: "prog_101",
+      courseId: 11,
+      classId: 5447,
+      enrolledDate: "2025-12-12T18:16:26.354Z",
+    },
+    {
+      id: "6eff98af-36dd-4fca-a42f-c45ce0935a6c",
+      learnerId: "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      programId: "prog_101",
+      courseId: 116,
+      classId: 5451,
+      enrolledDate: "2025-12-12T19:36:24.771Z",
+    },
+  ],
+};
