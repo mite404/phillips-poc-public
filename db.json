@@ -129,6 +129,25 @@
       ],
       "published": true,
       "createdAt": "2025-12-15T17:11:06.853Z"
+    },
+    {
+      "id": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "supervisorId": "pat_mann_guid",
+      "programName": "asdfsdafsdafsdafsdaffds",
+      "description": "asdfsadfsdafsdf",
+      "tags": [],
+      "courseSequence": [
+        9,
+        116,
+        114,
+        127,
+        128,
+        11,
+        90,
+        91
+      ],
+      "published": true,
+      "createdAt": "2025-12-15T17:25:48.512Z"
     }
   ],
   "program_registrations": [
