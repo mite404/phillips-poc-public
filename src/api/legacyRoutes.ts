@@ -55,7 +55,7 @@ export async function getRoster(): Promise<LearnerProfile[]> {
 
 /**
  * Fetch class schedule inventory for a specific course
- * Falls back to local Schedules.json if API fails
+ * Falls back to local Schedules.json if API fails OR returns no data
  * @param courseId - The numeric course ID
  */
 export async function getInventory(courseId: number): Promise<CourseInventory | null> {
@@ -66,9 +66,25 @@ export async function getInventory(courseId: number): Promise<CourseInventory | 
 
     // Find the inventory for this specific course
     const inventory = response.result?.find((inv) => inv.courseId === courseId);
-    return inventory || null;
+
+    // CRITICAL: Data Guarantee - If API returns empty/no matches, use fallback
+    if (!inventory || !inventory.classes || inventory.classes.length === 0) {
+      console.warn(
+        `Real API returned no classes for course ${courseId}, using fallback data`,
+      );
+
+      // Return from local schedules data
+      const schedules = schedulesData as CourseInventory[];
+      const fallbackInventory = schedules.find((inv) => inv.courseId === courseId);
+      return fallbackInventory || null;
+    }
+
+    return inventory;
   } catch (error) {
-    console.warn("Legacy API failed, using fallback schedule data:", error);
+    console.warn(
+      "Legacy API failed (network error), using fallback schedule data:",
+      error,
+    );
 
     // Return from local schedules data
     const schedules = schedulesData as CourseInventory[];
