@@ -12,7 +12,12 @@ import {
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableCourseItem } from "./SortableCourseItem";
 import { CourseDetailModal } from "./common/CourseDetailModal";
+import { CourseCard } from "./common/CourseCard";
 import { Skeleton } from "./ui/skeleton";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Button } from "./ui/button";
+import { ScrollArea } from "./ui/scroll-area";
 
 type FilterKey = "Self-Paced" | "ILT" | "Advanced";
 
@@ -85,19 +90,19 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
         <div className="flex-[0.6] flex flex-col border border-slate-300 rounded-lg">
           {/* Header */}
           <div className="p-4 border-b border-slate-300 space-y-2">
-            <input
+            <Input
               type="text"
               value={programTitle}
               onChange={(e) => updateTitle(e.target.value)}
               placeholder="My Program (Click to rename...)"
-              className="w-full text-xl font-semibold bg-transparent border-none outline-none focus:ring-0"
+              className="text-xl font-semibold border-none shadow-none focus-visible:ring-0 px-0"
             />
-            <textarea
+            <Textarea
               value={programDescription}
               onChange={(e) => updateDescription(e.target.value)}
               placeholder="Add a description for this program..."
               rows={2}
-              className="w-full p-2 text-sm text-slate-600 bg-transparent resize-none outline-none placeholder:text-slate-400"
+              className="text-sm resize-none border-none shadow-none focus-visible:ring-0 px-0"
             />
           </div>
 
@@ -117,39 +122,15 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                   items={selectedCourses.map((c) => c.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {selectedCourses.map((course) => (
                       <SortableCourseItem key={course.id} id={course.id}>
-                        <div
+                        <CourseCard
+                          course={course}
+                          action="remove"
+                          onAction={() => removeCourse(course.id)}
                           onClick={() => setActiveCourse(course)}
-                          className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100 cursor-pointer"
-
-                          // "bg-orange-500! text-gray-950! px-6 py-3 rounded hover:bg-orange-400! hover:ring-1 hover:ring-slate-600 mx-auto font-medium"
-                        >
-                          <div className="flex-1">
-                            <h3 className="font-medium text-slate-900">
-                              {course.courseTitle}
-                            </h3>
-                            <p className="text-sm text-slate-600">
-                              {course.trainingTypeName} • {course.levelName}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm text-slate-500 font-mono">
-                              #{course.courseId}
-                            </span>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                removeCourse(course.id);
-                              }}
-                              className="px-2 py-1 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded"
-                              title="Remove course"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        </div>
+                        />
                       </SortableCourseItem>
                     ))}
                   </div>
@@ -166,16 +147,18 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                 {calculateTotalDuration()}
               </div>
             )}
-            <button
+            <Button
               onClick={async () => {
                 await saveDraft();
                 // Notify parent that a program was saved
                 onProgramSaved?.();
               }}
-              className="bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded px-4 py-2 font-medium"
+              variant="outline"
+              size="sm"
+              className="w-full"
             >
               Save Draft
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -184,80 +167,58 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
           {/* Header */}
           <div className="p-4 border-b border-slate-300 space-y-3">
             <h2 className="text-xl font-semibold">Course Catalog</h2>
-            <input
+            <Input
               type="text"
               placeholder="Search courses..."
               value={searchQuery}
               onChange={(e) => setSearch(e.target.value)}
               disabled={isLoading}
-              className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-phillips-blue disabled:bg-slate-100 disabled:cursor-not-allowed"
             />
             <div className="flex gap-2">
               {(["Self-Paced", "ILT", "Advanced"] as FilterKey[]).map((filterKey) => (
-                <button
+                <Button
                   key={filterKey}
                   onClick={() => toggleFilter(filterKey)}
                   disabled={isLoading}
-                  className={`px-3 py-1 rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                    activeFilters[filterKey]
-                      ? "bg-orange-300! text-black outline outline-gray-400! font-bold shadow-sm ring-1"
-                      : "bg-orange-50! text-black outline outline-gray-400! hover:bg-orange-300! hover:ring-1"
-                  }`}
+                  variant={activeFilters[filterKey] ? "secondary" : "ghost"}
+                  size="sm"
+                  className="flex-1"
                 >
                   {filterKey}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
 
           {/* Body - Scrollable */}
-          <div className="flex-1 overflow-y-auto p-4">
-            {isLoading ? (
-              <div className="space-y-3">
-                <Skeleton className="h-16 w-full" />
-                <Skeleton className="h-16 w-full" />
-                <Skeleton className="h-16 w-full" />
-                <Skeleton className="h-16 w-full" />
-                <Skeleton className="h-16 w-full" />
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {filteredCourses.map((course) => (
-                  <div
-                    key={course.id}
-                    onClick={() => setActiveCourse(course)}
-                    className="flex items-center justify-between p-3 border border-slate-200 rounded hover:bg-slate-50 cursor-pointer"
-                  >
-                    <div className="flex-1">
-                      <h3 className="font-medium text-slate-900">{course.courseTitle}</h3>
-                      <p className="text-xs text-slate-500">
-                        {course.trainingTypeName} • {course.levelName}
-                      </p>
+          <ScrollArea className="flex-1">
+            <div className="p-4">
+              {isLoading ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-48 w-full" />
+                  <Skeleton className="h-48 w-full" />
+                  <Skeleton className="h-48 w-full" />
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredCourses.map((course) => (
+                    <CourseCard
+                      key={course.id}
+                      course={course}
+                      action="add"
+                      onAction={() => addCourse(course)}
+                      onClick={() => setActiveCourse(course)}
+                    />
+                  ))}
+                  {filteredCourses.length === 0 && (
+                    <div className="flex items-center justify-center h-full text-slate-400 text-sm py-8">
+                      No courses found
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-slate-500 font-mono">
-                        #{course.courseId}
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addCourse(course);
-                        }}
-                        className="px-3 py-1 bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded"
-                      >
-                        Add
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {filteredCourses.length === 0 && (
-                  <div className="flex items-center justify-center h-full text-slate-400 text-sm">
-                    No courses found
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </ScrollArea>
         </div>
 
         <CourseDetailModal
