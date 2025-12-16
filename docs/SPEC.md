@@ -1,26 +1,26 @@
 # Project Specification & Prompt Context
 
-> **Last Updated:** 2025-12-15  
-> **Project Status:** 🏆 GOLD MASTER (Ready for Demo) - All Features + Data Reliability + Production Ready
+> **Last Updated:** 2025-12-16
+> **Project Status:** COMPLETE (v2.0 - UI Modernized)
 
 ## 📌 Global Context (Paste at start of every session)
 
 **Project:** Phillips Education POC (Supervisor Program Builder)
 
-**Phase:** **Phase 2: UI Modernization (Refactor Sprint)**
+**Phase:** **Phase 2: UI Modernization (Refactor Sprint) - COMPLETE**
 
 **Goal:** Replace "Bare-bones" HTML/Tailwind with professional `shadcn/ui` components without breaking business logic.
 
-**Stack:** Vite, React 19, TypeScript, Tailwind CSS v4, Bun
+**Stack:** Vite, React 19, TypeScript, Tailwind CSS v4, Bun, shadcn/ui (full UI layer)
 
-**Key Dependencies:** `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`, `react-router-dom` v7, `json-server`, `lucide-react` (icons), `sonner` (toasts), `shadcn/ui` (dialogs, accordion, progress)
+**Key Dependencies:** `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`, `react-router-dom` v7, `json-server`, `lucide-react` (icons), `sonner` (toasts), `shadcn/ui` (sidebar, table, accordion, button, card, badge, input, textarea, dialog, scroll-area)
 
 **Architecture:**
 
-- **Philosophy:** Stripped-down, HTML-focused components. Rapid prototyping of layout and functionality before adding complex UI libraries.
+- **Philosophy:** Production-ready SaaS UI built entirely with shadcn/ui primitives and Radix UI. All "bare-bones" HTML replaced with accessible, styled components.
 - **State Management:** Custom hooks (e.g., `useProgramBuilder`) for business logic; React hooks for component state.
-- **Styling:** Pure Tailwind CSS utilities + shadcn/ui components + Phillips brand colors.
-- **Drag-and-Drop:** `@dnd-kit` for reordering; vanilla HTML/buttons for interactions.
+- **Styling:** Tailwind CSS v4 utilities + shadcn/ui component system + Phillips brand colors.
+- **Drag-and-Drop:** `@dnd-kit` for reordering; shadcn/ui buttons for interactions.
 - **Hybrid Data:** Read from Legacy API (`src/api/legacyRoutes.ts`), Write to Local JSON Server (`src/api/localRoutes.ts`).
 - **Resilience:** If Legacy API fails/CORS, catch error and return data from `src/data/*.json`.
 
@@ -474,36 +474,69 @@ https://phillipsx-pims-stage.azurewebsites.net/api
   /api
     utils.ts                    # ✅ Fetch wrapper (base URLs, error handling)
     legacyRoutes.ts            # ✅ getCatalog(), getRoster(), getInventory() with fallbacks
-    localRoutes.ts             # ✅ saveProgram(), getProgramById(), updateProgram(), assignProgram(), enrollStudent()
+    localRoutes.ts             # ✅ All local API methods with localStorage fallback (PR-15)
+    storageUtils.ts            # ✅ localStorage utilities (initializeStorage, readDB, writeDB)
+
   /components
-    App.tsx                     # ✅ Main app with userType & currentView state
+    App.tsx                     # ✅ Main app shell with SidebarProvider layout
     PageContent.tsx            # ✅ Primary page renderer, routes to ProgramBuilder or ProgramManager
-    SidebarNav.tsx             # ✅ Navigation with dynamic program loading and DRAFT badges
-    ProgramBuilder.tsx         # ✅ 2-column split-pane builder with "Create Custom Program" header
+    SidebarNav.tsx             # ⚠️ DEPRECATED - Replaced by AppSidebar.tsx (kept for reference)
+    ProgramBuilder.tsx         # ✅ 2-column builder with shadcn/ui Input, Textarea, Button, CourseCard
     ProgramManager.tsx         # ✅ Program viewer with Publish button at bottom center
-    RosterList.tsx             # ✅ Student roster with batch selection and invite functionality
+    RosterList.tsx             # ✅ Student roster using shadcn Table, Badge, Button components
     SortableCourseItem.tsx      # ✅ Wrapper for dnd-kit sortable items with GripVertical icon
+
+    /layout                     # ✅ NEW: App shell components (PR-S1)
+      AppSidebar.tsx           # ✅ Responsive sidebar with Collapsible sections, DRAFT badges
+      SiteHeader.tsx           # ✅ Sticky header with SidebarTrigger and breadcrumb
+
     /student
-      StudentDashboard.tsx     # ✅ Two-column dashboard with accordion UI and Book Class button
+      StudentDashboard.tsx     # ✅ Two-column dashboard with Radix Accordion primitives
+
     /progress
       StudentProgressView.tsx  # ✅ Student progress dashboard with data hydration
       ProgramProgressCard.tsx  # ✅ Program progress card with interactive status badges
+
     /common
-      CourseDetailModal.tsx    # ✅ Course detail modal with shadcn/ui Dialog and Book Class button
+      CourseCard.tsx           # ✅ NEW: Standardized course card component (PR-S2)
+      CourseDetailModal.tsx    # ✅ Course detail modal with shadcn Dialog and Book Class button
       EnrollmentModal.tsx      # ✅ Class selection modal (used by RosterList and StudentDashboard)
-    /ui                        # ✅ Shadcn/ui components
-      dialog.tsx
-      skeleton.tsx
-      progress.tsx
-      accordion.tsx
+
+    /ui                         # ✅ shadcn/ui components (20 total)
+      sidebar.tsx              # Complex sidebar primitives (SidebarProvider, SidebarTrigger, etc.)
+      table.tsx                # Table, TableHeader, TableBody, TableRow, TableHead, TableCell
+      accordion.tsx            # Accordion wrapper (Radix UI)
+      button.tsx               # Button with variants (outline, secondary, destructive, ghost)
+      card.tsx                 # Card, CardHeader, CardContent, CardFooter
+      badge.tsx                # Badge with variants (default, outline, secondary)
+      input.tsx                # Input component
+      textarea.tsx             # Textarea component
+      scroll-area.tsx          # ScrollArea for consistent scrollbars
+      dialog.tsx               # Dialog, DialogContent, DialogHeader, DialogTitle
+      skeleton.tsx             # Skeleton loading states
+      progress.tsx             # Progress bar component
+      separator.tsx            # Separator divider
+      sheet.tsx                # Sheet (mobile drawer)
+      collapsible.tsx          # Collapsible wrapper (Radix UI)
+      dropdown-menu.tsx        # Dropdown menu component
+      avatar.tsx               # Avatar component
+      tooltip.tsx              # Tooltip component
+      resizable.tsx            # Resizable panels
+      sonner.tsx               # Toast notification wrapper
+
   /hooks
     useProgramBuilder.ts       # ✅ Custom hook managing builder state & actions with saveProgram support
+
   /context
     ProgramContext.tsx         # ⏳ To be implemented if needed for larger scale
-  /data                        # ✅ Static fallback JSON files
+
+  /data                        # ✅ Static fallback JSON files + seed data
     Courses.json               # Fallback for course catalog
     Students.json              # Fallback for student roster
     Schedules.json             # Fallback for class schedules
+    Testimonials.json          # Testimonial data
+    seedData.ts                # ✅ NEW: Single source of truth for initial DB state (PR-15)
+
   /types
     models.ts                  # ✅ TypeScript interfaces (all data models)
 ```
@@ -720,15 +753,35 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 
 **Test Status:** All 31 tests passing (17 hook + 14 integration); drag-and-drop functionality verified.
 
-### ⏭️ PR-S3: Data Lists (Student & Manager)
+### ✅ PR-S3: Data Lists (Student & Manager)
 
+**Status:** Completed
 **Goal:** Polish the read-only views (Roster and Student Dashboard).
-**Inputs:** `StudentDashboard.tsx`, `RosterList.tsx`.
-**Tasks:**
+**Completed:** 2025-12-16
+**Files Changed:**
 
-1.  **Refactor `StudentDashboard.tsx`:**
-    - Replace custom accordion div logic with `<Accordion>` component.
-    - Style headers with `bg-white` and clean borders.
-2.  **Refactor `RosterList.tsx`:**
-    - Replace `div` rows with `<Table>` component (`TableHeader`, `TableRow`, `TableCell`).
-    - Standardize Status Badges (Green/Yellow/Gray) using `<Badge variant="outline/secondary/default">`.
+- Modified: `src/components/RosterList.tsx`, `src/components/student/StudentDashboard.tsx`
+
+**Implementation Details:**
+
+1.  **Refactored `StudentDashboard.tsx`:**
+    - Replaced custom accordion div logic with direct `@radix-ui/react-accordion` primitives
+    - Uses `Accordion.Root`, `Accordion.Item`, `Accordion.Trigger`, `Accordion.Content` for clean, accessible UI
+    - Styled headers with `bg-white`, clean borders, and hover states (`hover:bg-slate-50`)
+    - Added duplicate assignment filtering logic (deduplicates by program ID to prevent duplicate program cards)
+    - Preserved all business logic: enrollment checks, course hydration, modal workflows
+
+2.  **Refactored `RosterList.tsx`:**
+    - Replaced `div` rows with shadcn/ui `<Table>` component (`Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`)
+    - Standardized Status Badges using `<Badge>`:
+      - **Registered:** `bg-green-100 text-green-800 hover:bg-green-100`
+      - **Pending:** `bg-yellow-100 text-yellow-800 hover:bg-yellow-100`
+      - **Unassigned:** `variant="outline"`
+    - Table structure provides automatic alignment, borders, and responsive layout
+    - Preserved batch selection, invite functionality, and force enroll workflows
+
+**Key Implementation Notes:**
+
+- **StudentDashboard duplicate filtering (lines 66-79):** Uses `reduce()` to deduplicate assignments by `programId`, keeping only the first assignment per program. This prevents duplicate accordion items for students with multiple assignments to the same program.
+- **Radix UI Accordion usage:** Direct import from `@radix-ui/react-accordion` instead of shadcn/ui wrapper provides full control over accordion behavior with clean, semantic JSX.
+- **Table component benefits:** Automatic cell alignment, consistent border rendering, responsive design, and semantic HTML structure (`<table>`, `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>`).
