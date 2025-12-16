@@ -620,22 +620,42 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 
 ## 📅 Phase 2: UI Refactor Sprint (3 Days)
 
-### 🚧 PR-S1: App Shell & Navigation
+### ✅ PR-S1: App Shell & Navigation
 
 **Goal:** Replace the manual flexbox sidebar with the accessible `shadcn/ui` Sidebar component.
-**Inputs:** Existing `SidebarNav.tsx` logic.
-**Tasks:**
+**Completed:** 2025-01-XX
+**Files Changed:**
 
-1.  **Install:** `bunx shadcn@latest add sidebar separator dropdown-menu avatar collapsible`
-2.  **Create `src/components/layout/AppSidebar.tsx`:**
-    - Port logic from `SidebarNav.tsx`.
-    - Use `<Sidebar>`, `<SidebarContent>`, `<SidebarGroup>`, `<SidebarMenu>`.
-    - Implement "Program Builder" as a `<Collapsible>` menu item.
-3.  **Create `src/components/layout/SiteHeader.tsx`:**
-    - Standard header with `<SidebarTrigger>`, Breadcrumbs, and User Avatar.
-4.  **Refactor `App.tsx`:**
-    - Replace root `div` with `<SidebarProvider>`.
-    - Wrap routes in `<SidebarInset>`.
+- Created: `src/components/layout/AppSidebar.tsx`, `src/components/layout/SiteHeader.tsx`
+- Modified: `src/App.tsx`
+- Deprecated: `src/components/SidebarNav.tsx` (can be removed after verification)
+
+**Implementation Details:**
+
+1. **AppSidebar Component** - Ported all navigation logic from `SidebarNav.tsx`:
+   - `<SidebarHeader>` with Phillips logo and "Phillips Education" branding
+   - `<SidebarContent>` containing navigation menu items
+   - `<Collapsible>` sections for "Create Program" (shows saved programs with DRAFT badges) and "Invite / Manage Students" (shows student roster)
+   - `<SidebarFooter>` with "Reset Demo Data" button
+   - State management: `savedPrograms`, `students`, `isBuilderOpen`, `isProgressOpen`
+   - Automatic refresh via `refreshTrigger` prop
+
+2. **SiteHeader Component** - Sticky top bar inside `SidebarInset`:
+   - `<SidebarTrigger />` (hamburger menu for mobile responsiveness)
+   - `<Separator orientation="vertical" />` visual divider
+   - "Phillips Education" breadcrumb text
+
+3. **App.tsx Refactor** - Modern layout shell:
+   - Wrapped authenticated views in `<SidebarProvider>` for sidebar state management
+   - Used `<SidebarInset>` for main content area
+   - Content wrapper: `div className="flex flex-1 p-4 overflow-auto"`
+   - Preserved all business logic: user type selection, `PageContent`, `handleProgramSaved()`
+
+**Responsive Behavior:**
+
+- Mobile: Sidebar becomes Sheet (drawer overlay)
+- Desktop: Sidebar visible, can collapse to icon mode
+- `SidebarTrigger` automatically adapts to mobile/desktop contexts
 
 ### ⏭️ PR-S2: Builder & Course Cards
 
