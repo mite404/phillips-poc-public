@@ -5,8 +5,14 @@
 
 ## 📌 Global Context (Paste at start of every session)
 
-**Project:** Phillips Education POC (Supervisor Program Builder)  
-**Stack:** Vite, React 19, TypeScript, Tailwind CSS v4, Bun  
+**Project:** Phillips Education POC (Supervisor Program Builder)
+
+**Phase:** **Phase 2: UI Modernization (Refactor Sprint)**
+
+**Goal:** Replace "Bare-bones" HTML/Tailwind with professional `shadcn/ui` components without breaking business logic.
+
+**Stack:** Vite, React 19, TypeScript, Tailwind CSS v4, Bun
+
 **Key Dependencies:** `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`, `react-router-dom` v7, `json-server`, `lucide-react` (icons), `sonner` (toasts), `shadcn/ui` (dialogs, accordion, progress)
 
 **Architecture:**
@@ -88,7 +94,7 @@ interface CourseEnrollment {
 
 ---
 
-## 📅 Sprint PRs (Vertical Slices)
+## 📅 Phase 1: Sprint PRs (Vertical Slices)
 
 ### ✅ PR-01: Infrastructure
 
@@ -611,3 +617,49 @@ https://phillipsx-pims-stage.azurewebsites.net/api
   - [x] Build succeeds (TypeScript compilation)
   - [x] No breaking changes to existing behavior
   - [x] Console warnings for debugging when fallback is used
+
+## 📅 Phase 2: UI Refactor Sprint (3 Days)
+
+### 🚧 PR-S1: App Shell & Navigation
+
+**Goal:** Replace the manual flexbox sidebar with the accessible `shadcn/ui` Sidebar component.
+**Inputs:** Existing `SidebarNav.tsx` logic.
+**Tasks:**
+
+1.  **Install:** `bunx shadcn@latest add sidebar separator dropdown-menu avatar collapsible`
+2.  **Create `src/components/layout/AppSidebar.tsx`:**
+    - Port logic from `SidebarNav.tsx`.
+    - Use `<Sidebar>`, `<SidebarContent>`, `<SidebarGroup>`, `<SidebarMenu>`.
+    - Implement "Program Builder" as a `<Collapsible>` menu item.
+3.  **Create `src/components/layout/SiteHeader.tsx`:**
+    - Standard header with `<SidebarTrigger>`, Breadcrumbs, and User Avatar.
+4.  **Refactor `App.tsx`:**
+    - Replace root `div` with `<SidebarProvider>`.
+    - Wrap routes in `<SidebarInset>`.
+
+### ⏭️ PR-S2: Builder & Course Cards
+
+**Goal:** Polish the core "Program Builder" view.
+**Inputs:** `ProgramBuilder.tsx`, `CourseCard.tsx`.
+**Tasks:**
+
+1.  **Refactor `CourseCard.tsx`:**
+    - Replace `div` borders with `<Card>`, `<CardHeader>`, `<CardContent>`.
+    - Replace manual status spans with `<Badge>`.
+2.  **Refactor `ProgramBuilder.tsx`:**
+    - Replace `overflow-y-auto` divs with `<ScrollArea>` for cleaner scrolling.
+    - Replace native `<input>`/`<textarea>` with shadcn `<Input>` and `<Textarea>` (better focus states).
+    - **Critical:** Ensure `@dnd-kit` drag listeners still attach correctly to the new Card components.
+
+### ⏭️ PR-S3: Data Lists (Student & Manager)
+
+**Goal:** Polish the read-only views (Roster and Student Dashboard).
+**Inputs:** `StudentDashboard.tsx`, `RosterList.tsx`.
+**Tasks:**
+
+1.  **Refactor `StudentDashboard.tsx`:**
+    - Replace custom accordion div logic with `<Accordion>` component.
+    - Style headers with `bg-white` and clean borders.
+2.  **Refactor `RosterList.tsx`:**
+    - Replace `div` rows with `<Table>` component (`TableHeader`, `TableRow`, `TableCell`).
+    - Standardize Status Badges (Green/Yellow/Gray) using `<Badge variant="outline/secondary/default">`.
