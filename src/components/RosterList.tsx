@@ -4,6 +4,16 @@ import { localApi } from "@/api/localRoutes";
 import type { LearnerProfile, ProgramAssignment, CourseEnrollment } from "@/types/models";
 import { Skeleton } from "./ui/skeleton";
 import { EnrollmentModal } from "./common/EnrollmentModal";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 interface RosterListProps {
@@ -196,90 +206,111 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
           </div>
           <p className="text-sm text-slate-600">{learners.length} students</p>
           {selectedStudentIds.length > 0 && (
-            <button
-              onClick={handleBatchInvite}
-              className="mt-3 w-full px-4 py-2 bg-gray-100! text-black font-semibold rounded-lg outline outline-gray border-2 hover:bg-slate-50! hover:border-slate-400 transition-colors"
-            >
+            <Button onClick={handleBatchInvite} variant="outline" className="mt-3 w-full">
               Invite Selected ({selectedStudentIds.length})
-            </button>
+            </Button>
           )}
         </div>
 
-        {/* Student List */}
+        {/* Student Table */}
         <div className="flex-1 overflow-y-auto p-4">
           {learners.length === 0 ? (
             <div className="flex items-center justify-center h-full text-slate-400">
               No students found
             </div>
           ) : (
-            <div className="space-y-2">
-              {learners.map((learner) => {
-                const status = getStudentStatus(learner);
-                const isSelected = selectedStudentIds.includes(learner.learnerId);
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedStudentIds.length === learners.length &&
+                        learners.length > 0
+                      }
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 cursor-pointer"
+                    />
+                  </TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {learners.map((learner) => {
+                  const status = getStudentStatus(learner);
+                  const isSelected = selectedStudentIds.includes(learner.learnerId);
 
-                return (
-                  <div
-                    key={learner.learnerId}
-                    className="p-3 border border-slate-200 rounded hover:bg-slate-50"
-                  >
-                    <div className="flex items-start gap-3">
-                      {/* Checkbox (for all students) */}
-                      <div className="flex items-center pt-1">
+                  return (
+                    <TableRow key={learner.learnerId}>
+                      <TableCell>
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleStudentSelection(learner.learnerId)}
                           className="w-4 h-4 cursor-pointer"
                         />
-                      </div>
-
-                      {/* Student Info */}
-                      <div className="flex-1">
-                        <h3 className="font-medium text-slate-900">
-                          {learner.learnerName}
-                        </h3>
-                        <p className="text-sm text-slate-600">{learner.emailId}</p>
-                        <p className="text-xs text-slate-500">
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-slate-900">
+                            {learner.learnerName}
+                          </span>
+                          <span className="text-sm text-slate-600">
+                            {learner.emailId}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm text-slate-600">
                           {typeof learner.location === "string"
                             ? learner.location
                             : learner.location?.locationName || "N/A"}
-                        </p>
-                      </div>
-
-                      {/* Status Badge */}
-                      <div className="flex items-center">
+                        </span>
+                      </TableCell>
+                      <TableCell>
                         {status === "registered" && (
-                          <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded font-medium">
-                            ✓ Registered
-                          </span>
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            Registered
+                          </Badge>
                         )}
                         {status === "pending" && (
-                          <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded font-medium mr-[10px]">
+                          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
                             Pending
-                          </span>
+                          </Badge>
                         )}
                         {status === "unassigned" && (
-                          <button
+                          <Badge variant="outline">Unassigned</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {status === "unassigned" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => handleAssignProgram(learner)}
-                            className="px-3 py-1 bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-xs rounded w-32"
                           >
                             Assign
-                          </button>
+                          </Button>
                         )}
                         {status === "pending" && firstCourseId && (
-                          <button
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => handleForceEnroll(learner)}
-                            className="px-3 py-1 bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-xs rounded w-32"
                           >
                             Force Enroll
-                          </button>
+                          </Button>
                         )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           )}
         </div>
       </div>
