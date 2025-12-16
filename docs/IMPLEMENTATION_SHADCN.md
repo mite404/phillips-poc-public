@@ -1,8 +1,12 @@
 # Implementation Plan: UI Modernization (Shadcn/UI)
 
 **Goal:** Refactor the existing "Bare-Bones" HTML layout into a professional "Application-Grade" UI using `shadcn/ui` components.
+
 **Constraint:** **DO NOT** change business logic (`useProgramBuilder`, `localRoutes`, etc.). Only change the JSX/CSS.
+
 **Timeline:** 3 Days.
+
+**Last Updated:** 2025-01-16
 
 ---
 
@@ -10,52 +14,111 @@
 
 _Before starting, ensure all base primitives are installed._
 
-1.  **Install Core Primitives:**
-    ```bash
-    bunx shadcn@latest add sidebar button card badge separator scroll-area input textarea dialog accordion sheet avatar dropdown-menu
-    ```
-2.  **Verify Tailwind:** Ensure `src/index.css` has the correct color variables (Phillips Blue/Red) mapped to the `:root` so Shadcn components pick them up automatically.
+- [x] **Install Core Primitives:**
+  ```bash
+  bunx shadcn@latest add sidebar button card badge separator scroll-area input textarea dialog accordion sheet avatar dropdown-menu collapsible
+  ```
+- [x] **Verify Tailwind:** Ensure `src/index.css` has the correct color variables (Phillips Blue/Red) mapped to the `:root` so Shadcn components pick them up automatically.
 
 ---
 
-## 🗓️ Phase 1: The App Shell (Day 1)
+## 🗓️ Phase 1: The App Shell (Day 1) ✅ COMPLETED
 
 _Goal: Replace the manual "Flexbox Sidebar" with the responsive, accessible `Sidebar` component. This instantly makes the app look like a SaaS product._
 
-### 1. Create `src/components/layout/AppSidebar.tsx`
+### 1. Create `src/components/layout/AppSidebar.tsx` ✅
 
-- **Source:** Port logic from `SidebarNav.tsx`.
-- **Shadcn Mapping:**
-  - Container → `<Sidebar>`
-  - Navigation Group → `<SidebarGroup>`
-  - Navigation Item → `<SidebarMenuButton>`
-  - "Program Builder" Toggle → `<SidebarMenuSub>` (Nest the saved programs here).
-- **Key Change:** Instead of manual `onClick` state for the dropdown, use Shadcn's native `Collapsible` trigger if desired, or keep your simple state inside the new structure.
+- [x] **Ported logic from `SidebarNav.tsx`:**
+  - State: `savedPrograms`, `students`, `isBuilderOpen`, `isProgressOpen`
+  - Data loading: `loadSavedPrograms()`, `loadStudents()` with `refreshTrigger` dependency
+  - Navigation: `onNavigate`, `currentView`, `userType` props
+- [x] **Shadcn Component Mapping:**
 
-### 2. Create `src/components/layout/SiteHeader.tsx`
+  ```tsx
+  <Sidebar>
+    <SidebarHeader>{/* Phillips logo + "Phillips Education" branding */}</SidebarHeader>
 
-- **New Component:** A consistent top bar living inside the `SidebarInset`.
-- **Content:**
-  - `<SidebarTrigger>` (The hamburger menu - comes for free).
-  - `<Separator orientation="vertical" />`
-  - Breadcrumbs (e.g., "Supervisor > Builder").
-  - User Avatar (Right side).
+    <SidebarContent>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton>Account</SidebarMenuButton>
+        </SidebarMenuItem>
 
-### 3. Refactor `App.tsx`
+        {/* Collapsible: Create Program */}
+        <Collapsible open={isBuilderOpen} onOpenChange={setIsBuilderOpen}>
+          <SidebarMenuItem>
+            <CollapsibleTrigger asChild>
+              <SidebarMenuButton>
+                Create Program
+                <ChevronDown className="ml-auto" />
+              </SidebarMenuButton>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              {/* Nested saved programs list with DRAFT badges */}
+            </CollapsibleContent>
+          </SidebarMenuItem>
+        </Collapsible>
+      </SidebarMenu>
+    </SidebarContent>
 
-- **Action:** Delete the manual `<div className="flex h-screen">`.
-- **Replace with:**
+    <SidebarFooter>{/* Reset Demo Data button */}</SidebarFooter>
+  </Sidebar>
+  ```
+
+- [x] **Key Implementation:** Used `<Collapsible>` from Radix UI for "Create Program" and "Invite / Manage Students" sections, maintaining existing state logic.
+
+### 2. Create `src/components/layout/SiteHeader.tsx` ✅
+
+- [x] **Component Structure:**
+
+  ```tsx
+  <header className="sticky top-0 flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
+    <SidebarTrigger className="-ml-1" />
+    <Separator orientation="vertical" className="mr-2 h-4" />
+    <div className="flex items-center gap-2">
+      <span className="font-semibold">Phillips Education</span>
+    </div>
+  </header>
+  ```
+
+- [x] **Features:**
+  - Sticky positioning with `h-16` height
+  - `<SidebarTrigger />` automatically handles mobile/desktop hamburger menu
+  - Simple breadcrumb text (Avatar to be added in future iteration)
+
+### 3. Refactor `App.tsx` ✅
+
+- [x] **Removed old layout:**
+  - Deleted `<SidebarNav />` import and usage
+  - Removed manual `<div className="flex flex-1 overflow-hidden">` wrapper
+
+- [x] **New shell structure:**
+
   ```tsx
   <SidebarProvider>
-    <AppSidebar />
+    <AppSidebar
+      currentView={currentView}
+      onNavigate={setCurrentView}
+      userType={userType}
+      refreshTrigger={refreshTrigger}
+    />
     <SidebarInset>
       <SiteHeader />
-      <div className="p-4 flex-1 overflow-hidden">
-        <PageContent />
+      <div className="flex flex-1 p-4 overflow-auto">
+        <PageContent
+          userType={userType}
+          setUserType={handleSetUserType}
+          currentView={currentView}
+          onProgramSaved={handleProgramSaved}
+        />
       </div>
     </SidebarInset>
   </SidebarProvider>
   ```
+
+- [x] **Preserved business logic:** All state management, navigation, and refresh triggers remain unchanged.
+
+**Mobile Responsiveness:** Sidebar automatically becomes a Sheet (drawer overlay) on mobile. Desktop users can collapse sidebar to icon mode.
 
 ---
 

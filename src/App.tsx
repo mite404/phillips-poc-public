@@ -1,7 +1,9 @@
 import "./App.css";
 import { useState } from "react";
 import { PageContent } from "./components/PageContent";
-import { SidebarNav } from "./components/SidebarNav";
+import { AppSidebar } from "./components/layout/AppSidebar";
+import { SiteHeader } from "./components/layout/SiteHeader";
+import { SidebarProvider, SidebarInset } from "./components/ui/sidebar";
 import { Toaster } from "sonner";
 
 function App() {
@@ -55,42 +57,29 @@ function App() {
         </div>
       </>
     );
-  } else if (userType === "supervisor") {
-    return (
-      <>
-        <Toaster position="top-right" />
-        <div className="flex flex-1 overflow-hidden">
-          <SidebarNav
-            onNavigate={setCurrentView}
-            userType={userType}
-            refreshTrigger={refreshTrigger}
-          />
-          <PageContent
-            userType={userType}
-            setUserType={handleSetUserType}
-            currentView={currentView}
-            onProgramSaved={handleProgramSaved}
-          />
-        </div>
-      </>
-    );
   } else {
     return (
       <>
         <Toaster position="top-right" />
-        <div className="flex flex-1 overflow-hidden">
-          <SidebarNav
+        <SidebarProvider>
+          <AppSidebar
+            currentView={currentView}
             onNavigate={setCurrentView}
             userType={userType}
             refreshTrigger={refreshTrigger}
           />
-          <PageContent
-            userType={userType}
-            setUserType={handleSetUserType}
-            currentView={currentView}
-            onProgramSaved={handleProgramSaved}
-          />
-        </div>
+          <SidebarInset>
+            <SiteHeader />
+            <div className="flex flex-1 p-4 overflow-auto">
+              <PageContent
+                userType={userType}
+                setUserType={handleSetUserType}
+                currentView={currentView}
+                onProgramSaved={handleProgramSaved}
+              />
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
       </>
     );
   }
