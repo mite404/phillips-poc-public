@@ -657,19 +657,68 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 - Desktop: Sidebar visible, can collapse to icon mode
 - `SidebarTrigger` automatically adapts to mobile/desktop contexts
 
-### ⏭️ PR-S2: Builder & Course Cards
+### ✅ PR-S2: Builder & Course Cards
 
-**Goal:** Polish the core "Program Builder" view.
-**Inputs:** `ProgramBuilder.tsx`, `CourseCard.tsx`.
-**Tasks:**
+**Goal:** Polish the core "Program Builder" view with standardized card components and improved input styling.
+**Completed:** 2025-01-16
+**Files Changed:**
 
-1.  **Refactor `CourseCard.tsx`:**
-    - Replace `div` borders with `<Card>`, `<CardHeader>`, `<CardContent>`.
-    - Replace manual status spans with `<Badge>`.
-2.  **Refactor `ProgramBuilder.tsx`:**
-    - Replace `overflow-y-auto` divs with `<ScrollArea>` for cleaner scrolling.
-    - Replace native `<input>`/`<textarea>` with shadcn `<Input>` and `<Textarea>` (better focus states).
-    - **Critical:** Ensure `@dnd-kit` drag listeners still attach correctly to the new Card components.
+- Created: `src/components/common/CourseCard.tsx`
+- Modified: `src/components/ProgramBuilder.tsx`
+
+**Implementation Details:**
+
+1. **CourseCard Component** - Reusable standardized course card:
+   - Props: `course` (Course object), `action` ("add" | "remove"), `onAction` (callback), `onClick` (detail modal)
+   - `<CardHeader>`: Thumbnail image (3:2 ratio, 16x16px preview), title, level badge (Advanced=default, Basic=secondary)
+   - `<CardContent>`: Training type, duration (days for ILT, hours for eLearning), course ID
+   - `<CardFooter>`: Action button (destructive red for remove, outline for add)
+   - Consistent hover state: `hover:bg-accent/50` transition
+
+2. **ProgramBuilder Refactor** - Modernized layout with shadcn primitives:
+   - **Inputs:** Program title and description use `<Input>` and `<Textarea>` (borderless, focus-visible:ring-0 for seamless look)
+   - **Buttons:** Filter buttons use `Button variant="secondary"` (active) / `"ghost"` (inactive) with `size="sm"`
+   - **Scrolling:** Replaced raw `overflow-y-auto` with `<ScrollArea>` for consistent cross-browser scrollbars
+   - **Course Lists:** Both workbench and catalog now use `<CourseCard>` components inside `<SortableCourseItem>` wrapper
+   - **Button:** "Save Draft" now uses `<Button variant="outline" size="sm" className="w-full">`
+   - **Drag-and-drop:** `@dnd-kit` context and sensors fully preserved; `<CourseCard>` sits inside sortable wrapper
+
+**Code Pattern Example:**
+
+```tsx
+// Workbench (left column)
+<SortableContext items={selectedCourses.map(c => c.id)} strategy={verticalListSortingStrategy}>
+  <div className="space-y-3">
+    {selectedCourses.map(course => (
+      <SortableCourseItem key={course.id} id={course.id}>
+        <CourseCard
+          course={course}
+          action="remove"
+          onAction={() => removeCourse(course.id)}
+          onClick={() => setActiveCourse(course)}
+        />
+      </SortableCourseItem>
+    ))}
+  </div>
+</SortableContext>
+
+// Catalog (right column)
+<ScrollArea className="flex-1">
+  <div className="space-y-3">
+    {filteredCourses.map(course => (
+      <CourseCard
+        key={course.id}
+        course={course}
+        action="add"
+        onAction={() => addCourse(course)}
+        onClick={() => setActiveCourse(course)}
+      />
+    ))}
+  </div>
+</ScrollArea>
+```
+
+**Test Status:** All 31 tests passing (17 hook + 14 integration); drag-and-drop functionality verified.
 
 ### ⏭️ PR-S3: Data Lists (Student & Manager)
 

@@ -6,7 +6,7 @@
 
 **Timeline:** 3 Days.
 
-**Last Updated:** 2025-01-16
+**Last Updated:** 2025-01-16 (PR-S2 Completed)
 
 ---
 
@@ -122,25 +122,153 @@ _Goal: Replace the manual "Flexbox Sidebar" with the responsive, accessible `Sid
 
 ---
 
-## 🗓️ Phase 2: The Builder & Layouts (Day 2)
+## 🗓️ Phase 2: The Builder & Layouts (Day 2) ✅ COMPLETED
 
 _Goal: Remove raw `div` scrolling and borders. Use `Card` and `ScrollArea` to manage screen real estate._
 
-### 1. Refactor `CourseCard.tsx`
+### 1. Create `src/components/common/CourseCard.tsx` ✅
 
-- **Current:** `div` with border classes.
-- **New:** `<Card>`
-  - Title/Image → `<CardHeader>`
-  - Metadata badges → `<CardContent>` (Use `<Badge variant="secondary">`)
-  - Add Button → `<CardFooter>`
-- **Polish:** This instantly standardizes padding, shadows, and borders across the app.
+- [x] **Standardized card component for course display:**
+  - Props: `course: Course`, `action: "add" | "remove"`, `onAction: () => void`, `onClick?: () => void`
+  - Reusable across workbench and catalog views
+- [x] **Component Structure:**
 
-### 2. Refactor `ProgramBuilder.tsx` (The 2-Column Layout)
+  ```tsx
+  <Card className="cursor-pointer hover:bg-accent/50 transition-colors">
+    <CardHeader>
+      {/* Image thumbnail (w-16 h-16, 3:2 ratio if available) */}
+      <img src={course.previewImageUrl} />
 
-- **The Container:** Keep the Flexbox/Grid for the split (it works).
-- **The Columns:** Replace `overflow-y-auto` divs with `<ScrollArea className="h-[calc(100vh-theme(spacing.32))]">`.
-  - _Why:_ Shadcn's ScrollArea looks distinct (thinner bars) and handles cross-browser styling better.
-- **Inputs:** Replace standard `<input>` with `<Input />` and `<Textarea />`. This gives you consistent focus rings (Phillips Blue).
+      {/* Title + Level Badge */}
+      <h3>{course.courseTitle}</h3>
+      <Badge variant={course.levelName === "Advanced" ? "default" : "secondary"}>
+        {course.levelName}
+      </Badge>
+    </CardHeader>
+
+    <CardContent>
+      {/* Training Type, Duration (ILT=days, eLearning=hours), Course ID */}
+      <div>Type: {course.trainingTypeName}</div>
+      <div>Duration: {course.totalDays || course.hours}</div>
+      <div>ID: #{course.courseId}</div>
+    </CardContent>
+
+    <CardFooter>
+      <Button
+        variant={action === "remove" ? "destructive" : "outline"}
+        onClick={handleActionClick}
+      >
+        {action === "remove" ? "Remove" : "Add"}
+      </Button>
+    </CardFooter>
+  </Card>
+  ```
+
+### 2. Refactor `ProgramBuilder.tsx` (The 2-Column Layout) ✅
+
+- [x] **Inputs upgraded to shadcn components:**
+
+  ```tsx
+  // Program Title
+  <Input
+    value={programTitle}
+    onChange={...}
+    className="text-xl font-semibold border-none shadow-none focus-visible:ring-0 px-0"
+  />
+
+  // Program Description
+  <Textarea
+    value={programDescription}
+    onChange={...}
+    className="text-sm resize-none border-none shadow-none focus-visible:ring-0 px-0"
+  />
+
+  // Search Input
+  <Input
+    placeholder="Search courses..."
+    value={searchQuery}
+    onChange={...}
+    disabled={isLoading}
+  />
+  ```
+
+- [x] **Filter buttons use Button component:**
+
+  ```tsx
+  <Button
+    variant={activeFilters[filterKey] ? "secondary" : "ghost"}
+    size="sm"
+    className="flex-1"
+    onClick={() => toggleFilter(filterKey)}
+  >
+    {filterKey}
+  </Button>
+  ```
+
+- [x] **ScrollArea replaces raw overflow-y-auto:**
+
+  ```tsx
+  <ScrollArea className="flex-1">
+    <div className="p-4 space-y-3">{/* Course cards go here */}</div>
+  </ScrollArea>
+  ```
+
+- [x] **Course lists now use CourseCard:**
+
+  ```tsx
+  // Workbench (left column - sortable)
+  <SortableContext items={selectedCourses.map(c => c.id)} strategy={verticalListSortingStrategy}>
+    <div className="space-y-3">
+      {selectedCourses.map(course => (
+        <SortableCourseItem key={course.id} id={course.id}>
+          <CourseCard
+            course={course}
+            action="remove"
+            onAction={() => removeCourse(course.id)}
+            onClick={() => setActiveCourse(course)}
+          />
+        </SortableCourseItem>
+      ))}
+    </div>
+  </SortableContext>
+
+  // Catalog (right column - scrollable)
+  <ScrollArea className="flex-1">
+    <div className="p-4 space-y-3">
+      {filteredCourses.map(course => (
+        <CourseCard
+          key={course.id}
+          course={course}
+          action="add"
+          onAction={() => addCourse(course)}
+          onClick={() => setActiveCourse(course)}
+        />
+      ))}
+    </div>
+  </ScrollArea>
+  ```
+
+- [x] **Save Draft button upgraded:**
+
+  ```tsx
+  <Button
+    variant="outline"
+    size="sm"
+    className="w-full"
+    onClick={async () => {
+      await saveDraft();
+      onProgramSaved?.();
+    }}
+  >
+    Save Draft
+  </Button>
+  ```
+
+- [x] **Key Pattern Preserved:** `@dnd-kit` context fully maintained:
+  - `<DndContext>`, `<SortableContext>`, `<SortableCourseItem>` wrapper all intact
+  - Drag sensors (PointerSensor, KeyboardSensor) unchanged
+  - `CourseCard` is a pure presentation component inside sortable wrapper
+  - This separation maintains clean drag-and-drop functionality
 
 ---
 
