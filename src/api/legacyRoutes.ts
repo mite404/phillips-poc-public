@@ -111,11 +111,73 @@ export async function getTestimonials(): Promise<Testimonial[]> {
 }
 
 /**
+ * Fetch ALL class schedule inventory at once (optimized for batch checking)
+ * Returns a Map of courseId -> CourseInventory for quick lookups
+ * Falls back to local Schedules.json if API fails
+ */
+export async function getAllInventory(): Promise<Map<number, CourseInventory | null>> {
+  try {
+    const response = await fetchApi<{ result: CourseInventory[] }>(
+      `${LEGACY_API_BASE}/Class/Machinist/Schedules`,
+    );
+
+    const inventoryMap = new Map<number, CourseInventory | null>();
+
+    if (response.result && Array.isArray(response.result)) {
+      response.result.forEach((inv) => {
+        // Only add if it has classes (Data Guarantee pattern)
+        if (inv.classes && inv.classes.length > 0) {
+          inventoryMap.set(inv.courseId, inv);
+        } else {
+          // Mark as explicitly no sessions
+          inventoryMap.set(inv.courseId, null);
+        }
+      });
+    }
+
+    // Merge with fallback data
+    const schedules = schedulesData as CourseInventory[];
+    schedules.forEach((inv) => {
+      // Only add fallback if not already in map from API
+      if (!inventoryMap.has(inv.courseId)) {
+        if (inv.classes && inv.classes.length > 0) {
+          inventoryMap.set(inv.courseId, inv);
+        } else {
+          inventoryMap.set(inv.courseId, null);
+        }
+      }
+    });
+
+    return inventoryMap;
+  } catch (error) {
+    console.warn(
+      "Legacy API failed, using fallback schedule data for all inventory:",
+      error,
+    );
+
+    // Full fallback to local data
+    const schedules = schedulesData as CourseInventory[];
+    const fallbackMap = new Map<number, CourseInventory | null>();
+
+    schedules.forEach((inv) => {
+      if (inv.classes && inv.classes.length > 0) {
+        fallbackMap.set(inv.courseId, inv);
+      } else {
+        fallbackMap.set(inv.courseId, null);
+      }
+    });
+
+    return fallbackMap;
+  }
+}
+
+/**
  * Legacy API object for convenient access
  */
 export const legacyApi = {
   getCatalog,
   getRoster,
   getInventory,
+  getAllInventory,
   getTestimonials,
 };
