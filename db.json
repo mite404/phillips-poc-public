@@ -32,7 +32,7 @@
         11,
         131
       ],
-      "published": false,
+      "published": true,
       "totalCourses": 2,
       "createdAt": "2025-11-15T10:00:00Z"
     },
@@ -162,6 +162,20 @@
       ],
       "published": false,
       "createdAt": "2025-12-16T22:15:58.673Z"
+    },
+    {
+      "id": "8b3d23b1-0cc0-4333-a428-ecc544f742ed",
+      "supervisorId": "pat_mann_guid",
+      "programName": "My Progragdsdgfs",
+      "description": "hfdfgdghfdghjfhjg",
+      "tags": [],
+      "courseSequence": [
+        116,
+        114,
+        9
+      ],
+      "published": false,
+      "createdAt": "2025-12-17T21:33:07.554Z"
     }
   ],
   "program_registrations": [
@@ -492,6 +506,14 @@
       "courseId": 116,
       "classId": 5451,
       "enrolledDate": "2025-12-17T20:15:32.290Z"
+    },
+    {
+      "id": "34c1ebe9-6c0c-4b72-a9f7-04ffffe2b197",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "courseId": 11,
+      "classId": 5448,
+      "enrolledDate": "2025-12-17T21:33:55.720Z"
     }
   ]
 }
