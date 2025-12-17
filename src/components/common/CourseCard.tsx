@@ -8,9 +8,18 @@ interface CourseCardProps {
   action: "add" | "remove";
   onAction: () => void;
   onClick?: () => void;
+  variant?: "default" | "workbench";
+  dragHandle?: React.ReactNode;
 }
 
-export function CourseCard({ course, action, onAction, onClick }: CourseCardProps) {
+export function CourseCard({
+  course,
+  action,
+  onAction,
+  onClick,
+  variant = "default",
+  dragHandle,
+}: CourseCardProps) {
   const handleCardClick = () => {
     if (onClick) {
       onClick();
@@ -28,6 +37,59 @@ export function CourseCard({ course, action, onAction, onClick }: CourseCardProp
     return "secondary";
   };
 
+  // Workbench variant: Vertical layout with title centered at top
+  if (variant === "workbench") {
+    return (
+      <Card className="p-4 hover:shadow-md transition-all cursor-pointer border-slate-200">
+        {/* Row 1: Centered Title */}
+        <div className="text-lg font-semibold text-center text-slate-900 mb-4">
+          {course.courseTitle}
+        </div>
+
+        {/* Row 2: Metadata (Drag Handle + Badges + Duration) */}
+        <div className="flex items-center justify-between mb-4 gap-2">
+          {/* Left: Drag Handle */}
+          {dragHandle || (
+            <div className="w-5 flex items-center justify-center flex-shrink-0">
+              <div className="text-slate-400 text-sm">⋮⋮</div>
+            </div>
+          )}
+
+          {/* Center: Badges */}
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              {course.trainingTypeName}
+            </Badge>
+            <Badge variant={getLevelVariant(course.levelName)} className="text-xs">
+              {course.levelName}
+            </Badge>
+          </div>
+
+          {/* Right: Duration */}
+          <div className="text-sm text-slate-500 ml-auto whitespace-nowrap">
+            Duration:{" "}
+            {course.trainingTypeName === "ILT"
+              ? `${course.totalDays} day${course.totalDays !== 1 ? "s" : ""}`
+              : course.hours
+                ? `${course.hours} hour${course.hours !== 1 ? "s" : ""}`
+                : "Self-paced"}
+          </div>
+        </div>
+
+        {/* Row 3: Full Width Remove Button */}
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleActionClick}
+          className="w-full"
+        >
+          Remove
+        </Button>
+      </Card>
+    );
+  }
+
+  // Default variant: Original layout
   return (
     <Card
       className="cursor-pointer hover:bg-accent/50 transition-colors"

@@ -49,7 +49,7 @@
         131,
         90
       ],
-      "published": false,
+      "published": true,
       "createdAt": "2025-12-11T16:08:46.048Z"
     },
     {
@@ -148,6 +148,20 @@
       ],
       "published": true,
       "createdAt": "2025-12-15T17:25:48.512Z"
+    },
+    {
+      "id": "63b3543c-ba88-42c9-9ef1-95fbc0629742",
+      "supervisorId": "pat_mann_guid",
+      "programName": "My Programasfsgfdsg",
+      "description": "hgdhgfhgjf",
+      "tags": [],
+      "courseSequence": [
+        116,
+        9,
+        11
+      ],
+      "published": false,
+      "createdAt": "2025-12-16T22:15:58.673Z"
     }
   ],
   "program_registrations": [
@@ -325,6 +339,13 @@
       "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
       "assignedDate": "2025-12-16T17:32:28.976Z",
       "status": "Pending"
+    },
+    {
+      "id": "6fb489f1-3f9e-431b-a49b-5a1292570a08",
+      "learnerId": "fc0670d4-3874-48b6-94b2-14b99d326e50",
+      "programId": "de9dafc0-c1f2-4de2-ab7e-c2da38382f21",
+      "assignedDate": "2025-12-16T22:16:13.441Z",
+      "status": "Pending"
     }
   ],
   "enrollments": [
@@ -378,6 +399,14 @@
       "courseId": 116,
       "classId": 5451,
       "enrolledDate": "2025-12-12T19:36:24.771Z"
+    },
+    {
+      "id": "5bb3b95e-bdae-4d92-9973-1cd19b5e331f",
+      "learnerId": "fc0670d4-3874-48b6-94b2-14b99d326e50",
+      "programId": "prog_102",
+      "courseId": 11,
+      "classId": 5447,
+      "enrolledDate": "2025-12-17T15:17:53.529Z"
     }
   ]
 }
