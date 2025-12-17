@@ -1,3 +1,5 @@
+// VIEW: Student Persona. Interactive Dashboard for the Learner.
+
 import { useState, useEffect } from "react";
 import { localApi } from "@/api/localRoutes";
 import { legacyApi } from "@/api/legacyRoutes";
