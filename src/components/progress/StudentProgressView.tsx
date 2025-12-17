@@ -1,3 +1,5 @@
+// VIEW: Supervisor Persona. Read-only progress tracker for direct reports.
+
 import { useState, useEffect } from "react";
 import { ProgramProgressCard } from "./ProgramProgressCard";
 import { legacyApi } from "@/api/legacyRoutes";
