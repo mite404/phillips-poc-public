@@ -9,6 +9,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "../ui/dialog";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import { ExternalLink } from "lucide-react";
 
 interface CourseDetailModalProps {
@@ -55,111 +57,126 @@ export function CourseDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>{course.courseTitle}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-medium text-slate-500">Course ID</p>
-              <p className="text-base font-mono">#{course.courseId}</p>
+
+        {/* 2-Column Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 py-6">
+          {/* Left Column (Metadata & Description) */}
+          <div className="md:col-span-7 space-y-8">
+            {/* Metadata Grid (2x2) */}
+            <div className="grid grid-cols-2 gap-6">
+              {/* Course ID */}
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Course ID</p>
+                <p className="text-lg font-semibold font-mono">#{course.courseId}</p>
+              </div>
+
+              {/* Level */}
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Level</p>
+                <p className="text-lg font-semibold">{course.levelName}</p>
+              </div>
+
+              {/* Type */}
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Type</p>
+                <p className="text-lg font-semibold">{course.trainingTypeName}</p>
+              </div>
+
+              {/* Duration */}
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Duration</p>
+                <p className="text-lg font-semibold">
+                  {course.trainingTypeName === "ILT"
+                    ? `${course.totalDays} day${course.totalDays !== 1 ? "s" : ""}`
+                    : course.hours
+                      ? `${course.hours} hour${course.hours !== 1 ? "s" : ""}`
+                      : "Self-paced"}
+                </p>
+              </div>
             </div>
+
+            {/* Description */}
             <div>
-              <p className="text-sm font-medium text-slate-500">Level</p>
-              <p className="text-base">{course.levelName}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">Type</p>
-              <p className="text-base">{course.trainingTypeName}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">Duration</p>
-              <p className="text-base">
-                {course.trainingTypeName === "ILT"
-                  ? `${course.totalDays} day${course.totalDays !== 1 ? "s" : ""}`
-                  : course.hours
-                    ? `${course.hours} hour${course.hours !== 1 ? "s" : ""}`
-                    : "Self-paced"}
+              <p className="text-sm text-muted-foreground mb-3">Description</p>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                This course covers the fundamentals of {course.courseTitle.toLowerCase()}.
+                Students will learn essential skills and techniques through hands-on
+                practice and expert instruction.
               </p>
             </div>
           </div>
-          <div>
-            <p className="text-sm font-medium text-slate-500 mb-2">Description</p>
-            <p className="text-sm text-slate-600">
-              This course covers the fundamentals of {course.courseTitle.toLowerCase()}.
-              Students will learn essential skills and techniques through hands-on
-              practice and expert instruction.
-            </p>
-          </div>
-          {course.skills && course.skills.length > 0 && (
-            <div>
-              <p className="text-sm font-medium text-slate-500 mb-2">Skills</p>
-              <div className="flex flex-wrap gap-2">
-                {course.skills.map((skill, idx) => (
-                  <span
-                    key={idx}
-                    className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
-                  >
-                    {skill.skillName}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {/* Testimonials Section */}
-          {testimonials.length > 0 && (
-            <div>
-              <p className="text-sm font-medium text-slate-500 mb-2">What People Say</p>
-              <div className="space-y-3">
-                {testimonials.map((testimonial) => (
-                  <div
-                    key={testimonial.testimonialId}
-                    className="p-3 bg-slate-50 rounded-lg border border-slate-200"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <p className="font-medium text-sm text-slate-900">
-                          {testimonial.personName}
-                        </p>
-                        <p className="text-xs text-slate-500 mb-2">
-                          {testimonial.personTitle}
-                        </p>
-                        {testimonial.testimonialText ? (
-                          <p className="text-sm text-slate-700 italic">
-                            "{testimonial.testimonialText}"
-                          </p>
-                        ) : (
-                          <div className="flex items-center gap-1 text-sm text-phillips-blue">
-                            <ExternalLink className="w-4 h-4" />
-                            <span>Video Testimonial Available</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+          {/* Right Column (Skills & Testimonials) */}
+          <div className="md:col-span-5 space-y-8">
+            {/* Skills Section */}
+            {course.skills && course.skills.length > 0 && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-3">Skills</p>
+                <div className="flex flex-wrap gap-2">
+                  {course.skills.map((skill, idx) => (
+                    <Badge
+                      key={idx}
+                      className="bg-blue-100 text-blue-700 hover:bg-blue-100"
+                    >
+                      {skill.skillName}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {/* Testimonials Section */}
+            {testimonials.length > 0 && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-3">What People Say</p>
+                <div className="space-y-3 max-h-64 overflow-y-auto">
+                  {testimonials.map((testimonial) => (
+                    <div
+                      key={testimonial.testimonialId}
+                      className="bg-slate-50 border border-slate-100 rounded-lg p-3"
+                    >
+                      <p className="font-medium text-sm text-slate-900">
+                        {testimonial.personName}
+                      </p>
+                      <p className="text-xs text-slate-500 mb-2">
+                        {testimonial.personTitle}
+                      </p>
+                      {testimonial.testimonialText ? (
+                        <p className="text-sm text-slate-700 italic">
+                          "{testimonial.testimonialText}"
+                        </p>
+                      ) : (
+                        <div className="flex items-center gap-1 text-sm text-phillips-blue">
+                          <ExternalLink className="w-4 h-4" />
+                          <span>Video Testimonial Available</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-        <DialogFooter>
-          <button
-            onClick={onClose}
-            className="bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded px-4 py-2"
-          >
+
+        {/* Footer with Actions */}
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={onClose}>
             Close
-          </button>
+          </Button>
           {showBookButton && (
-            <button
+            <Button
+              variant="outline"
               onClick={() => {
                 onBookClick();
               }}
-              className="bg-gray-100! text-black! border-slate-300 outline border-2 outline-gray-400 px-4 py-2 rounded hover:bg-slate-200! hover:border-slate-400"
             >
               Book Class
-            </button>
+            </Button>
           )}
         </DialogFooter>
       </DialogContent>
