@@ -3,7 +3,11 @@
 import { useState, useEffect } from "react";
 import { localApi } from "@/api/localRoutes";
 import { legacyApi } from "@/api/legacyRoutes";
-import type { CourseEnrollment, SupervisorProgram } from "@/types/models";
+import type {
+  CourseEnrollment,
+  SupervisorProgram,
+  CourseInventory,
+} from "@/types/models";
 import { Course } from "@/hooks/useProgramBuilder";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronDown } from "lucide-react";
@@ -40,6 +44,9 @@ export function StudentDashboard() {
   const [assignedPrograms, setAssignedPrograms] = useState<HydratedProgram[]>([]);
   const [completedPrograms, setCompletedPrograms] = useState<HydratedProgram[]>([]);
   const [enrollments, setEnrollments] = useState<CourseEnrollment[]>([]);
+  const [courseInventory, setCourseInventory] = useState<
+    Map<number, CourseInventory | null>
+  >(new Map());
 
   // Modal state
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
@@ -119,6 +126,15 @@ export function StudentDashboard() {
         }
       }
 
+      // Step 6: Pre-fetch inventory for all ILT courses (BEFORE rendering)
+      try {
+        const inventoryMap = await legacyApi.getAllInventory();
+        setCourseInventory(inventoryMap);
+      } catch (error) {
+        console.error("Failed to pre-fetch inventory:", error);
+        // Continue without inventory cache (buttons will still show)
+      }
+
       setAssignedPrograms(hydratedPrograms);
 
       // Mock: Add one completed program for demo
@@ -170,6 +186,23 @@ export function StudentDashboard() {
     });
   };
 
+  // Helper to check if a course has available sessions
+  const hasAvailableSessions = (courseId: number): boolean => {
+    const inventory = courseInventory.get(courseId);
+
+    // If inventory map is empty (still loading), optimistically show button
+    if (courseInventory.size === 0) return true;
+
+    // If course is not in inventory map, no sessions available
+    if (inventory === undefined) return false;
+
+    // If explicitly marked as null, no sessions available
+    if (inventory === null) return false;
+
+    // Check if classes array has items
+    return inventory.classes && inventory.classes.length > 0;
+  };
+
   const isEnrolled = (programId: string, courseId: number) => {
     return enrollments.some((e) => e.programId === programId && e.courseId === courseId);
   };
@@ -203,7 +236,7 @@ export function StudentDashboard() {
           {assignedPrograms.length === 0 ? (
             <div className="p-8 text-center text-slate-400">No programs assigned yet</div>
           ) : (
-            <Accordion.Root type="single" collapsible>
+            <Accordion.Root type="single" collapsible className="space-y-3">
               {assignedPrograms.map((hydrated) => {
                 const firstCourseId = hydrated.program.courseSequence[0];
                 const enrolled = isEnrolled(hydrated.program.id, firstCourseId);
@@ -235,18 +268,17 @@ export function StudentDashboard() {
                           {hydrated.program.description}
                         </p>
                       )}
-                      <div className="space-y-2">
+                      <div className="space-y-3 pt-2">
                         {hydrated.courses.map((course, idx) => {
                           const isEnrolledInCourse = isEnrolled(
                             hydrated.program.id,
                             course.courseId,
                           );
-                          const isFirstCourse = idx === 0;
 
                           return (
                             <Card
                               key={course.id}
-                              className="p-3 cursor-pointer hover:bg-slate-50 transition-colors border-slate-200"
+                              className="cursor-pointer border border-slate-200 rounded-lg p-4 bg-white hover:border-phillips-blue/30 transition-colors"
                               onClick={() =>
                                 handleCourseClick(course, hydrated.program.id)
                               }
@@ -269,14 +301,12 @@ export function StudentDashboard() {
 
                                 {/* Status/Action */}
                                 <div className="flex-shrink-0">
-                                  {isEnrolledInCourse && (
+                                  {isEnrolledInCourse ? (
                                     <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
                                       ✓ Enrolled
                                     </Badge>
-                                  )}
-                                  {!isEnrolledInCourse &&
-                                    isFirstCourse &&
-                                    course.trainingTypeName.includes("ILT") && (
+                                  ) : course.trainingTypeName.includes("ILT") ? (
+                                    hasAvailableSessions(course.courseId) ? (
                                       <Button
                                         size="sm"
                                         variant="outline"
@@ -290,7 +320,16 @@ export function StudentDashboard() {
                                       >
                                         Book Class
                                       </Button>
-                                    )}
+                                    ) : (
+                                      <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+                                        No sessions avail
+                                      </Badge>
+                                    )
+                                  ) : (
+                                    <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+                                      Pending
+                                    </Badge>
+                                  )}
                                 </div>
                               </div>
                             </Card>
@@ -336,11 +375,11 @@ export function StudentDashboard() {
                         {hydrated.program.description}
                       </p>
                     )}
-                    <div className="space-y-2">
+                    <div className="space-y-3 pt-2">
                       {hydrated.courses.map((course, idx) => (
                         <Card
                           key={course.id}
-                          className="p-3 cursor-pointer hover:bg-green-50 transition-colors border-green-200 bg-white"
+                          className="cursor-pointer border border-green-200 rounded-lg p-4 bg-white hover:border-green-400/50 transition-colors"
                           onClick={() => handleCourseClick(course, hydrated.program.id)}
                         >
                           <div className="flex items-center gap-3">
