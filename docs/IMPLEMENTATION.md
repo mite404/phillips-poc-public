@@ -1,7 +1,7 @@
 # Implementation Progress Tracker
 
-> **Last Updated:** 2025-12-15 (PR-18 Complete - Data Reliability)  
-> **Project Status:** 🏆 **GOLD MASTER (Ready for Demo) - All Features + Data Guarantee**
+> **Last Updated:** 2025-12-16 (PR-41 Complete - UI Modernization Phase 3)  
+> **Project Status:** 🏆 **GOLD MASTER (Ready for Demo) - All Features + Modern UI**
 
 ---
 
@@ -247,7 +247,7 @@ bun dev
 
 ## 🎯 Project Summary
 
-**All Features Complete - v1.0 POC**
+**All Features Complete + UI Modernization - v2.0 POC**
 
 **Phase 1: Infrastructure & Builder** (PR-01 to PR-04)
 
@@ -284,13 +284,31 @@ bun dev
 - ✅ Tags context label in Program Manager
 - ✅ Catalog number alignment in progress cards
 
+**Phase 6: Data Reliability** (PR-11 to PR-18)
+
+- ✅ Batch operations and global headers
+- ✅ Resilient persistence layer with localStorage fallback
+- ✅ Network-first, localStorage-fallback architecture
+- ✅ Production-ready deployment to Vercel
+- ✅ Empty data guarantee pattern for API responses
+
+**Phase 7: UI Modernization** (PR-39 to PR-41)
+
+- ✅ CourseDetailModal 2-column responsive grid layout (PR-39)
+- ✅ Horizontal "flight ticket" course cards across views (PR-40)
+- ✅ CourseCard variant system for flexible layouts (PR-40)
+- ✅ SortableCourseItem drag handle prop injection (PR-40)
+- ✅ Student assignment deduplication by programId (PR-41)
+- ✅ Complete shadcn/ui and Radix primitives integration
+
 **Final State:**
 
 - Full supervisor workflow: Build → Assign → Enroll → Track Progress
 - Full student workflow: View Assignments → Book Classes
-- Both user types have dedicated navigation and views
-- All UI polish complete with consistent styling
-- All core POC features implemented and tested
+- Modern UI with shadcn/ui components and consistent design system
+- Responsive layouts: 2-column grids, horizontal cards, mobile drawer navigation
+- Data reliability: Network failures handled gracefully with localStorage fallback
+- Production-ready: Deployed to Vercel, tested across devices
 
 ---
 
@@ -392,6 +410,79 @@ bun dev
   - [x] Build succeeds (TypeScript compilation)
   - [x] No breaking changes
   - [x] Console warnings verify fallback activation
+
+---
+
+## PR-39: Refactor CourseDetailModal Layout
+
+**Status:** ✅ **COMPLETE**
+
+- [x] Modernize course detail display with 2-column responsive grid layout
+  - [x] Updated `src/components/common/CourseDetailModal.tsx`
+  - [x] Convert vertical CardHeader/CardContent/CardFooter to grid structure
+  - [x] Left column (7 cols): 2×2 metadata grid (Course ID, Level, Type, Duration) + full description
+  - [x] Right column (5 cols): Skills section with styled badges + scrollable testimonials deck
+  - [x] Update button styling to shadcn Button component with `variant="outline"`
+  - [x] Maintain `onBookClick` logic for ILT course detail interactions
+- [x] Verify functionality
+  - [x] Modal opens correctly with course information
+  - [x] Responsive grid collapses on mobile (grid-cols-1 md:grid-cols-12)
+  - [x] "Book Class" button appears for ILT courses
+  - [x] All existing integrations preserved
+
+---
+
+## PR-40: Horizontal Course Card Redesign
+
+**Status:** ✅ **COMPLETE**
+
+- [x] Implement consistent "flight ticket" style horizontal cards across program management views
+  - [x] **ProgramManager (`src/components/ProgramManager.tsx`)**:
+    - [x] Adjust column layout from 50:40 to 50:50 split (`flex-1 flex-1`)
+    - [x] Refactor course sequence items from div rows to horizontal Card components
+    - [x] Card layout: Sequence badge (blue circle) → Thumbnail (24×16) → Title + badges + duration → Level/ID badges
+    - [x] Styling: `flex flex-row items-center gap-4 p-4 hover:shadow-md transition-all cursor-pointer`
+  - [x] **ProgramBuilder (`src/components/ProgramBuilder.tsx`)**:
+    - [x] Adjust column layout from 60:40 to 50:50 split
+    - [x] Create inline horizontal Card layout for course catalog (not using CourseCard)
+    - [x] Catalog card layout: Image (20×14) → Title + badges + metadata → Add button (right-aligned)
+    - [x] Update Left Column (Workbench) to use `variant="workbench"` on CourseCard
+  - [x] **CourseCard Enhancement (`src/components/common/CourseCard.tsx`)**:
+    - [x] Add `variant?: "default" | "workbench"` prop for layout flexibility
+    - [x] Add `dragHandle?: React.ReactNode` prop for accepting drag handle from parent
+    - [x] Workbench variant: Title (centered bold) → Drag handle + badges + duration (right-aligned) → Remove button
+    - [x] Default variant: Unchanged original vertical CardHeader/CardContent/CardFooter layout
+  - [x] **SortableCourseItem Refactor (`src/components/SortableCourseItem.tsx`)**:
+    - [x] Switch from wrapper div approach to cloneElement-based prop injection
+    - [x] Create drag handle button with GripVertical icon
+    - [x] Pass dragHandle via props to child CourseCard using `cloneElement(children, { dragHandle })`
+    - [x] Maintain dnd-kit opacity and transform styling for drag feedback
+- [x] Verify all functionality
+  - [x] ProgramManager course cards display correctly with horizontal layout
+  - [x] ProgramBuilder catalog cards show in horizontal layout
+  - [x] Workbench cards maintain drag-and-drop functionality
+  - [x] Drag handle appears inside workbench cards (not outside)
+  - [x] Linting passes, build succeeds
+
+---
+
+## PR-41: Deduplicate Student Assignments
+
+**Status:** ✅ **COMPLETE**
+
+- [x] Prevent duplicate program cards when students have multiple assignments to same program
+  - [x] Updated `src/components/progress/StudentProgressView.tsx`:
+    - [x] Add deduplication logic using `reduce()` before hydration (Step 3.5)
+    - [x] Filter assignments by unique `programId`: `const uniqueAssignments = studentAssignments.reduce((acc, current) => { const exists = acc.find((item) => item.programId === current.programId); if (!exists) { return acc.concat([current]); } return acc; }, [] as typeof studentAssignments);`
+    - [x] Use `uniqueAssignments` instead of `studentAssignments` for rendering
+  - [x] Updated `src/components/student/StudentDashboard.tsx`:
+    - [x] Implement same deduplication pattern for consistency
+    - [x] Filter assignments by `programId` before mapping to accordion items
+  - [x] Verify functionality
+    - [x] Students with multiple assignments to same program show single card
+    - [x] All enrollments still tracked correctly
+    - [x] Modal workflows remain intact
+    - [x] Linting passes, build succeeds
 
 ---
 
