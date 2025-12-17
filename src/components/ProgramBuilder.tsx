@@ -130,6 +130,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                         <CourseCard
                           course={course}
                           action="remove"
+                          variant="workbench"
                           onAction={() => removeCourse(course.id)}
                           onClick={() => setActiveCourse(course)}
                         />
