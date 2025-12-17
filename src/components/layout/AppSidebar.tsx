@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronRight } from "lucide-react"; // Shadcn typically uses ChevronRight for collapsibles
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
 import { clearStorage } from "@/api/storageUtils";
@@ -11,6 +11,9 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuSub, // NEW: For nested lists
+  SidebarMenuSubItem, // NEW: For nested items
+  SidebarMenuSubButton, // NEW: For nested buttons
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import {
@@ -27,11 +30,12 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({
+  currentView, // Use this to highlight active items
   onNavigate,
   userType,
   refreshTrigger,
 }: AppSidebarProps) {
-  const [isBuilderOpen, setIsBuilderOpen] = useState(false);
+  const [isBuilderOpen, setIsBuilderOpen] = useState(true); // Default open looks better
   const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [savedPrograms, setSavedPrograms] = useState<SupervisorProgram[]>([]);
   const [students, setStudents] = useState<LearnerProfile[]>([]);
@@ -54,7 +58,6 @@ export function AppSidebar({
     }
   }, []);
 
-  // Load saved programs and students when component mounts or when refreshTrigger changes
   useEffect(() => {
     if (userType === "supervisor") {
       loadSavedPrograms();
@@ -63,23 +66,40 @@ export function AppSidebar({
   }, [userType, loadSavedPrograms, loadStudents, refreshTrigger]);
 
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b px-4 py-3">
-        <div className="flex items-center gap-2">
-          <img
-            src="/assets/philips-corp-brand-mark.png"
-            alt="Phillips Logo"
-            className="h-6"
-          />
-          <span className="text-lg font-bold italic">Phillips Education</span>
-        </div>
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-phillips-orange text-sidebar-primary-foreground">
+                <img
+                  src="/assets/philips-corp-brand-mark.png"
+                  alt="P"
+                  className="h-4 w-4 brightness-0 invert" // Make logo white
+                />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">Phillips Education</span>
+                <span className="truncate text-xs">Supervisor Console</span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarMenu>
           {/* Account */}
           <SidebarMenuItem>
-            <SidebarMenuButton>
+            <SidebarMenuButton
+              tooltip="Account"
+              isActive={currentView === "account"}
+              // APPLYING THE ACME STYLE FONT HERE
+              className="text-sm font-medium"
+            >
               <span>Account</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -89,6 +109,7 @@ export function AppSidebar({
             <>
               {/* Program Builder */}
               <Collapsible
+                asChild
                 open={isBuilderOpen}
                 onOpenChange={setIsBuilderOpen}
                 className="group/collapsible"
@@ -96,44 +117,53 @@ export function AppSidebar({
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton
-                      onClick={() => {
-                        setIsBuilderOpen(!isBuilderOpen);
-                        onNavigate("builder");
-                      }}
+                      tooltip="Program Builder"
+                      isActive={currentView === "builder"}
+                      className="text-sm font-medium" // Font fix
+                      onClick={() => onNavigate("builder")}
                     >
                       <span>Create Program</span>
-                      <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
+
                   <CollapsibleContent>
-                    <div className="ml-4 mt-1 flex flex-col gap-1 border-l-2 border-slate-300 pl-2">
+                    {/* REFACTOR: Use SidebarMenuSub for proper indentation and styling */}
+                    <SidebarMenuSub>
                       {savedPrograms.length === 0 ? (
-                        <div className="text-xs text-slate-400 px-2 py-1">
-                          No saved programs
-                        </div>
+                        <SidebarMenuSubItem>
+                          <span className="px-2 text-xs text-muted-foreground">
+                            No saved programs
+                          </span>
+                        </SidebarMenuSubItem>
                       ) : (
                         savedPrograms.map((program) => (
-                          <button
-                            key={program.id}
-                            onClick={() => onNavigate(program.id)}
-                            className="text-left px-2 py-1 bg-gray-100 text-black border-slate-300 hover:bg-slate-200 hover:border-slate-400 rounded text-xs truncate flex items-center justify-between gap-2"
-                          >
-                            <span className="truncate">{program.programName}</span>
-                            {!program.published && (
-                              <span className="text-[10px] px-1 py-0.5 bg-yellow-100 text-yellow-800 rounded flex-shrink-0">
-                                DRAFT
-                              </span>
-                            )}
-                          </button>
+                          <SidebarMenuSubItem key={program.id}>
+                            <SidebarMenuSubButton
+                              asChild
+                              isActive={currentView === program.id}
+                              className="cursor-pointer"
+                            >
+                              <button onClick={() => onNavigate(program.id)}>
+                                <span className="truncate">{program.programName}</span>
+                                {!program.published && (
+                                  <span className="ml-auto text-[10px] text-yellow-600 bg-yellow-50 px-1 rounded">
+                                    DRAFT
+                                  </span>
+                                )}
+                              </button>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
                         ))
                       )}
-                    </div>
+                    </SidebarMenuSub>
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>
 
               {/* Student Progress */}
               <Collapsible
+                asChild
                 open={isProgressOpen}
                 onOpenChange={setIsProgressOpen}
                 className="group/collapsible"
@@ -141,34 +171,43 @@ export function AppSidebar({
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton
-                      onClick={() => {
-                        setIsProgressOpen(!isProgressOpen);
-                      }}
+                      tooltip="Student Progress"
+                      className="text-sm font-medium" // Font fix
                     >
                       <span>Invite / Manage Students</span>
-                      <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
-                    <div className="ml-4 mt-1 flex flex-col gap-1 border-l-2 border-slate-300 pl-2">
+                    <SidebarMenuSub>
                       {students.length === 0 ? (
-                        <div className="text-xs text-slate-400 px-2 py-1">
-                          Loading students...
-                        </div>
+                        <SidebarMenuSubItem>
+                          <span className="px-2 text-xs text-muted-foreground">
+                            Loading...
+                          </span>
+                        </SidebarMenuSubItem>
                       ) : (
                         students.map((student) => (
-                          <button
-                            key={student.learner_Data_Id}
-                            onClick={() =>
-                              onNavigate(`student_${student.learner_Data_Id}`)
-                            }
-                            className="text-left px-2 py-1 bg-gray-100 text-black border-slate-300 hover:bg-slate-200 hover:border-slate-400 rounded text-xs truncate"
-                          >
-                            {student.learnerName}
-                          </button>
+                          <SidebarMenuSubItem key={student.learner_Data_Id}>
+                            <SidebarMenuSubButton
+                              asChild
+                              isActive={
+                                currentView === `student_${student.learner_Data_Id}`
+                              }
+                              className="cursor-pointer"
+                            >
+                              <button
+                                onClick={() =>
+                                  onNavigate(`student_${student.learner_Data_Id}`)
+                                }
+                              >
+                                <span>{student.learnerName}</span>
+                              </button>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
                         ))
                       )}
-                    </div>
+                    </SidebarMenuSub>
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>
@@ -178,7 +217,11 @@ export function AppSidebar({
           {/* Student Menu */}
           {userType === "student" && (
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => onNavigate("programs")}>
+              <SidebarMenuButton
+                onClick={() => onNavigate("programs")}
+                isActive={currentView === "programs"}
+                className="text-sm font-medium"
+              >
                 <span>My Programs</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -186,7 +229,6 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarContent>
 
-      {/* Footer: Reset Demo Data */}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -195,7 +237,7 @@ export function AppSidebar({
                 clearStorage();
                 window.location.reload();
               }}
-              className="text-xs text-slate-400 hover:text-red-500"
+              className="text-xs text-muted-foreground hover:text-destructive"
             >
               <span>Reset Demo Data</span>
             </SidebarMenuButton>

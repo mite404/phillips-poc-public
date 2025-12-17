@@ -51,13 +51,13 @@
 
   /* Sidebar Specifics */
   --sidebar: #fafafa;
-  --sidebar-foreground: #1a1a1a;
+  --sidebar-foreground: #1a1a1a; /* Dark Gray text */
   --sidebar-primary: #9b2c2c;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ffbe4d;
-  --sidebar-accent-foreground: #7f1d1d;
-  --sidebar-border: #f5e8d2;
-  --sidebar-ring: #9b2c2c;
+  --sidebar-accent: #fff1d6;
+  --sidebar-accent-foreground: #1a1a1a; /* Keep text dark on highlight */
+  --sidebar-border: #f1f5f9;
+  --sidebar-ring: transparent;
 
   /* Charts */
   --chart-1: #b91c1c;
@@ -169,6 +169,11 @@ button:focus-visible {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+  }
+
+  /* Removes the default focus ring from everything */
+  *:focus-visible {
+    @apply outline-none ring-0;
   }
 }
