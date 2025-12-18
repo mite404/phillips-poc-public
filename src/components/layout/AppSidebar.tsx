@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { ChevronRight, FileText, Users, FolderOpen, Plus, User } from "lucide-react"; // Shadcn typically uses ChevronRight for collapsibles
 import { Button } from "@/components/ui/button";
 import { legacyApi } from "@/api/legacyRoutes";
@@ -43,30 +43,39 @@ export function AppSidebar({
   const [savedPrograms, setSavedPrograms] = useState<SupervisorProgram[]>([]);
   const [students, setStudents] = useState<LearnerProfile[]>([]);
 
-  const loadSavedPrograms = useCallback(async () => {
-    try {
-      const programs = await localApi.getAllPrograms();
-      setSavedPrograms(programs);
-    } catch (error) {
-      console.error("Failed to load saved programs:", error);
-    }
-  }, []);
-
-  const loadStudents = useCallback(async () => {
-    try {
-      const roster = await legacyApi.getRoster();
-      setStudents(roster);
-    } catch (error) {
-      console.error("Failed to load students:", error);
-    }
-  }, []);
-
   useEffect(() => {
-    if (userType === "supervisor") {
-      loadSavedPrograms();
-      loadStudents();
+    if (userType !== "supervisor") {
+      return;
     }
-  }, [userType, loadSavedPrograms, loadStudents, refreshTrigger]);
+
+    let mounted = true;
+
+    const loadData = async () => {
+      try {
+        const programs = await localApi.getAllPrograms();
+        if (mounted) {
+          setSavedPrograms(programs);
+        }
+      } catch (error) {
+        console.error("Failed to load saved programs:", error);
+      }
+
+      try {
+        const roster = await legacyApi.getRoster();
+        if (mounted) {
+          setStudents(roster);
+        }
+      } catch (error) {
+        console.error("Failed to load students:", error);
+      }
+    };
+
+    void loadData();
+
+    return () => {
+      mounted = false;
+    };
+  }, [userType, refreshTrigger]);
 
   return (
     <Sidebar collapsible="icon">

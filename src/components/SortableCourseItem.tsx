@@ -35,7 +35,7 @@ export function SortableCourseItem({ id, children }: SortableCourseItemProps) {
   return (
     <div ref={setNodeRef} style={style}>
       {isValidElement(children)
-        ? cloneElement(children, { dragHandle } as any)
+        ? cloneElement(children, { dragHandle } as React.Attributes)
         : children}
     </div>
   );

@@ -4,7 +4,7 @@ import type { CourseInventory, LearnerProfile } from "@/types/models";
 
 // Mock fetch globally
 const mockFetch = vi.fn();
-global.fetch = mockFetch as any;
+global.fetch = mockFetch as unknown as typeof fetch;
 
 describe("Data Integration Tests", () => {
   beforeEach(() => {
