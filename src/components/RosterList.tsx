@@ -213,104 +213,106 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
         </div>
 
         {/* Student Table */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-auto p-4">
           {learners.length === 0 ? (
             <div className="flex items-center justify-center h-full text-slate-400">
               No students found
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">
-                    <input
-                      type="checkbox"
-                      checked={
-                        selectedStudentIds.length === learners.length &&
-                        learners.length > 0
-                      }
-                      onChange={toggleSelectAll}
-                      className="w-4 h-4 cursor-pointer"
-                    />
-                  </TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {learners.map((learner) => {
-                  const status = getStudentStatus(learner);
-                  const isSelected = selectedStudentIds.includes(learner.learnerId);
+            <div className="min-w-max">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12 flex-shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={
+                          selectedStudentIds.length === learners.length &&
+                          learners.length > 0
+                        }
+                        onChange={toggleSelectAll}
+                        className="w-4 h-4 cursor-pointer"
+                      />
+                    </TableHead>
+                    <TableHead className="min-w-48">Name</TableHead>
+                    <TableHead className="min-w-40">Location</TableHead>
+                    <TableHead className="w-32">Status</TableHead>
+                    <TableHead className="w-36">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {learners.map((learner) => {
+                    const status = getStudentStatus(learner);
+                    const isSelected = selectedStudentIds.includes(learner.learnerId);
 
-                  return (
-                    <TableRow key={learner.learnerId}>
-                      <TableCell>
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleStudentSelection(learner.learnerId)}
-                          className="w-4 h-4 cursor-pointer"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-slate-900">
-                            {learner.learnerName}
-                          </span>
+                    return (
+                      <TableRow key={learner.learnerId}>
+                        <TableCell className="flex-shrink-0">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleStudentSelection(learner.learnerId)}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                        </TableCell>
+                        <TableCell className="min-w-48">
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-medium text-slate-900 truncate">
+                              {learner.learnerName}
+                            </span>
+                            <span className="text-sm text-slate-600 truncate">
+                              {learner.emailId}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="min-w-40">
                           <span className="text-sm text-slate-600">
-                            {learner.emailId}
+                            {typeof learner.location === "string"
+                              ? learner.location
+                              : learner.location?.locationName || "N/A"}
                           </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-slate-600">
-                          {typeof learner.location === "string"
-                            ? learner.location
-                            : learner.location?.locationName || "N/A"}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {status === "registered" && (
-                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                            Registered
-                          </Badge>
-                        )}
-                        {status === "pending" && (
-                          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-                            Pending
-                          </Badge>
-                        )}
-                        {status === "unassigned" && (
-                          <Badge variant="outline">Unassigned</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {status === "unassigned" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleAssignProgram(learner)}
-                          >
-                            Assign
-                          </Button>
-                        )}
-                        {status === "pending" && firstCourseId && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleForceEnroll(learner)}
-                          >
-                            Force Enroll
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                        </TableCell>
+                        <TableCell className="w-32">
+                          {status === "registered" && (
+                            <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                              Registered
+                            </Badge>
+                          )}
+                          {status === "pending" && (
+                            <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+                              Pending
+                            </Badge>
+                          )}
+                          {status === "unassigned" && (
+                            <Badge variant="outline">Unassigned</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="w-36">
+                          {status === "unassigned" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleAssignProgram(learner)}
+                            >
+                              Assign
+                            </Button>
+                          )}
+                          {status === "pending" && firstCourseId && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleForceEnroll(learner)}
+                            >
+                              Force Enroll
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </div>
       </div>
