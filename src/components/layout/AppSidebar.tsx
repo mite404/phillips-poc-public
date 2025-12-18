@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronRight } from "lucide-react"; // Shadcn typically uses ChevronRight for collapsibles
+import { Button } from "@/components/ui/button";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
 import { clearStorage } from "@/api/storageUtils";
@@ -144,14 +145,18 @@ export function AppSidebar({
                               isActive={currentView === program.id}
                               className="cursor-pointer"
                             >
-                              <button onClick={() => onNavigate(program.id)}>
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start"
+                                onClick={() => onNavigate(program.id)}
+                              >
                                 <span className="truncate">{program.programName}</span>
                                 {!program.published && (
                                   <span className="ml-auto text-[10px] text-yellow-600 bg-yellow-50 px-1 rounded">
                                     DRAFT
                                   </span>
                                 )}
-                              </button>
+                              </Button>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
                         ))
@@ -196,13 +201,15 @@ export function AppSidebar({
                               }
                               className="cursor-pointer"
                             >
-                              <button
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start"
                                 onClick={() =>
                                   onNavigate(`student_${student.learner_Data_Id}`)
                                 }
                               >
                                 <span>{student.learnerName}</span>
-                              </button>
+                              </Button>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
                         ))

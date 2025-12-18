@@ -2,6 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import { ReactNode, cloneElement, isValidElement } from "react";
+import { Button } from "./ui/button";
 
 interface SortableCourseItemProps {
   id: string;
@@ -20,13 +21,15 @@ export function SortableCourseItem({ id, children }: SortableCourseItemProps) {
 
   // Pass drag handle button to child via context (if needed)
   const dragHandle = (
-    <button
-      className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 flex-shrink-0"
+    <Button
+      variant="ghost"
+      size="icon"
+      className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 hover:bg-transparent flex-shrink-0"
       {...attributes}
       {...listeners}
     >
       <GripVertical size={18} />
-    </button>
+    </Button>
   );
 
   return (

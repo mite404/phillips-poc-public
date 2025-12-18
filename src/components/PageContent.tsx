@@ -1,3 +1,4 @@
+import { Button } from "./ui/button";
 import { ProgramBuilder } from "./ProgramBuilder";
 import { ProgramManager } from "./ProgramManager";
 import { StudentDashboard } from "./student/StudentDashboard";
@@ -52,13 +53,10 @@ export function PageContent(props: {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-slate-300">
-        <button
-          className="bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded px-4 py-2 mx-auto block font-medium"
-          onClick={() => setUserType(null)}
-        >
+      <div className="p-4 border-t border-slate-300 flex justify-center">
+        <Button size="sm" onClick={() => setUserType(null)}>
           Back to Auth Portal
-        </button>
+        </Button>
       </div>
     </main>
   );

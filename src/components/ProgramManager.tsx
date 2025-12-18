@@ -5,6 +5,7 @@ import type { SupervisorProgram, CourseCatalogItem } from "@/types/models";
 import { Skeleton } from "./ui/skeleton";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import { RosterList } from "./RosterList";
 import { CourseDetailModal } from "./common/CourseDetailModal";
 import { toast } from "sonner";
@@ -241,12 +242,9 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
 
       {/* Publish Program Button - Bottom Center (always visible for demo) */}
       <div className="flex justify-center items-center gap-4 pt-4">
-        <button
-          onClick={handlePublishProgram}
-          className="px-8 py-3 bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded transition-all"
-        >
+        <Button size="lg" onClick={handlePublishProgram}>
           Publish Program
-        </button>
+        </Button>
         {program.published && (
           <span className="px-4 py-2 bg-green-100 text-green-800 font-semibold rounded-lg">
             ✓ Published

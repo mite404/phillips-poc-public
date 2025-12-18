@@ -187,7 +187,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                   size="sm"
                   className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all focus-visible:ring-0 focus-visible:ring-offset-0 border-0 ${
                     activeFilters[filterKey]
-                      ? "bg-[#fbdeac] text-slate-700 hover:bg-[#fbdeac]"
+                      ? "bg-secondary text-slate-700 hover:bg-secondary"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -252,7 +252,6 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                       {/* Action Button */}
                       <Button
                         size="sm"
-                        variant="outline"
                         onClick={(e) => {
                           e.stopPropagation();
                           addCourse(course);

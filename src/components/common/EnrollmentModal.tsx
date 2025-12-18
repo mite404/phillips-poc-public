@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
 import type { LearnerProfile, ClassSchedule, CourseInventory } from "@/types/models";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -162,19 +163,10 @@ export function EnrollmentModal({
         </div>
 
         <DialogFooter>
-          <button
-            onClick={onClose}
-            className="bg-gray-100! text-slate-700! border-slate-300 outline border-2 outline-gray-400 px-4 py-2 rounded hover:bg-slate-200! hover:border-slate-400"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleEnroll}
-            disabled={!selectedClass}
-            className="bg-gray-100! text-black! border-slate-300 outline border-2 outline-gray-400 px-4 py-2 rounded hover:bg-slate-200! hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={handleEnroll} disabled={!selectedClass}>
             Confirm Enrollment
-          </button>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

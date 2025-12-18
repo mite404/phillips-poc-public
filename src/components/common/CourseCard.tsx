@@ -77,12 +77,7 @@ export function CourseCard({
         </div>
 
         {/* Row 3: Full Width Remove Button */}
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={handleActionClick}
-          className="w-full"
-        >
+        <Button size="sm" onClick={handleActionClick} className="w-full">
           Remove
         </Button>
       </Card>
@@ -148,12 +143,7 @@ export function CourseCard({
       </CardContent>
 
       <CardFooter className="px-4 pb-4 pt-0">
-        <Button
-          size="sm"
-          variant={action === "remove" ? "destructive" : "outline"}
-          onClick={handleActionClick}
-          className="w-full"
-        >
+        <Button size="sm" onClick={handleActionClick} className="w-full">
           {action === "remove" ? "Remove" : "Add"}
         </Button>
       </CardFooter>

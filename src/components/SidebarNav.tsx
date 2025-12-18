@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
 import type { SupervisorProgram, LearnerProfile } from "@/types/models";
@@ -51,23 +52,27 @@ export function SidebarNav({
   return (
     <nav className="w-[250px] bg-slate-50 border-r border-slate-200 flex flex-col h-full p-4 text-left">
       <div className="space-y-1">
-        <button className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors whitespace-nowrap">
+        <Button
+          variant="ghost"
+          className="w-full justify-start px-3 py-2 text-sm text-slate-700"
+        >
           Account
-        </button>
+        </Button>
 
         {/* Supervisor Menu */}
         {userType === "supervisor" && (
           <>
             {/* Program Builder */}
-            <button
+            <Button
+              variant="ghost"
               onClick={() => {
                 setIsBuilderOpen(!isBuilderOpen);
                 onNavigate("builder");
               }}
-              className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors whitespace-nowrap"
+              className="w-full justify-start px-3 py-2 text-sm text-slate-700"
             >
               Create Program
-            </button>
+            </Button>
 
             {/* CONDITIONAL RENDER: list appears if isBuilderOpen is true */}
             {isBuilderOpen && (
@@ -79,32 +84,34 @@ export function SidebarNav({
                   </div>
                 ) : (
                   savedPrograms.map((program) => (
-                    <button
+                    <Button
                       key={program.id}
+                      variant="ghost"
                       onClick={() => onNavigate(program.id)}
-                      className="text-left px-2 py-1 bg-gray-100! text-black! border-slate-300 hover:bg-slate-200! hover:border-slate-400 rounded text-xs truncate flex items-center justify-between gap-2"
+                      className="w-full justify-start px-2 py-1 text-xs text-slate-700"
                     >
                       <span className="truncate">{program.programName}</span>
                       {!program.published && (
-                        <span className="text-[10px] px-1 py-0.5 bg-yellow-100 text-yellow-800 rounded flex-shrink-0">
+                        <span className="text-[10px] px-1 py-0.5 bg-yellow-100 text-yellow-800 rounded flex-shrink-0 ml-auto">
                           DRAFT
                         </span>
                       )}
-                    </button>
+                    </Button>
                   ))
                 )}
               </div>
             )}
 
             {/* Student Progress */}
-            <button
+            <Button
+              variant="ghost"
               onClick={() => {
                 setIsProgressOpen(!isProgressOpen);
               }}
-              className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors whitespace-nowrap"
+              className="w-full justify-start px-3 py-2 text-sm text-slate-700"
             >
               Invite / Manage Students
-            </button>
+            </Button>
 
             {/* CONDITIONAL RENDER: student list appears if isProgressOpen is true */}
             {isProgressOpen && (
@@ -116,13 +123,14 @@ export function SidebarNav({
                   </div>
                 ) : (
                   students.map((student) => (
-                    <button
+                    <Button
                       key={student.learner_Data_Id}
+                      variant="ghost"
                       onClick={() => onNavigate(`student_${student.learner_Data_Id}`)}
-                      className="text-left px-2 py-1 bg-gray-100! text-black! border-slate-300 hover:bg-slate-200! hover:border-slate-400 rounded text-xs truncate"
+                      className="w-full justify-start px-2 py-1 text-xs text-slate-700"
                     >
                       {student.learnerName}
-                    </button>
+                    </Button>
                   ))
                 )}
               </div>
@@ -132,26 +140,28 @@ export function SidebarNav({
 
         {/* Student Menu */}
         {userType === "student" && (
-          <button
+          <Button
+            variant="ghost"
             onClick={() => onNavigate("programs")}
-            className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors whitespace-nowrap"
+            className="w-full justify-start px-3 py-2 text-sm text-slate-700"
           >
             My Programs
-          </button>
+          </Button>
         )}
 
         {/* RESET DEMO DATA BTN */}
-        <button
+        <Button
+          variant="ghost"
           onClick={async () => {
             clearStorage();
             // Reset db.json by calling a reset endpoint (you'd need to create this)
             // For now, just reload to see seed data
             window.location.reload();
           }}
-          className="text-xs text-slate-400 hover:text-red-500 mt-auto p-4"
+          className="text-xs text-slate-400 hover:text-red-500 mt-auto p-4 w-full justify-start"
         >
           Reset Demo Data
-        </button>
+        </Button>
       </div>
     </nav>
   );
