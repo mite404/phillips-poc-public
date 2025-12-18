@@ -69,7 +69,7 @@ describe("useProgramBuilder", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default mock: successful catalog fetch
-    (getCatalog as any).mockResolvedValue(mockCourses);
+    (getCatalog as ReturnType<typeof vi.fn>).mockResolvedValue(mockCourses);
   });
 
   afterEach(() => {
@@ -96,7 +96,9 @@ describe("useProgramBuilder", () => {
     });
 
     it("should handle API errors gracefully", async () => {
-      (getCatalog as any).mockRejectedValue(new Error("Network error"));
+      (getCatalog as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error("Network error"),
+      );
 
       const { result } = renderHook(() => useProgramBuilder());
 
@@ -344,7 +346,7 @@ describe("useProgramBuilder", () => {
     });
 
     it("should successfully save program with valid data", async () => {
-      (localApi.saveProgram as any).mockResolvedValue(undefined);
+      (localApi.saveProgram as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
       const { result } = renderHook(() => useProgramBuilder());
 
