@@ -182,8 +182,8 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
     <>
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="p-4 border-b border-slate-300 bg-slate-50">
-          <div className="flex items-center justify-center mb-2 relative">
+        <div className="h-[88px] p-4 border-b border-slate-300 bg-slate-50 flex flex-col justify-center">
+          <div className="flex items-center justify-center relative">
             <h2 className="text-lg font-semibold">Student Roster</h2>
             {learners.length > 0 && (
               <div className="flex items-center gap-2 absolute right-0">
@@ -205,11 +205,6 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
             )}
           </div>
           <p className="text-sm text-slate-600">{learners.length} students</p>
-          {selectedStudentIds.length > 0 && (
-            <Button onClick={handleBatchInvite} className="mt-3 w-full">
-              Invite Selected ({selectedStudentIds.length})
-            </Button>
-          )}
         </div>
 
         {/* Student Table */}

@@ -157,7 +157,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
       <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0">
         {/* Left Column: Course Sequence - width driven by its content/cards */}
         <div className="min-w-[350px] lg:flex-shrink-0 flex flex-col border border-slate-300 rounded-lg overflow-hidden">
-          <div className="p-4 border-b border-slate-300 bg-slate-50">
+          <div className="h-[88px] p-4 border-b border-slate-300 bg-slate-50 flex flex-col justify-center">
             <h2 className="text-lg font-semibold">Course Sequence</h2>
             <p className="text-sm text-slate-600">
               {hydratedCourses.length} course{hydratedCourses.length !== 1 ? "s" : ""} •{" "}
