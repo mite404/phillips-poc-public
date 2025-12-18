@@ -57,10 +57,16 @@ export function CourseCard({
 
           {/* Center: Badges */}
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs">
+            <Badge
+              variant="outline"
+              className="border-secondary text-foreground bg-transparent text-xs font-normal"
+            >
               {course.trainingTypeName}
             </Badge>
-            <Badge variant={getLevelVariant(course.levelName)} className="text-xs">
+            <Badge
+              variant="outline"
+              className="border-secondary text-foreground bg-transparent text-xs font-normal"
+            >
               {course.levelName}
             </Badge>
           </div>
@@ -109,7 +115,10 @@ export function CourseCard({
             <h3 className="font-semibold text-sm leading-tight mb-2 line-clamp-2">
               {course.courseTitle}
             </h3>
-            <Badge variant={getLevelVariant(course.levelName)} className="text-xs">
+            <Badge
+              variant="outline"
+              className="border-secondary text-foreground bg-transparent text-xs font-normal"
+            >
               {course.levelName}
             </Badge>
           </div>
