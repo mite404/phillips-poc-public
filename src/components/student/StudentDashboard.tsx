@@ -1,14 +1,19 @@
+// VIEW: Student Persona. Interactive Dashboard for the Learner.
+
 import { useState, useEffect } from "react";
 import { localApi } from "@/api/localRoutes";
 import { legacyApi } from "@/api/legacyRoutes";
-import type { CourseEnrollment, SupervisorProgram } from "@/types/models";
+import type {
+  CourseEnrollment,
+  SupervisorProgram,
+  CourseInventory,
+} from "@/types/models";
 import { Course } from "@/hooks/useProgramBuilder";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import * as Accordion from "@radix-ui/react-accordion";
+import { ChevronDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CourseDetailModal } from "@/components/common/CourseDetailModal";
 import { EnrollmentModal } from "@/components/common/EnrollmentModal";
@@ -39,6 +44,9 @@ export function StudentDashboard() {
   const [assignedPrograms, setAssignedPrograms] = useState<HydratedProgram[]>([]);
   const [completedPrograms, setCompletedPrograms] = useState<HydratedProgram[]>([]);
   const [enrollments, setEnrollments] = useState<CourseEnrollment[]>([]);
+  const [courseInventory, setCourseInventory] = useState<
+    Map<number, CourseInventory | null>
+  >(new Map());
 
   // Modal state
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
@@ -63,9 +71,20 @@ export function StudentDashboard() {
         legacyApi.getCatalog(),
       ]);
 
-      // Filter assignments for this student
+      // Filter assignments for this student and deduplicate by program ID
       const myAssignments = assignments.filter(
         (a) => a.learnerId === MOCK_STUDENT.learnerId,
+      );
+
+      // Deduplicate by program ID (keep only first assignment per program)
+      const uniqueAssignments = myAssignments.reduce(
+        (acc, assignment) => {
+          if (!acc.find((a) => a.programId === assignment.programId)) {
+            acc.push(assignment);
+          }
+          return acc;
+        },
+        [] as typeof myAssignments,
       );
 
       // Filter enrollments for this student
@@ -88,7 +107,7 @@ export function StudentDashboard() {
       // Hydrate programs
       const hydratedPrograms: HydratedProgram[] = [];
 
-      for (const assignment of myAssignments) {
+      for (const assignment of uniqueAssignments) {
         try {
           const program = await localApi.getProgramById(assignment.programId);
 
@@ -105,6 +124,15 @@ export function StudentDashboard() {
         } catch (error) {
           console.error(`Failed to load program ${assignment.programId}:`, error);
         }
+      }
+
+      // Step 6: Pre-fetch inventory for all ILT courses (BEFORE rendering)
+      try {
+        const inventoryMap = await legacyApi.getAllInventory();
+        setCourseInventory(inventoryMap);
+      } catch (error) {
+        console.error("Failed to pre-fetch inventory:", error);
+        // Continue without inventory cache (buttons will still show)
       }
 
       setAssignedPrograms(hydratedPrograms);
@@ -158,6 +186,23 @@ export function StudentDashboard() {
     });
   };
 
+  // Helper to check if a course has available sessions
+  const hasAvailableSessions = (courseId: number): boolean => {
+    const inventory = courseInventory.get(courseId);
+
+    // If inventory map is empty (still loading), optimistically show button
+    if (courseInventory.size === 0) return true;
+
+    // If course is not in inventory map, no sessions available
+    if (inventory === undefined) return false;
+
+    // If explicitly marked as null, no sessions available
+    if (inventory === null) return false;
+
+    // Check if classes array has items
+    return inventory.classes && inventory.classes.length > 0;
+  };
+
   const isEnrolled = (programId: string, courseId: number) => {
     return enrollments.some((e) => e.programId === programId && e.courseId === courseId);
   };
@@ -191,96 +236,111 @@ export function StudentDashboard() {
           {assignedPrograms.length === 0 ? (
             <div className="p-8 text-center text-slate-400">No programs assigned yet</div>
           ) : (
-            <Accordion type="single" collapsible className="space-y-2">
+            <Accordion.Root type="single" collapsible className="space-y-3">
               {assignedPrograms.map((hydrated) => {
                 const firstCourseId = hydrated.program.courseSequence[0];
                 const enrolled = isEnrolled(hydrated.program.id, firstCourseId);
 
                 return (
-                  <AccordionItem
+                  <Accordion.Item
                     key={hydrated.program.id}
                     value={hydrated.program.id}
-                    className="border border-slate-200 rounded-lg overflow-hidden bg-white"
+                    className="border border-slate-200 rounded-xl overflow-hidden bg-card-background"
                   >
-                    <AccordionTrigger className="px-4 bg-gray-300 hover:!bg-slate-50">
-                      <div className="flex items-center justify-between w-full pr-2">
-                        <span className="font-medium text-slate-900">
-                          {hydrated.program.programName}
-                        </span>
-                        <span
-                          className={`px-2 py-1 text-xs rounded ${
-                            enrolled
-                              ? "bg-green-100 text-green-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {enrolled ? "Registered" : "Pending"}
-                        </span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="px-4 pb-4 bg-white">
+                    <Accordion.Trigger className="flex w-full items-center px-4 py-3 hover:bg-card-background [&[data-state=open]]:bg-card-background text-left group">
+                      <span className="font-semibold text-slate-900 flex-1">
+                        {hydrated.program.programName}
+                      </span>
+                      <Badge
+                        className={
+                          enrolled
+                            ? "bg-green-100 text-green-800 hover:bg-green-100 mr-2"
+                            : "bg-yellow-100 text-yellow-800 hover:bg-yellow-100 mr-2"
+                        }
+                      >
+                        {enrolled ? "Registered" : "Pending"}
+                      </Badge>
+                      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    </Accordion.Trigger>
+                    <Accordion.Content className="px-4 pb-4 pt-2">
                       {hydrated.program.description && (
-                        <p className="text-sm text-slate-600 mb-3">
+                        <p className="text-sm text-slate-600 mb-4">
                           {hydrated.program.description}
                         </p>
                       )}
-                      <div className="space-y-2">
+                      <div className="space-y-3 pt-2">
                         {hydrated.courses.map((course, idx) => {
                           const isEnrolledInCourse = isEnrolled(
                             hydrated.program.id,
                             course.courseId,
                           );
-                          const isFirstCourse = idx === 0;
 
                           return (
-                            <div
+                            <Card
                               key={course.id}
-                              className="flex items-center gap-3 p-3 border rounded-lg hover:bg-slate-50 cursor-pointer transition-colors"
+                              className="cursor-pointer border border-slate-200 rounded-lg p-4 bg-card-background transition-colors"
                               onClick={() =>
                                 handleCourseClick(course, hydrated.program.id)
                               }
                             >
-                              <div className="flex-shrink-0 w-8 h-8 bg-phillips-blue text-white rounded-full flex items-center justify-center text-sm font-medium">
-                                {idx + 1}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-slate-900 truncate">
-                                  {course.courseTitle}
-                                </p>
-                                <p className="text-xs text-slate-500">
-                                  {course.trainingTypeName} • {course.levelName}
-                                </p>
-                              </div>
-                              {isEnrolledInCourse && (
-                                <div className="flex-shrink-0">
-                                  <span className="text-green-600 text-sm">✓</span>
+                              <div className="flex items-center gap-3">
+                                {/* Sequence Number */}
+                                <div className="flex-shrink-0 w-8 h-8  text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                                  {idx + 1}
                                 </div>
-                              )}
-                              {!isEnrolledInCourse &&
-                                isFirstCourse &&
-                                course.trainingTypeName.includes("ILT") && (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleBookClick(
-                                        hydrated.program.id,
-                                        course.courseId,
-                                      );
-                                    }}
-                                    className="flex-shrink-0 px-3 py-1 bg-slate-700 text-white text-xs rounded hover:bg-slate-600"
-                                  >
-                                    Book
-                                  </button>
-                                )}
-                            </div>
+
+                                {/* Course Info */}
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-semibold text-slate-900 truncate">
+                                    {course.courseTitle}
+                                  </p>
+                                  <p className="text-xs text-slate-500">
+                                    {course.trainingTypeName} • {course.levelName}
+                                  </p>
+                                </div>
+
+                                {/* Status/Action */}
+                                <div className="flex-shrink-0">
+                                  {isEnrolledInCourse ? (
+                                    <Badge className="bg-green-100 text-green-800">
+                                      ✓ Enrolled
+                                    </Badge>
+                                  ) : course.trainingTypeName.includes("ILT") ? (
+                                    hasAvailableSessions(course.courseId) ? (
+                                      <Button
+                                        size="sm"
+                                        className="text-sm font-semibold text-slate-900"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleBookClick(
+                                            hydrated.program.id,
+                                            course.courseId,
+                                          );
+                                        }}
+                                      >
+                                        Book Class
+                                      </Button>
+                                    ) : (
+                                      <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+                                        No sessions avail
+                                      </Badge>
+                                    )
+                                  ) : (
+                                    <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+                                      Pending
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </Card>
                           );
                         })}
                       </div>
-                    </AccordionContent>
-                  </AccordionItem>
+                    </Accordion.Content>
+                  </Accordion.Item>
                 );
               })}
-            </Accordion>
+            </Accordion.Root>
           )}
         </div>
 
@@ -293,55 +353,65 @@ export function StudentDashboard() {
               No completed programs yet
             </div>
           ) : (
-            <Accordion type="single" collapsible className="space-y-2">
+            <Accordion.Root type="single" collapsible className="space-y-3">
               {completedPrograms.map((hydrated) => (
-                <AccordionItem
+                <Accordion.Item
                   key={hydrated.program.id}
                   value={hydrated.program.id}
-                  className="border border-green-200 rounded-lg overflow-hidden bg-white"
+                  className="border-2 rounded-xl overflow-hidden bg-card-background"
                 >
-                  <AccordionTrigger className="px-4 bg-gray-300 hover:!bg-green-50">
-                    <div className="flex items-center justify-between w-full pr-2">
-                      <span className="font-medium text-slate-900">
-                        {hydrated.program.programName}
-                      </span>
-                      <span className="text-green-600 text-sm">✓ Complete</span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 bg-white">
+                  <Accordion.Trigger className="flex w-full items-center px-4 py-3 [&[data-state=open]] text-left group">
+                    <span className="font-semibold text-slate-900 flex-1">
+                      {hydrated.program.programName}
+                    </span>
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100 mr-2">
+                      ✓ Complete
+                    </Badge>
+                    <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  </Accordion.Trigger>
+                  <Accordion.Content className="px-4 pb-4 pt-2">
                     {hydrated.program.description && (
-                      <p className="text-sm text-slate-600 mb-3">
+                      <p className="text-sm text-slate-600 mb-4">
                         {hydrated.program.description}
                       </p>
                     )}
-                    <div className="space-y-2">
+                    <div className="space-y-3 pt-2">
                       {hydrated.courses.map((course, idx) => (
-                        <div
+                        <Card
                           key={course.id}
-                          className="flex items-center gap-3 p-3 border border-green-200 rounded-lg bg-white cursor-pointer hover:bg-green-50 transition-colors"
+                          className="cursor-pointer border rounded-lg p-4 bg-card-background hover:border-green-400/50 transition-colors"
                           onClick={() => handleCourseClick(course, hydrated.program.id)}
                         >
-                          <div className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                            {idx + 1}
+                          <div className="flex items-center gap-3">
+                            {/* Sequence Number */}
+                            <div className="flex-shrink-0 w-8 h-8  text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                              {idx + 1}
+                            </div>
+
+                            {/* Course Info */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-slate-900 truncate">
+                                {course.courseTitle}
+                              </p>
+                              <p className="text-xs text-slate-500">
+                                {course.trainingTypeName} • {course.levelName}
+                              </p>
+                            </div>
+
+                            {/* Completion Badge */}
+                            <div className="flex-shrink-0">
+                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                ✓ Done
+                              </Badge>
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-slate-700 truncate">
-                              {course.courseTitle}
-                            </p>
-                            <p className="text-xs text-slate-500">
-                              {course.trainingTypeName} • {course.levelName}
-                            </p>
-                          </div>
-                          <div className="flex-shrink-0">
-                            <span className="text-green-600 text-sm">✓</span>
-                          </div>
-                        </div>
+                        </Card>
                       ))}
                     </div>
-                  </AccordionContent>
-                </AccordionItem>
+                  </Accordion.Content>
+                </Accordion.Item>
               ))}
-            </Accordion>
+            </Accordion.Root>
           )}
         </div>
       </div>

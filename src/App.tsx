@@ -1,7 +1,9 @@
 import "./App.css";
 import { useState } from "react";
 import { PageContent } from "./components/PageContent";
-import { SidebarNav } from "./components/SidebarNav";
+import { AppSidebar } from "./components/layout/AppSidebar";
+import { SiteHeader } from "./components/layout/SiteHeader";
+import { SidebarProvider, SidebarInset } from "./components/ui/sidebar";
 import { Toaster } from "sonner";
 
 function App() {
@@ -40,13 +42,13 @@ function App() {
               <h1 className="text-2xl font-bold italic">Phillips</h1>
             </header>
             <button
-              className="bg-orange-500! text-gray-950! px-6 py-3 rounded hover:bg-orange-300! hover:ring-1 hover:ring-slate-600 mx-auto font-medium"
+              className="bg-orange-500! text-gray-950! px-6 py-3 rounded mx-auto font-medium"
               onClick={() => handleSetUserType("supervisor")}
             >
               Education Supervisor
             </button>
             <button
-              className="bg-orange-500! text-gray-950! px-6 py-3 rounded hover:bg-orange-300! hover:ring-1 hover:ring-slate-600 mx-auto font-medium"
+              className="bg-orange-500! text-gray-950! px-6 py-3 rounded mx-auto font-medium"
               onClick={() => handleSetUserType("student")}
             >
               Student
@@ -55,42 +57,30 @@ function App() {
         </div>
       </>
     );
-  } else if (userType === "supervisor") {
-    return (
-      <>
-        <Toaster position="top-right" />
-        <div className="flex flex-1 overflow-hidden">
-          <SidebarNav
-            onNavigate={setCurrentView}
-            userType={userType}
-            refreshTrigger={refreshTrigger}
-          />
-          <PageContent
-            userType={userType}
-            setUserType={handleSetUserType}
-            currentView={currentView}
-            onProgramSaved={handleProgramSaved}
-          />
-        </div>
-      </>
-    );
   } else {
     return (
       <>
         <Toaster position="top-right" />
-        <div className="flex flex-1 overflow-hidden">
-          <SidebarNav
+        <SidebarProvider>
+          <AppSidebar
+            currentView={currentView}
             onNavigate={setCurrentView}
+            onSetUserType={handleSetUserType}
             userType={userType}
             refreshTrigger={refreshTrigger}
           />
-          <PageContent
-            userType={userType}
-            setUserType={handleSetUserType}
-            currentView={currentView}
-            onProgramSaved={handleProgramSaved}
-          />
-        </div>
+          <SidebarInset>
+            <SiteHeader />
+            <div className="flex flex-1 p-4 overflow-auto">
+              <PageContent
+                userType={userType}
+                setUserType={handleSetUserType}
+                currentView={currentView}
+                onProgramSaved={handleProgramSaved}
+              />
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
       </>
     );
   }

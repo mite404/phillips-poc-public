@@ -3,6 +3,9 @@ import { localApi } from "@/api/localRoutes";
 import { legacyApi } from "@/api/legacyRoutes";
 import type { SupervisorProgram, CourseCatalogItem } from "@/types/models";
 import { Skeleton } from "./ui/skeleton";
+import { Card } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import { RosterList } from "./RosterList";
 import { CourseDetailModal } from "./common/CourseDetailModal";
 import { toast } from "sonner";
@@ -151,9 +154,9 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
       </div>
 
       {/* Split View: Course List + Roster */}
-      <div className="flex-1 flex gap-6 min-h-0">
-        {/* Left Column: Course Sequence */}
-        <div className="flex-[0.5] flex flex-col border border-slate-300 rounded-lg overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0">
+        {/* Left Column: Course Sequence - width driven by its content/cards */}
+        <div className="min-w-[350px] lg:flex-shrink-0 flex flex-col border border-slate-300 rounded-lg overflow-hidden">
           <div className="p-4 border-b border-slate-300 bg-slate-50">
             <h2 className="text-lg font-semibold">Course Sequence</h2>
             <p className="text-sm text-slate-600">
@@ -168,44 +171,68 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
                 No courses in this program
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {hydratedCourses.map((course, index) => (
-                  <div
+                  <Card
                     key={course.id}
                     onClick={() => setActiveCourse(course)}
-                    className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded cursor-pointer hover:bg-slate-50 transition-colors"
+                    className="flex flex-row items-center gap-4 p-4 hover:shadow-md transition-all cursor-pointer border-slate-200"
                   >
                     {/* Sequence Number */}
-                    <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-phillips-blue text-white rounded-full text-sm font-bold">
+                    <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-white rounded-full text-sm font-bold">
                       {index + 1}
                     </div>
 
-                    {/* Course Info */}
-                    <div className="flex-1">
-                      <h3 className="font-medium text-slate-900">{course.courseTitle}</h3>
-                      <p className="text-sm text-slate-600">
-                        {course.trainingTypeName} • {course.levelName}
-                        {course.trainingTypeName === "ILT"
-                          ? ` • ${course.totalDays} day${course.totalDays !== 1 ? "s" : ""}`
-                          : course.hours
-                            ? ` • ${course.hours} hour${course.hours !== 1 ? "s" : ""}`
-                            : " • Self-paced"}
-                      </p>
+                    {/* Thumbnail */}
+                    {course.previewImageUrl ? (
+                      <img
+                        src={course.previewImageUrl}
+                        alt={course.courseTitle}
+                        className="w-24 h-16 object-cover rounded-md bg-slate-100 shrink-0"
+                      />
+                    ) : (
+                      <div className="w-24 h-16 bg-slate-100 rounded-md shrink-0 flex items-center justify-center text-xs text-slate-500">
+                        No Image
+                      </div>
+                    )}
+
+                    {/* Middle Section: Title & Metadata */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-slate-900 truncate">
+                        {course.courseTitle}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <Badge variant="secondary" className="text-xs">
+                          {course.trainingTypeName}
+                        </Badge>
+                        <span className="text-sm text-slate-600">
+                          {course.trainingTypeName === "ILT"
+                            ? `${course.totalDays} day${course.totalDays !== 1 ? "s" : ""}`
+                            : course.hours
+                              ? `${course.hours} hour${course.hours !== 1 ? "s" : ""}`
+                              : "Self-paced"}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Course ID */}
-                    <span className="text-sm text-slate-500 font-mono">
-                      #{course.courseId}
-                    </span>
-                  </div>
+                    {/* Right Section: Level Badge & Course ID */}
+                    <div className="ml-auto flex items-center gap-3 shrink-0">
+                      <Badge variant="outline" className="text-xs">
+                        {course.levelName}
+                      </Badge>
+                      <span className="text-sm text-slate-500 font-mono whitespace-nowrap">
+                        #{course.courseId}
+                      </span>
+                    </div>
+                  </Card>
                 ))}
               </div>
             )}
           </div>
         </div>
 
-        {/* Right Column: Student Roster */}
-        <div className="flex-[0.6] flex flex-col border border-slate-300 rounded-lg overflow-hidden">
+        {/* Right Column: Student Roster - fills remaining space */}
+        <div className="flex-1 flex flex-col border border-slate-300 rounded-lg overflow-hidden">
           <RosterList
             programId={programId}
             firstCourseId={hydratedCourses[0]?.courseId}
@@ -215,12 +242,9 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
 
       {/* Publish Program Button - Bottom Center (always visible for demo) */}
       <div className="flex justify-center items-center gap-4 pt-4">
-        <button
-          onClick={handlePublishProgram}
-          className="px-8 py-3 bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded transition-all"
-        >
+        <Button size="lg" onClick={handlePublishProgram}>
           Publish Program
-        </button>
+        </Button>
         {program.published && (
           <span className="px-4 py-2 bg-green-100 text-green-800 font-semibold rounded-lg">
             ✓ Published

@@ -1,3 +1,5 @@
+// VIEW: Supervisor Persona. Read-only progress tracker for direct reports.
+
 import { useState, useEffect } from "react";
 import { ProgramProgressCard } from "./ProgramProgressCard";
 import { legacyApi } from "@/api/legacyRoutes";
@@ -60,13 +62,25 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
           (a) => a.learnerId === foundStudent.learnerId,
         );
 
+        // Step 3.5: Deduplicate assignments by programId (keep only first occurrence)
+        const uniqueAssignments = studentAssignments.reduce(
+          (acc, current) => {
+            const exists = acc.find((item) => item.programId === current.programId);
+            if (!exists) {
+              return acc.concat([current]);
+            }
+            return acc;
+          },
+          [] as typeof studentAssignments,
+        );
+
         // Step 4: Filter enrollments for this student
         const studentEnrollments = enrollments.filter(
           (e) => e.learnerId === foundStudent.learnerId,
         );
 
         // Step 5: Hydrate programs with course data
-        const hydrated: HydratedProgram[] = studentAssignments
+        const hydrated: HydratedProgram[] = uniqueAssignments
           .map((assignment) => {
             // Find the program
             const program = allPrograms.find((p) => p.id === assignment.programId);

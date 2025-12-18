@@ -1,3 +1,4 @@
+import { Button } from "./ui/button";
 import { ProgramBuilder } from "./ProgramBuilder";
 import { ProgramManager } from "./ProgramManager";
 import { StudentDashboard } from "./student/StudentDashboard";
@@ -27,15 +28,6 @@ export function PageContent(props: {
 
   return (
     <main className="flex-1 overflow-hidden flex flex-col">
-      <header className="w-full flex justify-center items-center gap-2 py-4">
-        <img
-          src="/assets/philips-corp-brand-mark.png"
-          alt="Phillips Logo"
-          className="h-8"
-        />
-        <h1 className="text-2xl font-bold italic">Phillips Education</h1>
-      </header>
-
       {/* Main Content Area */}
       <div className="flex-1 overflow-hidden">
         {userType === "student" && currentView === "programs" ? (
@@ -52,13 +44,10 @@ export function PageContent(props: {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-slate-300">
-        <button
-          className="bg-orange-50! text-black outline hover:bg-orange-300! hover:ring-1 outline-gray-400! text-sm rounded px-4 py-2 mx-auto block font-medium"
-          onClick={() => setUserType(null)}
-        >
+      <div className="p-4 border-t border-slate-300 flex justify-center">
+        <Button size="sm" onClick={() => setUserType(null)}>
           Back to Auth Portal
-        </button>
+        </Button>
       </div>
     </main>
   );

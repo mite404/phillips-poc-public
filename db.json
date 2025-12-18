@@ -32,7 +32,7 @@
         11,
         131
       ],
-      "published": false,
+      "published": true,
       "totalCourses": 2,
       "createdAt": "2025-11-15T10:00:00Z"
     },
@@ -49,7 +49,7 @@
         131,
         90
       ],
-      "published": false,
+      "published": true,
       "createdAt": "2025-12-11T16:08:46.048Z"
     },
     {
@@ -109,7 +109,7 @@
         116,
         9
       ],
-      "published": false,
+      "published": true,
       "createdAt": "2025-12-12T22:56:51.570Z"
     },
     {
@@ -148,6 +148,34 @@
       ],
       "published": true,
       "createdAt": "2025-12-15T17:25:48.512Z"
+    },
+    {
+      "id": "63b3543c-ba88-42c9-9ef1-95fbc0629742",
+      "supervisorId": "pat_mann_guid",
+      "programName": "My Programasfsgfdsg",
+      "description": "hgdhgfhgjf",
+      "tags": [],
+      "courseSequence": [
+        116,
+        9,
+        11
+      ],
+      "published": false,
+      "createdAt": "2025-12-16T22:15:58.673Z"
+    },
+    {
+      "id": "8b3d23b1-0cc0-4333-a428-ecc544f742ed",
+      "supervisorId": "pat_mann_guid",
+      "programName": "My Progragdsdgfs",
+      "description": "hfdfgdghfdghjfhjg",
+      "tags": [],
+      "courseSequence": [
+        116,
+        114,
+        9
+      ],
+      "published": false,
+      "createdAt": "2025-12-17T21:33:07.554Z"
     }
   ],
   "program_registrations": [
@@ -234,6 +262,209 @@
       "programId": "prog_101",
       "assignedDate": "2025-12-12T18:31:19.409Z",
       "status": "Pending"
+    },
+    {
+      "id": "8b9d08b8-b643-4d88-9f9b-e8fea139180e",
+      "learnerId": "6837b67d-60cb-4cba-9609-908ba5423f89",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "assignedDate": "2025-12-16T17:32:10.606Z",
+      "status": "Pending"
+    },
+    {
+      "id": "3108774f-35c6-4ef0-be98-a0d8e776e85b",
+      "learnerId": "fc0670d4-3874-48b6-94b2-14b99d326e50",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "assignedDate": "2025-12-16T17:32:11.535Z",
+      "status": "Pending"
+    },
+    {
+      "id": "f2cdc763-0cac-412f-9923-81ca660e4631",
+      "learnerId": "eb7bb535-7065-4e8c-a7c8-f76d8996dec5",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "assignedDate": "2025-12-16T17:32:22.365Z",
+      "status": "Pending"
+    },
+    {
+      "id": "b1a548bc-c0d4-4ce9-9799-8790803ad50f",
+      "learnerId": "6837b67d-60cb-4cba-9609-908ba5423f89",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "assignedDate": "2025-12-16T17:32:28.973Z",
+      "status": "Pending"
+    },
+    {
+      "id": "b2c85952-7265-426d-a2bd-0c61276b08bf",
+      "learnerId": "fc0670d4-3874-48b6-94b2-14b99d326e50",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "assignedDate": "2025-12-16T17:32:28.974Z",
+      "status": "Pending"
+    },
+    {
+      "id": "6637df4e-75f8-4bde-9818-9dfc2a5484bd",
+      "learnerId": "0378e7ff-0953-43a8-9461-b33acf9967a5",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "assignedDate": "2025-12-16T17:32:28.975Z",
+      "status": "Pending"
+    },
+    {
+      "id": "172035bd-09ef-40e9-949a-ac629ebc030b",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "assignedDate": "2025-12-16T17:32:28.974Z",
+      "status": "Pending"
+    },
+    {
+      "id": "d6829ce4-bf94-42fe-814f-1e46d7578f8a",
+      "learnerId": "eb7bb535-7065-4e8c-a7c8-f76d8996dec5",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "assignedDate": "2025-12-16T17:32:28.975Z",
+      "status": "Pending"
+    },
+    {
+      "id": "9f5a4a87-b554-42a7-bad0-bc0067918464",
+      "learnerId": "eb7bb535-7065-4e8c-a7c8-f76d8996dec5",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "assignedDate": "2025-12-16T17:32:28.974Z",
+      "status": "Pending"
+    },
+    {
+      "id": "d5640d81-343f-481d-b929-50d25e8fceb7",
+      "learnerId": "eb7bb535-7065-4e8c-a7c8-f76d8996dec5",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "assignedDate": "2025-12-16T17:32:28.975Z",
+      "status": "Pending"
+    },
+    {
+      "id": "9b4d55d1-a916-47dd-a8f8-4f2d082a6725",
+      "learnerId": "d5ee05d0-1cbe-4e04-a706-b23ef02014c2",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "assignedDate": "2025-12-16T17:32:28.975Z",
+      "status": "Pending"
+    },
+    {
+      "id": "38da4a93-c8e3-4c78-8928-8207ba3fd30c",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "assignedDate": "2025-12-16T17:32:28.976Z",
+      "status": "Pending"
+    },
+    {
+      "id": "bd4740cd-be16-462b-b9b2-eeb913a09894",
+      "learnerId": "4c78060c-bce9-40a0-aedc-a035719cc6d3",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "assignedDate": "2025-12-16T17:32:28.976Z",
+      "status": "Pending"
+    },
+    {
+      "id": "6fb489f1-3f9e-431b-a49b-5a1292570a08",
+      "learnerId": "fc0670d4-3874-48b6-94b2-14b99d326e50",
+      "programId": "de9dafc0-c1f2-4de2-ab7e-c2da38382f21",
+      "assignedDate": "2025-12-16T22:16:13.441Z",
+      "status": "Pending"
+    },
+    {
+      "id": "35441bc1-d146-4d8e-91b4-f28b025fc3b3",
+      "learnerId": "6837b67d-60cb-4cba-9609-908ba5423f89",
+      "programId": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "assignedDate": "2025-12-17T19:33:39.113Z",
+      "status": "Pending"
+    },
+    {
+      "id": "4065d4fe-b511-4d66-935c-a0737174f4fd",
+      "learnerId": "6837b67d-60cb-4cba-9609-908ba5423f89",
+      "programId": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "assignedDate": "2025-12-17T19:33:47.196Z",
+      "status": "Pending"
+    },
+    {
+      "id": "ac994b6e-c0a2-450c-9245-8b16cd6752ea",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "assignedDate": "2025-12-17T19:33:47.198Z",
+      "status": "Pending"
+    },
+    {
+      "id": "62d96cae-8f49-4641-a5d6-a0c79326c8ce",
+      "learnerId": "fc0670d4-3874-48b6-94b2-14b99d326e50",
+      "programId": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "assignedDate": "2025-12-17T19:33:47.197Z",
+      "status": "Pending"
+    },
+    {
+      "id": "9ea813fc-fe57-4fb0-8a81-befcfd7acdec",
+      "learnerId": "0378e7ff-0953-43a8-9461-b33acf9967a5",
+      "programId": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "assignedDate": "2025-12-17T19:33:47.199Z",
+      "status": "Pending"
+    },
+    {
+      "id": "39a9d462-c5d1-4f67-8a0f-789f5e046857",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "assignedDate": "2025-12-17T19:33:47.199Z",
+      "status": "Pending"
+    },
+    {
+      "id": "5ef21d8b-9be0-4597-986c-dfc371e6c130",
+      "learnerId": "d5ee05d0-1cbe-4e04-a706-b23ef02014c2",
+      "programId": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "assignedDate": "2025-12-17T19:33:47.199Z",
+      "status": "Pending"
+    },
+    {
+      "id": "a910dac9-db97-469e-9cdb-13f310665171",
+      "learnerId": "eb7bb535-7065-4e8c-a7c8-f76d8996dec5",
+      "programId": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "assignedDate": "2025-12-17T19:33:47.198Z",
+      "status": "Pending"
+    },
+    {
+      "id": "46fe2ce3-4b2c-4577-be88-923653b415e9",
+      "learnerId": "4c78060c-bce9-40a0-aedc-a035719cc6d3",
+      "programId": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "assignedDate": "2025-12-17T19:33:47.199Z",
+      "status": "Pending"
+    },
+    {
+      "id": "c9cbd55e-0809-4eb7-9f0d-717651ee7227",
+      "learnerId": "eb7bb535-7065-4e8c-a7c8-f76d8996dec5",
+      "programId": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "assignedDate": "2025-12-17T19:33:47.198Z",
+      "status": "Pending"
+    },
+    {
+      "id": "7d82bade-3634-4105-aa39-05c01a41b8c8",
+      "learnerId": "eb7bb535-7065-4e8c-a7c8-f76d8996dec5",
+      "programId": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "assignedDate": "2025-12-17T19:33:47.199Z",
+      "status": "Pending"
+    },
+    {
+      "id": "b7f29011-389a-4095-b5b9-a127ac4a7ca0",
+      "learnerId": "6837b67d-60cb-4cba-9609-908ba5423f89",
+      "programId": "fdaddc5f-6250-49a2-b59b-56c1c058df1f",
+      "assignedDate": "2025-12-18T02:00:09.415Z",
+      "status": "Pending"
+    },
+    {
+      "id": "b7516964-9f7d-40eb-87dc-e5f8660b9a15",
+      "learnerId": "fc0670d4-3874-48b6-94b2-14b99d326e50",
+      "programId": "fdaddc5f-6250-49a2-b59b-56c1c058df1f",
+      "assignedDate": "2025-12-18T02:00:10.912Z",
+      "status": "Pending"
+    },
+    {
+      "id": "4d1adf17-1188-4f7a-a027-23f412dfb842",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "fdaddc5f-6250-49a2-b59b-56c1c058df1f",
+      "assignedDate": "2025-12-18T02:00:11.691Z",
+      "status": "Pending"
+    },
+    {
+      "id": "eba61f28-e062-48dc-8a86-d0c39cc90b91",
+      "learnerId": "6837b67d-60cb-4cba-9609-908ba5423f89",
+      "programId": "prog_101",
+      "assignedDate": "2025-12-18T03:29:25.955Z",
+      "status": "Pending"
     }
   ],
   "enrollments": [
@@ -287,6 +518,46 @@
       "courseId": 116,
       "classId": 5451,
       "enrolledDate": "2025-12-12T19:36:24.771Z"
+    },
+    {
+      "id": "5bb3b95e-bdae-4d92-9973-1cd19b5e331f",
+      "learnerId": "fc0670d4-3874-48b6-94b2-14b99d326e50",
+      "programId": "prog_102",
+      "courseId": 11,
+      "classId": 5447,
+      "enrolledDate": "2025-12-17T15:17:53.529Z"
+    },
+    {
+      "id": "7a32f310-7384-4a96-9cf7-d1dfba3ac226",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "courseId": 116,
+      "classId": 5451,
+      "enrolledDate": "2025-12-17T20:15:32.290Z"
+    },
+    {
+      "id": "34c1ebe9-6c0c-4b72-a9f7-04ffffe2b197",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "39ada9e2-61d5-4a71-b12a-cf851bfb6276",
+      "courseId": 11,
+      "classId": 5448,
+      "enrolledDate": "2025-12-17T21:33:55.720Z"
+    },
+    {
+      "id": "f605b3b5-4afa-4ae8-8fff-595e70ada3b4",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "courseId": 116,
+      "classId": 5451,
+      "enrolledDate": "2025-12-17T23:07:43.717Z"
+    },
+    {
+      "id": "6f9ad000-29cd-41b6-a534-bd7cc630dbe8",
+      "learnerId": "6837b67d-60cb-4cba-9609-908ba5423f89",
+      "programId": "prog_101",
+      "courseId": 116,
+      "classId": 5451,
+      "enrolledDate": "2025-12-18T03:29:32.752Z"
     }
   ]
 }
