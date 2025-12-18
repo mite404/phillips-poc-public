@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronRight } from "lucide-react"; // Shadcn typically uses ChevronRight for collapsibles
+import { ChevronRight, FileText, Users, FolderOpen, Plus } from "lucide-react"; // Shadcn typically uses ChevronRight for collapsibles
 import { Button } from "@/components/ui/button";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
@@ -111,7 +111,20 @@ export function AppSidebar({
           {/* Supervisor Menu */}
           {userType === "supervisor" && (
             <>
-              {/* Program Builder */}
+              {/* Create Program Button */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Create Program"
+                  isActive={currentView === "builder"}
+                  className="text-sm font-medium"
+                  onClick={() => onNavigate("builder")}
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Create Program</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* Program Drafts Collapsible */}
               <Collapsible
                 asChild
                 open={isBuilderOpen}
@@ -121,12 +134,11 @@ export function AppSidebar({
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton
-                      tooltip="Program Builder"
-                      isActive={currentView === "builder"}
-                      className="text-sm font-medium" // Font fix
-                      onClick={() => onNavigate("builder")}
+                      tooltip="Program Drafts"
+                      className="text-sm font-medium"
                     >
-                      <span>Create Program</span>
+                      <FolderOpen className="h-4 w-4" />
+                      <span>Program Drafts</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
@@ -153,6 +165,7 @@ export function AppSidebar({
                                 className="w-full justify-start"
                                 onClick={() => onNavigate(program.id)}
                               >
+                                <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
                                 <span className="truncate">{program.programName}</span>
                                 {!program.published && (
                                   <span className="ml-auto text-[10px] text-yellow-600 bg-yellow-50 px-1 rounded">
@@ -182,6 +195,7 @@ export function AppSidebar({
                       tooltip="Student Progress"
                       className="text-sm font-medium" // Font fix
                     >
+                      <Users className="h-4 w-4" />
                       <span>Invite / Manage Students</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
