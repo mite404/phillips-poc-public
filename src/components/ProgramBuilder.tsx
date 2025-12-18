@@ -143,7 +143,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
           </div>
 
           {/* Footer - Sticky with Duration Stats */}
-          <div className="p-4 border-t border-slate-300 bg-white space-y-2">
+          <div className="p-4 border-t border-slate-300 bg-card-background space-y-2">
             {selectedCourses.length > 0 && (
               <div className="text-sm text-slate-600">
                 <span className="font-semibold">Total Duration:</span>{" "}
@@ -177,15 +177,19 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
               onChange={(e) => setSearch(e.target.value)}
               disabled={isLoading}
             />
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               {(["Self-Paced", "ILT", "Advanced"] as FilterKey[]).map((filterKey) => (
                 <Button
                   key={filterKey}
                   onClick={() => toggleFilter(filterKey)}
                   disabled={isLoading}
-                  variant={activeFilters[filterKey] ? "secondary" : "ghost"}
+                  variant="ghost"
                   size="sm"
-                  className="flex-1"
+                  className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all focus-visible:ring-0 focus-visible:ring-offset-0 border-0 ${
+                    activeFilters[filterKey]
+                      ? "bg-[#fbdeac] text-slate-700 hover:bg-[#fbdeac]"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
                 >
                   {filterKey}
                 </Button>

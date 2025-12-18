@@ -137,7 +137,7 @@ export function CourseDetailModal({
                   {testimonials.map((testimonial) => (
                     <div
                       key={testimonial.testimonialId}
-                      className="bg-slate-50 border border-slate-100 rounded-lg p-3"
+                      className="bg-card-background border border-slate-100 rounded-lg p-3"
                     >
                       <p className="font-medium text-sm text-slate-900">
                         {testimonial.personName}
@@ -150,7 +150,7 @@ export function CourseDetailModal({
                           "{testimonial.testimonialText}"
                         </p>
                       ) : (
-                        <div className="flex items-center gap-1 text-sm text-phillips-blue">
+                        <div className="flex items-center gap-1 text-sm">
                           <ExternalLink className="w-4 h-4" />
                           <span>Video Testimonial Available</span>
                         </div>

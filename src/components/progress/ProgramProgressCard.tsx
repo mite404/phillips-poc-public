@@ -79,7 +79,7 @@ export function ProgramProgressCard({
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-6 space-y-4">
+    <div className="bg-card-background border border-slate-200 rounded-lg p-6 space-y-4">
       {/* Header with Program Title and Progress Bar */}
       <div className="space-y-3">
         <div>
@@ -112,7 +112,7 @@ export function ProgramProgressCard({
             return (
               <div
                 key={course.courseId}
-                className="flex items-center py-2 px-3 rounded border border-slate-100 hover:bg-slate-50 gap-4"
+                className="flex items-center py-2 px-3 rounded border border-slate-100 hover:bg-card-background gap-4"
               >
                 {/* Left: Course Title */}
                 <div className="flex-1 min-w-0">

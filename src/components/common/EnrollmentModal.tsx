@@ -118,8 +118,8 @@ export function EnrollmentModal({
                   onClick={() => setSelectedClass(classSession)}
                   className={`w-full p-4 border rounded-lg text-left transition-colors ${
                     selectedClass?.classId === classSession.classId
-                      ? "border-phillips-blue bg-blue-50"
-                      : "border-slate-200 hover:bg-slate-50"
+                      ? " bg-card-background"
+                      : "border-slate-200 hover:bg-card-background"
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -149,7 +149,7 @@ export function EnrollmentModal({
                     </div>
                     {selectedClass?.classId === classSession.classId && (
                       <div className="shrink-0 ml-3">
-                        <div className="w-6 h-6 bg-phillips-blue rounded-full flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center">
                           <span className="text-white text-xs">✓</span>
                         </div>
                       </div>
