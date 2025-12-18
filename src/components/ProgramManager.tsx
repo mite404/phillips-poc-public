@@ -178,7 +178,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
                     className="flex flex-row items-center gap-4 p-4 hover:shadow-md transition-all cursor-pointer border-slate-200"
                   >
                     {/* Sequence Number */}
-                    <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-phillips-blue text-white rounded-full text-sm font-bold">
+                    <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-white rounded-full text-sm font-bold">
                       {index + 1}
                     </div>
 

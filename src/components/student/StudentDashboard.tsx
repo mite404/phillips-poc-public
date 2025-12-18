@@ -245,9 +245,9 @@ export function StudentDashboard() {
                   <Accordion.Item
                     key={hydrated.program.id}
                     value={hydrated.program.id}
-                    className="border border-slate-200 rounded-lg overflow-hidden bg-white"
+                    className="border border-slate-200 rounded-xl overflow-hidden bg-card-background"
                   >
-                    <Accordion.Trigger className="flex w-full items-center px-4 py-3 hover:bg-slate-50 [&[data-state=open]]:bg-slate-50 text-left group">
+                    <Accordion.Trigger className="flex w-full items-center px-4 py-3 hover:bg-card-background [&[data-state=open]]:bg-card-background text-left group">
                       <span className="font-semibold text-slate-900 flex-1">
                         {hydrated.program.programName}
                       </span>
@@ -278,14 +278,14 @@ export function StudentDashboard() {
                           return (
                             <Card
                               key={course.id}
-                              className="cursor-pointer border border-slate-200 rounded-lg p-4 bg-white hover:border-phillips-blue/30 transition-colors"
+                              className="cursor-pointer border border-slate-200 rounded-lg p-4 bg-card-background transition-colors"
                               onClick={() =>
                                 handleCourseClick(course, hydrated.program.id)
                               }
                             >
                               <div className="flex items-center gap-3">
                                 {/* Sequence Number */}
-                                <div className="flex-shrink-0 w-8 h-8 bg-phillips-blue text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                                <div className="flex-shrink-0 w-8 h-8  text-white rounded-full flex items-center justify-center text-sm font-semibold">
                                   {idx + 1}
                                 </div>
 
@@ -302,7 +302,7 @@ export function StudentDashboard() {
                                 {/* Status/Action */}
                                 <div className="flex-shrink-0">
                                   {isEnrolledInCourse ? (
-                                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                    <Badge className="bg-green-100 text-green-800">
                                       ✓ Enrolled
                                     </Badge>
                                   ) : course.trainingTypeName.includes("ILT") ? (
@@ -359,9 +359,9 @@ export function StudentDashboard() {
                 <Accordion.Item
                   key={hydrated.program.id}
                   value={hydrated.program.id}
-                  className="border-2 border-green-200 rounded-lg overflow-hidden bg-white"
+                  className="border-2 rounded-xl overflow-hidden bg-card-background"
                 >
-                  <Accordion.Trigger className="flex w-full items-center px-4 py-3 hover:bg-green-50 [&[data-state=open]]:bg-green-50 text-left group">
+                  <Accordion.Trigger className="flex w-full items-center px-4 py-3 [&[data-state=open]] text-left group">
                     <span className="font-semibold text-slate-900 flex-1">
                       {hydrated.program.programName}
                     </span>
@@ -380,12 +380,12 @@ export function StudentDashboard() {
                       {hydrated.courses.map((course, idx) => (
                         <Card
                           key={course.id}
-                          className="cursor-pointer border border-green-200 rounded-lg p-4 bg-white hover:border-green-400/50 transition-colors"
+                          className="cursor-pointer border rounded-lg p-4 bg-card-background hover:border-green-400/50 transition-colors"
                           onClick={() => handleCourseClick(course, hydrated.program.id)}
                         >
                           <div className="flex items-center gap-3">
                             {/* Sequence Number */}
-                            <div className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                            <div className="flex-shrink-0 w-8 h-8  text-white rounded-full flex items-center justify-center text-sm font-semibold">
                               {idx + 1}
                             </div>
 

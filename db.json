@@ -514,6 +514,14 @@
       "courseId": 11,
       "classId": 5448,
       "enrolledDate": "2025-12-17T21:33:55.720Z"
+    },
+    {
+      "id": "f605b3b5-4afa-4ae8-8fff-595e70ada3b4",
+      "learnerId": "6c541134-c0f6-41af-904a-1dcb46d16b71",
+      "programId": "d1992ea9-b5a1-44a8-995d-39ca2e996b44",
+      "courseId": 116,
+      "classId": 5451,
+      "enrolledDate": "2025-12-17T23:07:43.717Z"
     }
   ]
 }
