@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronRight, FileText, Users, FolderOpen } from "lucide-react"; // Shadcn typically uses ChevronRight for collapsibles
+import { ChevronRight, FileText, Users, FolderOpen, Plus } from "lucide-react"; // Shadcn typically uses ChevronRight for collapsibles
 import { Button } from "@/components/ui/button";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
@@ -111,7 +111,20 @@ export function AppSidebar({
           {/* Supervisor Menu */}
           {userType === "supervisor" && (
             <>
-              {/* Program Builder */}
+              {/* Create Program Button */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Create Program"
+                  isActive={currentView === "builder"}
+                  className="text-sm font-medium"
+                  onClick={() => onNavigate("builder")}
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Create Program</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* Program Drafts Collapsible */}
               <Collapsible
                 asChild
                 open={isBuilderOpen}
@@ -121,13 +134,11 @@ export function AppSidebar({
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton
-                      tooltip="Program Builder"
-                      isActive={currentView === "builder"}
-                      className="text-sm font-medium" // Font fix
-                      onClick={() => onNavigate("builder")}
+                      tooltip="Program Drafts"
+                      className="text-sm font-medium"
                     >
                       <FolderOpen className="h-4 w-4" />
-                      <span>Create Program</span>
+                      <span>Program Drafts</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
