@@ -206,7 +206,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
           </div>
           <p className="text-sm text-slate-600">{learners.length} students</p>
           {selectedStudentIds.length > 0 && (
-            <Button onClick={handleBatchInvite} variant="outline" className="mt-3 w-full">
+            <Button onClick={handleBatchInvite} className="mt-3 w-full">
               Invite Selected ({selectedStudentIds.length})
             </Button>
           )}
@@ -223,7 +223,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-12 flex-shrink-0">
+                    <TableHead className="w-12 flex-shrink-0 pl-6">
                       <input
                         type="checkbox"
                         checked={
@@ -235,9 +235,8 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                       />
                     </TableHead>
                     <TableHead className="min-w-48">Name</TableHead>
-                    <TableHead className="min-w-40">Location</TableHead>
                     <TableHead className="w-32">Status</TableHead>
-                    <TableHead className="w-36">Actions</TableHead>
+                    <TableHead className="w-36 pr-6">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -247,7 +246,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
 
                     return (
                       <TableRow key={learner.learnerId}>
-                        <TableCell className="flex-shrink-0">
+                        <TableCell className="flex-shrink-0 pl-6">
                           <input
                             type="checkbox"
                             checked={isSelected}
@@ -265,13 +264,6 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell className="min-w-40">
-                          <span className="text-sm text-slate-600">
-                            {typeof learner.location === "string"
-                              ? learner.location
-                              : learner.location?.locationName || "N/A"}
-                          </span>
-                        </TableCell>
                         <TableCell className="w-32">
                           {status === "registered" && (
                             <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
@@ -287,7 +279,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                             <Badge variant="outline">Unassigned</Badge>
                           )}
                         </TableCell>
-                        <TableCell className="w-36">
+                        <TableCell className="w-36 pr-6">
                           {status === "unassigned" && (
                             <Button
                               size="sm"

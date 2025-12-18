@@ -26,6 +26,7 @@ import {
 interface AppSidebarProps {
   currentView: string;
   onNavigate: (viewId: string) => void;
+  onSetUserType: (userType: "supervisor" | "student" | null) => void;
   userType: "supervisor" | "student";
   refreshTrigger: number;
 }
@@ -33,6 +34,7 @@ interface AppSidebarProps {
 export function AppSidebar({
   currentView, // Use this to highlight active items
   onNavigate,
+  onSetUserType,
   userType,
   refreshTrigger,
 }: AppSidebarProps) {
@@ -73,7 +75,8 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              onClick={() => onSetUserType(null)}
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-phillips-orange text-sidebar-primary-foreground">
                 <img

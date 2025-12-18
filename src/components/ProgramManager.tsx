@@ -154,9 +154,9 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
       </div>
 
       {/* Split View: Course List + Roster */}
-      <div className="flex-1 flex gap-6 min-h-0">
-        {/* Left Column: Course Sequence */}
-        <div className="flex-[0.8] flex flex-col border border-slate-300 rounded-lg overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0">
+        {/* Left Column: Course Sequence - width driven by its content/cards */}
+        <div className="min-w-[350px] lg:flex-shrink-0 flex flex-col border border-slate-300 rounded-lg overflow-hidden">
           <div className="p-4 border-b border-slate-300 bg-slate-50">
             <h2 className="text-lg font-semibold">Course Sequence</h2>
             <p className="text-sm text-slate-600">
@@ -231,8 +231,8 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
           </div>
         </div>
 
-        {/* Right Column: Student Roster */}
-        <div className="flex-[1.5] flex flex-col border border-slate-300 rounded-lg overflow-hidden">
+        {/* Right Column: Student Roster - fills remaining space */}
+        <div className="flex-1 flex flex-col border border-slate-300 rounded-lg overflow-hidden">
           <RosterList
             programId={programId}
             firstCourseId={hydratedCourses[0]?.courseId}

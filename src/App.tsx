@@ -65,6 +65,7 @@ function App() {
           <AppSidebar
             currentView={currentView}
             onNavigate={setCurrentView}
+            onSetUserType={handleSetUserType}
             userType={userType}
             refreshTrigger={refreshTrigger}
           />
