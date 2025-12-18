@@ -1,7 +1,7 @@
 # Project Specification & Prompt Context
 
-> **Last Updated:** 2025-12-16
-> **Project Status:** COMPLETE (v2.0 - UI Modernized)
+> **Last Updated:** 2025-12-17
+> **Project Status:** COMPLETE (v2.0 - UI Modernized & Polished)
 
 ## 📌 Global Context (Paste at start of every session)
 
@@ -440,6 +440,36 @@ Click Course → Detail Modal Opens → "Book Class" Button Visible (ILT courses
   - [x] Both "Account" and "Create Program" now have identical computed styles
   - [x] Browser default button styling now matches perfectly
   - [x] Verified with Chrome DevTools: `fontSize`, `fontWeight`, `color`, `padding` all identical
+
+### ✅ PR-19: Catalog Filters & Card Background Styling
+
+**Status:** Completed  
+**Goal:** Polish filter button UX and standardize card backgrounds across the application.
+
+**Completed:**
+
+- [x] **Filter Button Styling (ProgramBuilder.tsx)**
+  - [x] Removed blue focus ring: Added `focus-visible:ring-0 focus-visible:ring-offset-0`
+  - [x] Changed inactive buttons: Text-only state (`text-muted-foreground hover:text-foreground`)
+  - [x] Changed active buttons: Solid pill background (`bg-secondary text-secondary-foreground`)
+  - [x] Reduced gap between filter buttons: `gap-1` for cohesive nav menu appearance
+
+- [x] **Card Background Standardization**
+  - [x] Added `--card-background: #fff9f5` CSS variable to `src/index.css`
+  - [x] Added `--color-card-background` to Tailwind theme configuration
+  - [x] Updated all card components to use `bg-card-background` instead of hardcoded hex values
+  - [x] Updated 10 instances across 5 files (StudentDashboard, ProgramProgressCard, ProgramBuilder, CourseDetailModal, EnrollmentModal)
+  - [x] Result: Consistent warm off-white background throughout the app; single source of truth for brand color
+
+- [x] **Button Hover States (ui/button.tsx)**
+  - [x] Updated `ghost` variant: Removed `hover:bg-accent` → Text color only (`hover:text-foreground`)
+  - [x] Updated `outline` variant: Removed `hover:bg-accent` → Text color only (`hover:text-foreground`)
+  - [x] Eliminated blue background hovers on all interactive buttons
+
+- [x] **Student Roster Column Width (ProgramManager.tsx)**
+  - [x] Adjusted flex proportions: Left column `flex-[0.8]`, Right column `flex-[1.5]`
+  - [x] Result: Student Roster gets more horizontal space to display all content without truncation
+  - [x] Reduced Status-to-Actions column gap: Changed from `text-right` to fixed widths (`w-32` and `w-36`)
 
 ---
 

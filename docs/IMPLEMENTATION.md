@@ -1,7 +1,7 @@
 # Implementation Progress Tracker
 
-> **Last Updated:** 2025-12-16 (PR-41 Complete - UI Modernization Phase 3)  
-> **Project Status:** 🏆 **GOLD MASTER (Ready for Demo) - All Features + Modern UI**
+> **Last Updated:** 2025-12-17 (PR-19 Complete - Visual Polish & Accessibility)  
+> **Project Status:** 🏆 **GOLD MASTER (Ready for Demo) - All Features + Modern UI + Refined Styling**
 
 ---
 
@@ -483,6 +483,35 @@ bun dev
     - [x] All enrollments still tracked correctly
     - [x] Modal workflows remain intact
     - [x] Linting passes, build succeeds
+
+## PR-19: Catalog Filters & Card Background Styling
+
+**Status:** ✅ **COMPLETE**
+
+- [x] Filter Button Polish (ProgramBuilder.tsx)
+  - [x] Removed blue focus rings: `focus-visible:ring-0 focus-visible:ring-offset-0`
+  - [x] Inactive state: Text only, gray color, no background
+  - [x] Active state: Solid beige pill background (`bg-secondary`)
+  - [x] Tighter button spacing: `gap-1` instead of `gap-2`
+- [x] Card Background Standardization
+  - [x] Leveraged existing CSS variable: `--card-background: #fff9f5`
+  - [x] Added to Tailwind theme: `--color-card-background`
+  - [x] Replaced 10 hardcoded `bg-[#fff9f5]` values with `bg-card-background` class
+  - [x] Files updated: StudentDashboard.tsx (5), ProgramProgressCard.tsx (2), ProgramBuilder.tsx (1), CourseDetailModal.tsx (1), EnrollmentModal.tsx (1)
+  - [x] Benefits: Single source of truth, easier future brand color changes
+
+- [x] Button Hover State Fixes (ui/button.tsx)
+  - [x] Ghost variant: Removed `hover:bg-accent` → now `hover:text-foreground` (text-only)
+  - [x] Outline variant: Removed `hover:bg-accent` → now `hover:text-foreground` (text-only)
+  - [x] Result: No blue background hovers on interactive buttons
+
+- [x] Student Roster Layout (ProgramManager.tsx & RosterList.tsx)
+  - [x] Adjusted flex proportions for wider Roster column
+  - [x] Left column: `flex-[0.8]` (was `flex-[1.2]`)
+  - [x] Right column: `flex-[1.5]` (was `flex-1`)
+  - [x] Status column: `w-32` (fixed)
+  - [x] Actions column: `w-36` (fixed, removed `text-right` alignment)
+  - [x] Result: All roster content visible without truncation or scrolling
 
 ---
 

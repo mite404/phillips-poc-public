@@ -1,388 +1,400 @@
-# Implementation Plan: UI Modernization (Shadcn/UI)
+# IMPLEMENTATION_SHADCN.md - shadcn/ui Migration Plan
 
-**Goal:** Refactor the existing "Bare-Bones" HTML layout into a professional "Application-Grade" UI using `shadcn/ui` components.
+**Status**: ✅ COMPLETE
+**Last Updated**: 2025-12-16
 
-**Constraint:** **DO NOT** change business logic (`useProgramBuilder`, `localRoutes`, etc.). Only change the JSX/CSS.
+## Overview
 
-**Timeline:** 3 Days.
+Complete migration of Phillips POC UI from custom components to shadcn/ui library with Tailwind CSS. This document tracks the implementation progress and architectural decisions.
 
-**Status:** ✅ DONE
+## Phase 1: Foundation Setup ✅
 
-**Last Updated:** 2025-12-16 (All Phases Complete)
+### Completed Tasks
+- [x] Install shadcn/ui components and dependencies
+- [x] Configure Tailwind CSS v4 with @tailwindcss/vite plugin
+- [x] Set up brand color system with CSS custom properties
+- [x] Configure dark mode support
+- [x] Implement icon system with Lucide icons
+
+### Key Files
+- `src/index.css`: Brand colors and dark mode configuration
+- `tailwind.config.js`: Minimal config (uses Tailwind v4 inline directives)
+- `src/components/ui/`: shadcn/ui component library
 
 ---
 
-## 🛠️ Phase 0: Installation & Prep
+## Phase 2: Core Component Refactors ✅
 
-_Before starting, ensure all base primitives are installed._
+### Task 1: CardHeader/CardContent/CardFooter Refactor ✅ (PR #36)
+**Objective**: Replace custom card layouts with shadcn/ui Card primitives
 
-- [x] **Install Core Primitives:**
-  ```bash
-  bunx shadcn@latest add sidebar button card badge separator scroll-area input textarea dialog accordion sheet avatar dropdown-menu collapsible
-  ```
-- [x] **Verify Tailwind:** Ensure `src/index.css` has the correct color variables (Phillips Blue/Red) mapped to the `:root` so Shadcn components pick them up automatically.
+**Components Updated**:
+- `ProgramCard`: Displays program title, description, skills, pricing using Card + CardHeader + CardContent
+- `CourseDetailModal`: Initial vertical layout using Card primitives
+- `ProgramProgressCard`: Progress visualization with Card container
+
+**Code Pattern**:
+```tsx
+<Card>
+  <CardHeader>
+    <CardTitle>{title}</CardTitle>
+  </CardHeader>
+  <CardContent>
+    {/* content */}
+  </CardContent>
+</Card>
+```
 
 ---
 
-## 🗓️ Phase 1: The App Shell (Day 1) ✅ COMPLETED
+### Task 2: Badge Component System ✅ (PR #36)
+**Objective**: Replace custom badge styling with shadcn/ui Badge component
 
-_Goal: Replace the manual "Flexbox Sidebar" with the responsive, accessible `Sidebar` component. This instantly makes the app look like a SaaS product._
+**Usage Locations**:
+- Program skills display (ProgramCard)
+- Course metadata badges (CourseCard)
+- Status indicators (ProgramProgressCard, RosterList)
 
-### 1. Create `src/components/layout/AppSidebar.tsx` ✅
+**Badge Variants Used**:
+- `variant="default"`: Primary blue badges
+- `variant="outline"`: Border-only badges for secondary info
+- `variant="secondary"`: Gray background for neutral info
 
-- [x] **Ported logic from `SidebarNav.tsx`:**
-  - State: `savedPrograms`, `students`, `isBuilderOpen`, `isProgressOpen`
-  - Data loading: `loadSavedPrograms()`, `loadStudents()` with `refreshTrigger` dependency
-  - Navigation: `onNavigate`, `currentView`, `userType` props
-- [x] **Shadcn Component Mapping:**
+**Code Pattern**:
+```tsx
+<Badge variant="default">In Progress</Badge>
+<Badge variant="outline">Course ID: 12345</Badge>
+<Badge variant="secondary">Level 2</Badge>
+```
 
-  ```tsx
-  <Sidebar>
-    <SidebarHeader>{/* Phillips logo + "Phillips Education" branding */}</SidebarHeader>
+---
 
-    <SidebarContent>
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton>Account</SidebarMenuButton>
-        </SidebarMenuItem>
+### Task 3: Button Component System ✅ (PR #36)
+**Objective**: Standardize button styling across application
 
-        {/* Collapsible: Create Program */}
-        <Collapsible open={isBuilderOpen} onOpenChange={setIsBuilderOpen}>
-          <SidebarMenuItem>
-            <CollapsibleTrigger asChild>
-              <SidebarMenuButton>
-                Create Program
-                <ChevronDown className="ml-auto" />
-              </SidebarMenuButton>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              {/* Nested saved programs list with DRAFT badges */}
-            </CollapsibleContent>
-          </SidebarMenuItem>
-        </Collapsible>
-      </SidebarMenu>
-    </SidebarContent>
+**Button Variants Used**:
+- `variant="default"`: Primary action buttons
+- `variant="outline"`: Secondary action buttons
+- `variant="ghost"`: Tertiary action buttons
+- `size="sm"` / `size="lg"`: Size variants
 
-    <SidebarFooter>{/* Reset Demo Data button */}</SidebarFooter>
-  </Sidebar>
-  ```
+**Code Pattern**:
+```tsx
+<Button variant="outline" size="sm" onClick={handleClick}>
+  Action
+</Button>
+```
 
-- [x] **Key Implementation:** Used `<Collapsible>` from Radix UI for "Create Program" and "Invite / Manage Students" sections, maintaining existing state logic.
+---
 
-### 2. Create `src/components/layout/SiteHeader.tsx` ✅
+### Task 4: Table Component ✅ (PR #40)
+**Objective**: Replace div-based roster rows with semantic Table components
 
-- [x] **Component Structure:**
+**Component**: `src/components/RosterList.tsx`
+**Changes**:
+- Replaced div-based grid rows with shadcn `<Table>` components
+- Imported: `Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`
+- Status column uses `<Badge>` with dynamic styling (green for Registered, yellow for Pending, gray for Unassigned)
+- Maintains batch selection checkboxes and "Invite Selected" functionality
 
-  ```tsx
-  <header className="sticky top-0 flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
-    <SidebarTrigger className="-ml-1" />
-    <Separator orientation="vertical" className="mr-2 h-4" />
-    <div className="flex items-center gap-2">
-      <span className="font-semibold">Phillips Education</span>
+**Code Pattern**:
+```tsx
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Name</TableHead>
+      <TableHead>Status</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    {items.map((item) => (
+      <TableRow key={item.id}>
+        <TableCell>{item.name}</TableCell>
+        <TableCell><Badge>{item.status}</Badge></TableCell>
+      </TableRow>
+    ))}
+  </TableBody>
+</Table>
+```
+
+---
+
+### Task 5: Accordion with Radix Primitives ✅ (PR #41)
+**Objective**: Implement native Accordion using Radix UI primitives
+
+**Component**: `src/components/student/StudentDashboard.tsx`
+**Changes**:
+- Imported Radix UI directly: `import * as Accordion from "@radix-ui/react-accordion"`
+- Structure: `<Accordion.Root>` → `<Accordion.Item>` → `<Accordion.Trigger>` → `<Accordion.Content>`
+- Trigger styling with ChevronDown icon and rotation animation: `group-data-[state=open]:rotate-180`
+- Accordion items styled with border and rounded corners: `border border-slate-200 rounded-lg overflow-hidden`
+- Integrated deduplication logic to prevent duplicate program cards
+
+**Code Pattern**:
+```tsx
+import * as Accordion from "@radix-ui/react-accordion";
+
+<Accordion.Root type="single" collapsible>
+  <Accordion.Item value={programId}>
+    <Accordion.Trigger className="group">
+      {programName}
+      <ChevronDown className="group-data-[state=open]:rotate-180" />
+    </Accordion.Trigger>
+    <Accordion.Content>
+      {/* accordion content */}
+    </Accordion.Content>
+  </Accordion.Item>
+</Accordion.Root>
+```
+
+---
+
+## Phase 3: Layout and Card Redesigns ✅
+
+### Task 1: CourseDetailModal 2-Column Layout ✅ (PR #39)
+**Objective**: Modernize course details with improved information hierarchy
+
+**File**: `src/components/common/CourseDetailModal.tsx`
+**Layout**: Responsive 2-column grid
+- **Left Column (7 cols)**: Metadata + Description
+  - Metadata grid (2×2): Course ID, Level, Type, Duration
+  - Full course description with word-wrap
+- **Right Column (5 cols)**: Skills + Testimonials
+  - Skills section with styled badges
+  - Scrollable testimonials card deck
+
+**Code Pattern**:
+```tsx
+<div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+  {/* Left column: metadata & description */}
+  <div className="col-span-7">
+    <div className="grid grid-cols-2 gap-4">
+      {/* 2x2 metadata grid */}
     </div>
-  </header>
-  ```
-
-- [x] **Features:**
-  - Sticky positioning with `h-16` height
-  - `<SidebarTrigger />` automatically handles mobile/desktop hamburger menu
-  - Simple breadcrumb text (Avatar to be added in future iteration)
-
-### 3. Refactor `App.tsx` ✅
-
-- [x] **Removed old layout:**
-  - Deleted `<SidebarNav />` import and usage
-  - Removed manual `<div className="flex flex-1 overflow-hidden">` wrapper
-
-- [x] **New shell structure:**
-
-  ```tsx
-  <SidebarProvider>
-    <AppSidebar
-      currentView={currentView}
-      onNavigate={setCurrentView}
-      userType={userType}
-      refreshTrigger={refreshTrigger}
-    />
-    <SidebarInset>
-      <SiteHeader />
-      <div className="flex flex-1 p-4 overflow-auto">
-        <PageContent
-          userType={userType}
-          setUserType={handleSetUserType}
-          currentView={currentView}
-          onProgramSaved={handleProgramSaved}
-        />
-      </div>
-    </SidebarInset>
-  </SidebarProvider>
-  ```
-
-- [x] **Preserved business logic:** All state management, navigation, and refresh triggers remain unchanged.
-
-**Mobile Responsiveness:** Sidebar automatically becomes a Sheet (drawer overlay) on mobile. Desktop users can collapse sidebar to icon mode.
+    <div className="mt-6">{description}</div>
+  </div>
+  
+  {/* Right column: skills & testimonials */}
+  <div className="col-span-5">
+    {/* skills and testimonials */}
+  </div>
+</div>
+```
 
 ---
 
-## 🗓️ Phase 2: The Builder & Layouts (Day 2) ✅ COMPLETED
+### Task 2: Horizontal Course Cards ✅ (PR #40)
+**Objective**: Implement "flight ticket" style horizontal cards for course display
 
-_Goal: Remove raw `div` scrolling and borders. Use `Card` and `ScrollArea` to manage screen real estate._
+**ProgramManager Updates** (`src/components/ProgramManager.tsx`):
+- Column layout: 60:40 → 50:50 split (`flex-1 flex-1`)
+- Course sequence items: div rows → horizontal Card components
+- Card layout: Sequence badge → Thumbnail (24×16) → Title + badges + duration → Level/ID badges
+- Styling: `flex flex-row items-center gap-4 p-4 hover:shadow-md transition-all`
 
-### 1. Create `src/components/common/CourseCard.tsx` ✅
+**ProgramBuilder Updates** (`src/components/ProgramBuilder.tsx`):
+- Column layout: 60:40 → 50:50 split
+- Catalog cards: Inline horizontal layout (not using CourseCard component)
+- Card layout: Image (20×14) → Title + metadata → Add button (ml-auto)
+- Styling: `flex flex-row items-center gap-3 p-3 hover:shadow-md`
 
-- [x] **Standardized card component for course display:**
-  - Props: `course: Course`, `action: "add" | "remove"`, `onAction: () => void`, `onClick?: () => void`
-  - Reusable across workbench and catalog views
-- [x] **Component Structure:**
-
-  ```tsx
-  <Card className="cursor-pointer hover:bg-accent/50 transition-colors">
-    <CardHeader>
-      {/* Image thumbnail (w-16 h-16, 3:2 ratio if available) */}
-      <img src={course.previewImageUrl} />
-
-      {/* Title + Level Badge */}
-      <h3>{course.courseTitle}</h3>
-      <Badge variant={course.levelName === "Advanced" ? "default" : "secondary"}>
-        {course.levelName}
-      </Badge>
-    </CardHeader>
-
-    <CardContent>
-      {/* Training Type, Duration (ILT=days, eLearning=hours), Course ID */}
-      <div>Type: {course.trainingTypeName}</div>
-      <div>Duration: {course.totalDays || course.hours}</div>
-      <div>ID: #{course.courseId}</div>
-    </CardContent>
-
-    <CardFooter>
-      <Button
-        variant={action === "remove" ? "destructive" : "outline"}
-        onClick={handleActionClick}
-      >
-        {action === "remove" ? "Remove" : "Add"}
-      </Button>
-    </CardFooter>
-  </Card>
-  ```
-
-### 2. Refactor `ProgramBuilder.tsx` (The 2-Column Layout) ✅
-
-- [x] **Inputs upgraded to shadcn components:**
-
-  ```tsx
-  // Program Title
-  <Input
-    value={programTitle}
-    onChange={...}
-    className="text-xl font-semibold border-none shadow-none focus-visible:ring-0 px-0"
-  />
-
-  // Program Description
-  <Textarea
-    value={programDescription}
-    onChange={...}
-    className="text-sm resize-none border-none shadow-none focus-visible:ring-0 px-0"
-  />
-
-  // Search Input
-  <Input
-    placeholder="Search courses..."
-    value={searchQuery}
-    onChange={...}
-    disabled={isLoading}
-  />
-  ```
-
-- [x] **Filter buttons use Button component:**
-
-  ```tsx
-  <Button
-    variant={activeFilters[filterKey] ? "secondary" : "ghost"}
-    size="sm"
-    className="flex-1"
-    onClick={() => toggleFilter(filterKey)}
-  >
-    {filterKey}
-  </Button>
-  ```
-
-- [x] **ScrollArea replaces raw overflow-y-auto:**
-
-  ```tsx
-  <ScrollArea className="flex-1">
-    <div className="p-4 space-y-3">{/* Course cards go here */}</div>
-  </ScrollArea>
-  ```
-
-- [x] **Course lists now use CourseCard:**
-
-  ```tsx
-  // Workbench (left column - sortable)
-  <SortableContext items={selectedCourses.map(c => c.id)} strategy={verticalListSortingStrategy}>
-    <div className="space-y-3">
-      {selectedCourses.map(course => (
-        <SortableCourseItem key={course.id} id={course.id}>
-          <CourseCard
-            course={course}
-            action="remove"
-            onAction={() => removeCourse(course.id)}
-            onClick={() => setActiveCourse(course)}
-          />
-        </SortableCourseItem>
-      ))}
+**Code Pattern** (ProgramManager):
+```tsx
+<Card onClick={() => openModal(course)} className="flex flex-row items-center gap-4 p-4 hover:shadow-md transition-all cursor-pointer">
+  <div className="flex items-center justify-center w-8 h-8 bg-phillips-blue text-white rounded-full text-sm font-bold">
+    {index + 1}
+  </div>
+  <img src={course.thumbnail} alt={course.title} className="w-24 h-16 object-cover rounded" />
+  <div className="flex-1">
+    <p className="font-semibold">{course.title}</p>
+    <div className="flex gap-2">
+      <Badge variant="secondary">{course.type}</Badge>
+      <span className="text-sm text-slate-600">{course.duration}</span>
     </div>
-  </SortableContext>
+  </div>
+  <div className="flex gap-2">
+    <Badge variant="outline">{course.level}</Badge>
+    <Badge variant="outline">ID: {course.id}</Badge>
+  </div>
+</Card>
+```
 
-  // Catalog (right column - scrollable)
-  <ScrollArea className="flex-1">
-    <div className="p-4 space-y-3">
-      {filteredCourses.map(course => (
-        <CourseCard
-          key={course.id}
-          course={course}
-          action="add"
-          onAction={() => addCourse(course)}
-          onClick={() => setActiveCourse(course)}
-        />
-      ))}
+---
+
+### Task 3: CourseCard Variant System ✅ (PR #40)
+**Objective**: Create flexible CourseCard with multiple layout variants
+
+**File**: `src/components/common/CourseCard.tsx`
+**New Props**:
+- `variant?: "default" | "workbench"`: Controls layout presentation
+- `dragHandle?: React.ReactNode`: Optional drag handle from parent
+
+**Default Variant**: Original vertical CardHeader/CardContent/CardFooter layout
+
+**Workbench Variant** (for ProgramBuilder):
+- Row 1: Centered bold title (`text-lg font-semibold text-center`)
+- Row 2: Flex row with drag handle + badges + duration (right-aligned with `ml-auto`)
+- Row 3: Full-width Remove button
+
+**Code Pattern**:
+```tsx
+export interface CourseCardProps {
+  course: Course;
+  onSelect?: (course: Course) => void;
+  onRemove?: (courseId: string) => void;
+  variant?: "default" | "workbench";
+  dragHandle?: React.ReactNode;
+}
+
+export function CourseCard({ variant = "default", dragHandle, ...props }: CourseCardProps) {
+  if (variant === "workbench") {
+    return (
+      <Card className="p-4">
+        <p className="text-lg font-semibold text-center">{course.title}</p>
+        <div className="flex items-center gap-2 mt-2">
+          {dragHandle}
+          <Badge>{course.type}</Badge>
+          <span className="ml-auto text-sm">{course.duration}</span>
+        </div>
+        <Button className="w-full mt-2" onClick={onRemove}>Remove</Button>
+      </Card>
+    );
+  }
+  
+  // Default variant
+  return (/* original layout */);
+}
+```
+
+---
+
+### Task 4: SortableCourseItem Refactor ✅ (PR #40)
+**Objective**: Integrate drag handle directly into CourseCard using cloneElement
+
+**File**: `src/components/SortableCourseItem.tsx`
+**Implementation**:
+- Created drag handle button with GripVertical icon
+- Uses `cloneElement` to inject `dragHandle` prop into child CourseCard
+- Maintains dnd-kit transform/opacity styling for drag feedback
+
+**Code Pattern**:
+```tsx
+import { GripVertical } from "lucide-react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+export function SortableCourseItem({ id, children }: Props) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  
+  const dragHandle = (
+    <button
+      className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 flex-shrink-0"
+      {...attributes}
+      {...listeners}
+    >
+      <GripVertical size={18} />
+    </button>
+  );
+  
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+    >
+      {cloneElement(children, { dragHandle })}
     </div>
-  </ScrollArea>
-  ```
-
-- [x] **Save Draft button upgraded:**
-
-  ```tsx
-  <Button
-    variant="outline"
-    size="sm"
-    className="w-full"
-    onClick={async () => {
-      await saveDraft();
-      onProgramSaved?.();
-    }}
-  >
-    Save Draft
-  </Button>
-  ```
-
-- [x] **Key Pattern Preserved:** `@dnd-kit` context fully maintained:
-  - `<DndContext>`, `<SortableContext>`, `<SortableCourseItem>` wrapper all intact
-  - Drag sensors (PointerSensor, KeyboardSensor) unchanged
-  - `CourseCard` is a pure presentation component inside sortable wrapper
-  - This separation maintains clean drag-and-drop functionality
+  );
+}
+```
 
 ---
 
-## 🗓️ Phase 3: The Lists & Dashboards (Day 3) ✅ COMPLETED
+### Task 5: Student Assignment Deduplication ✅ (PR #41)
+**Objective**: Prevent duplicate program cards from multiple assignments
 
-_Goal: Clean up the Student View and Roster._
+**Components Updated**: 
+- `src/components/progress/StudentProgressView.tsx`
+- `src/components/student/StudentDashboard.tsx`
 
-### 1. Refactor `StudentDashboard.tsx` ✅
+**Implementation Pattern**:
+```tsx
+const uniqueAssignments = studentAssignments.reduce((acc, current) => {
+  const exists = acc.find((item) => item.programId === current.programId);
+  if (!exists) {
+    return acc.concat([current]);
+  }
+  return acc;
+}, [] as typeof studentAssignments);
 
-- [x] **Replaced custom accordion logic with Radix UI primitives:**
-  - Direct import from `@radix-ui/react-accordion` for full control
-  - Component structure: `Accordion.Root`, `Accordion.Item`, `Accordion.Trigger`, `Accordion.Content`
-  - Smooth open/close animations with `data-state` attributes
-  - Clean semantic JSX without wrapper abstractions
-- [x] **Styled with clean borders and hover states:**
-  - Program cards: `border border-slate-200 rounded-lg bg-white`
-  - Triggers: `hover:bg-slate-50 [&[data-state=open]]:bg-slate-50`
-  - Completed programs: `border-2 border-green-200` with `hover:bg-green-50`
-- [x] **Added duplicate assignment filtering:**
-  - Deduplicates assignments by `programId` using `reduce()` (lines 66-79)
-  - Prevents duplicate accordion items for students with multiple assignments to the same program
-  - Preserves all enrollment checks and modal workflows
-
-### 2. Refactor `RosterList.tsx` ✅
-
-- [x] **Replaced `div` rows with shadcn/ui `<Table>` component:**
-  - Full table structure: `Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`
-  - Automatic alignment and border separators
-  - Responsive design with semantic HTML
-- [x] **Standardized Status Badges with `<Badge>`:**
-  - **Registered:** `bg-green-100 text-green-800 hover:bg-green-100`
-  - **Pending:** `bg-yellow-100 text-yellow-800 hover:bg-yellow-100`
-  - **Unassigned:** `variant="outline"`
-- [x] **Preserved all business logic:**
-  - Batch selection checkboxes
-  - "Invite Selected" functionality
-  - Force enroll workflows
-  - Student status calculation
+// Use uniqueAssignments for rendering instead of studentAssignments
+return uniqueAssignments.map(assignment => (
+  <ProgramProgressCard key={assignment.programId} program={program} />
+));
+```
 
 ---
 
-## ⚠️ Risk Management & Tips
-
-1.  **Drag & Drop Context:** When refactoring `ProgramBuilder.tsx`, be careful **not** to remove the `<DndContext>` or `<SortableContext>` wrappers. The Shadcn components (`Card`) should live _inside_ your `SortableCourseItem`.
-2.  **Contrast Check:** Shadcn defaults to dark text on light backgrounds. Ensure your "Active" states (like the selected filter button) explicitly set `text-white` if the background is dark blue.
-3.  **One File at a Time:** Don't delete `SidebarNav.tsx` until `AppSidebar.tsx` is fully working.
-
-## 🚀 Execution Order
-
-1.  **Run Phase 0** (Install dependencies). ✅
-2.  **Run Phase 1** (The Shell). This gives you the biggest visual win immediately. ✅
-3.  **Check in.** Verify the app navigates correctly. ✅
-4.  **Run Phase 2** (The Components). ✅
-5.  **Run Phase 3** (The Details). ✅
-
----
-
-## 📊 Refactor Summary
+## Refactor Summary
 
 ### Component Swaps Completed
 
-This refactor transformed the entire UI layer from "bare-bones" HTML/Tailwind to a production-ready SaaS application using shadcn/ui primitives. No business logic was changed - only JSX/CSS.
+| Old Approach | New Approach | Component(s) | PR |
+|---|---|---|---|
+| Custom div cards | shadcn Card component | ProgramCard, CourseDetailModal | #36 |
+| Custom badge styling | shadcn Badge component | All badge uses | #36 |
+| Custom buttons | shadcn Button component | All button uses | #36 |
+| Div-based table rows | shadcn Table component | RosterList | #40 |
+| Custom accordion | Radix UI Accordion primitives | StudentDashboard | #41 |
+| Vertical card layout | Horizontal "ticket" cards | ProgramManager, ProgramBuilder | #40 |
+| Single CourseCard layout | CourseCard variant system | CourseCard | #40 |
+| Wrapper-based drag handle | cloneElement prop injection | SortableCourseItem | #40 |
+| Duplicate program cards | reduce() deduplication | StudentProgressView, StudentDashboard | #41 |
 
-#### **Navigation & Layout**
-- **Before:** Manual flexbox sidebar with `<div>` and custom styling
-- **After:** `<Sidebar>`, `<SidebarProvider>`, `<SidebarInset>`, `<SidebarHeader>`, `<SidebarContent>`, `<SidebarFooter>`, `<SidebarTrigger>`, `<Collapsible>`
-- **Benefits:** Mobile-responsive drawer, keyboard navigation, ARIA attributes, icon-only collapse mode
+### Architectural Decisions
 
-#### **Form Inputs**
-- **Before:** Raw `<input>` and `<textarea>` with custom Tailwind classes
-- **After:** `<Input>`, `<Textarea>` from shadcn/ui
-- **Benefits:** Consistent focus states, disabled states, error states, seamless borderless mode
-
-#### **Buttons**
-- **Before:** Custom `<button>` elements with manual variant classes
-- **After:** `<Button variant="outline|secondary|destructive|ghost" size="sm|default|lg">`
-- **Benefits:** Standardized variants, loading states, icon support, consistent hover/active states
-
-#### **Course Cards**
-- **Before:** `<div>` with manual border/padding/hover classes
-- **After:** `<Card>`, `<CardHeader>`, `<CardContent>`, `<CardFooter>`
-- **Benefits:** Consistent card structure, automatic spacing, hover transitions, semantic HTML
-
-#### **Status Indicators**
-- **Before:** Custom `<span>` or `<div>` with inline color classes
-- **After:** `<Badge variant="default|outline|secondary">`
-- **Benefits:** Standardized color palette (green/yellow/red), consistent sizing, hover states
-
-#### **Data Tables**
-- **Before:** Raw `<div>` rows with manual grid layout or basic `<table>` with custom styling
-- **After:** `<Table>`, `<TableHeader>`, `<TableBody>`, `<TableRow>`, `<TableHead>`, `<TableCell>`
-- **Benefits:** Automatic cell alignment, responsive borders, semantic HTML, consistent typography
-
-#### **Accordions**
-- **Before:** Custom toggle logic with `useState` and conditional `div` rendering
-- **After:** Direct Radix UI primitives: `Accordion.Root`, `Accordion.Item`, `Accordion.Trigger`, `Accordion.Content`
-- **Benefits:** Smooth animations, keyboard navigation, ARIA attributes, data-state attributes for styling
-
-#### **Scrollable Areas**
-- **Before:** Raw `overflow-y-auto` on `<div>` elements
-- **After:** `<ScrollArea>` from shadcn/ui
-- **Benefits:** Cross-browser consistent scrollbars, styled track/thumb, smooth scrolling
+1. **Variant System for Components**: Instead of creating separate components, CourseCard uses `variant` prop for layout flexibility
+2. **Direct Radix UI Usage**: StudentDashboard uses Radix UI primitives directly for maximum control
+3. **Deduplication at Display Layer**: Prevents duplicates at render time using reduce() logic
+4. **Horizontal Card Layouts**: Consistent "flight ticket" style across program management views
+5. **Column Layout Balance**: 50:50 split for better space utilization vs. previous 60:40
 
 ---
 
-## ✅ Final Checklist
+## Current Implementation Status
 
-- [x] All UI components use shadcn/ui or Radix primitives
-- [x] No business logic changed (hooks, API routes, state management unchanged)
-- [x] All tests passing (31 tests: 17 hook + 14 integration)
-- [x] Drag-and-drop functionality preserved
-- [x] Mobile responsive (sidebar becomes drawer)
-- [x] Keyboard accessible (focus states, ARIA attributes)
-- [x] Consistent design system (Phillips brand colors, spacing, typography)
-- [x] Production-ready (no console warnings, clean builds)
+### Completed in Recent PRs
+- ✅ PR #39: CourseDetailModal 2-column grid redesign
+- ✅ PR #40: Horizontal card layouts and CourseCard variant system
+- ✅ PR #41: Student assignment deduplication
+
+### All Phase Objectives Met
+- ✅ Foundation setup (shadcn/ui, Tailwind v4, brand colors)
+- ✅ Core component refactors (Cards, Badges, Buttons, Tables)
+- ✅ Accordion implementation with Radix primitives
+- ✅ Layout improvements (horizontal cards, responsive grids)
+- ✅ Data handling improvements (deduplication logic)
+
+### Migration Complete
+The Phillips POC is now fully migrated to shadcn/ui with:
+- Consistent component library usage across all views
+- Responsive 2-column and horizontal card layouts
+- Proper data deduplication to prevent duplicate displays
+- Drag-and-drop workbench with integrated drag handles
+- Radix UI primitives for advanced interactions (Accordion)
+
+---
+
+## Code Quality Notes
+
+**Type Safety**: All components use TypeScript interfaces for prop validation
+**Accessibility**: shadcn/ui and Radix UI components provide semantic HTML and ARIA attributes
+**Responsive Design**: Tailwind CSS with responsive utilities for mobile/tablet/desktop
+**Performance**: Minimal re-renders through proper React hook usage
+**Maintainability**: Consistent patterns across all components with clear variant systems
+
+---
+
+**Next Steps**: Monitor for any UI edge cases or performance concerns. The implementation is stable and production-ready.
