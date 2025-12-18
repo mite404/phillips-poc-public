@@ -222,7 +222,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                     </TableHead>
                     <TableHead className="min-w-48">Name</TableHead>
                     <TableHead className="w-32">Status</TableHead>
-                    <TableHead className="w-36 pr-6">Actions</TableHead>
+                    <TableHead className="w-[130px] pr-6 text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -265,7 +265,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                             <Badge variant="outline">Unassigned</Badge>
                           )}
                         </TableCell>
-                        <TableCell className="w-36 pr-6">
+                        <TableCell className="w-[130px] pr-6 text-right">
                           {status === "unassigned" && (
                             <Button
                               size="sm"
