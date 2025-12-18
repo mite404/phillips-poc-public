@@ -156,7 +156,6 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                 // Notify parent that a program was saved
                 onProgramSaved?.();
               }}
-              variant="outline"
               size="sm"
               className="w-full"
             >
@@ -177,18 +176,17 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
               onChange={(e) => setSearch(e.target.value)}
               disabled={isLoading}
             />
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               {(["Self-Paced", "ILT", "Advanced"] as FilterKey[]).map((filterKey) => (
                 <Button
                   key={filterKey}
                   onClick={() => toggleFilter(filterKey)}
                   disabled={isLoading}
-                  variant="ghost"
                   size="sm"
-                  className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all focus-visible:ring-0 focus-visible:ring-offset-0 border-0 ${
+                  className={`px-6 py-2 text-sm font-medium rounded-full transition-all focus-visible:ring-0 focus-visible:ring-offset-0 border-0 ${
                     activeFilters[filterKey]
-                      ? "bg-secondary text-slate-700 hover:bg-secondary"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-secondary-hover text-button-text hover:text-text-hover"
+                      : "bg-secondary text-button-text hover:text-text-hover"
                   }`}
                 >
                   {filterKey}

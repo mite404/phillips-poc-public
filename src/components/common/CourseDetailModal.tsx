@@ -120,7 +120,7 @@ export function CourseDetailModal({
                   {course.skills.map((skill, idx) => (
                     <Badge
                       key={idx}
-                      className="bg-blue-100 text-blue-700 hover:bg-blue-100"
+                      className="bg-blue-100 text-blue-700 hover:bg-blue-100 shadow-none"
                     >
                       {skill.skillName}
                     </Badge>
@@ -165,9 +165,7 @@ export function CourseDetailModal({
 
         {/* Footer with Actions */}
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
+          <Button onClick={onClose}>Close</Button>
           {showBookButton && (
             <Button
               onClick={() => {
