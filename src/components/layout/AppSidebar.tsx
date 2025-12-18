@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronRight, FileText, Users, FolderOpen, Plus } from "lucide-react"; // Shadcn typically uses ChevronRight for collapsibles
+import { ChevronRight, FileText, Users, FolderOpen, Plus, User } from "lucide-react"; // Shadcn typically uses ChevronRight for collapsibles
 import { Button } from "@/components/ui/button";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
@@ -225,6 +225,7 @@ export function AppSidebar({
                                   onNavigate(`student_${student.learner_Data_Id}`)
                                 }
                               >
+                                <User className="h-4 w-4 mr-2 flex-shrink-0" />
                                 <span>{student.learnerName}</span>
                               </Button>
                             </SidebarMenuSubButton>
