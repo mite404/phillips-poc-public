@@ -170,7 +170,6 @@ export function CourseDetailModal({
           </Button>
           {showBookButton && (
             <Button
-              variant="outline"
               onClick={() => {
                 onBookClick();
               }}

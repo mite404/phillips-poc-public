@@ -309,7 +309,6 @@ export function StudentDashboard() {
                                     hasAvailableSessions(course.courseId) ? (
                                       <Button
                                         size="sm"
-                                        variant="outline"
                                         className="text-sm font-semibold text-slate-900"
                                         onClick={(e) => {
                                           e.stopPropagation();

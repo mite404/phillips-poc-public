@@ -291,18 +291,13 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                           {status === "unassigned" && (
                             <Button
                               size="sm"
-                              variant="outline"
                               onClick={() => handleAssignProgram(learner)}
                             >
                               Assign
                             </Button>
                           )}
                           {status === "pending" && firstCourseId && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleForceEnroll(learner)}
-                            >
+                            <Button size="sm" onClick={() => handleForceEnroll(learner)}>
                               Force Enroll
                             </Button>
                           )}

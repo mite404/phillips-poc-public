@@ -42,13 +42,13 @@ function App() {
               <h1 className="text-2xl font-bold italic">Phillips</h1>
             </header>
             <button
-              className="bg-orange-500! text-gray-950! px-6 py-3 rounded hover:bg-orange-300! hover:ring-1 hover:ring-slate-600 mx-auto font-medium"
+              className="bg-orange-500! text-gray-950! px-6 py-3 rounded mx-auto font-medium"
               onClick={() => handleSetUserType("supervisor")}
             >
               Education Supervisor
             </button>
             <button
-              className="bg-orange-500! text-gray-950! px-6 py-3 rounded hover:bg-orange-300! hover:ring-1 hover:ring-slate-600 mx-auto font-medium"
+              className="bg-orange-500! text-gray-950! px-6 py-3 rounded mx-auto font-medium"
               onClick={() => handleSetUserType("student")}
             >
               Student
