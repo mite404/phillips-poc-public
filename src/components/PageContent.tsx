@@ -28,15 +28,6 @@ export function PageContent(props: {
 
   return (
     <main className="flex-1 overflow-hidden flex flex-col">
-      <header className="w-full flex justify-center items-center gap-2 py-4">
-        <img
-          src="/assets/philips-corp-brand-mark.png"
-          alt="Phillips Logo"
-          className="h-8"
-        />
-        <h1 className="text-2xl font-bold italic">Phillips Education</h1>
-      </header>
-
       {/* Main Content Area */}
       <div className="flex-1 overflow-hidden">
         {userType === "student" && currentView === "programs" ? (
