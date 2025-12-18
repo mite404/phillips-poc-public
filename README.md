@@ -76,21 +76,21 @@ Multi-step enrollment flow: students view assigned programs, book classes at spe
 
 ## 🛠️ Tech Stack
 
-| Layer             | Technology                | Version | Rationale                                |
-| ----------------- | ------------------------- | ------- | ---------------------------------------- |
-| **Runtime**       | Bun                       | Latest  | 50% faster than Node.js                  |
-| **Frontend**      | React                     | 19      | Latest features, concurrent rendering    |
-| **Language**      | TypeScript                | ~5.9    | Type safety, IDE support                 |
-| **Build Tool**    | Vite                      | 7.2     | Sub-second HMR, optimized builds         |
-| **Styling**       | Tailwind CSS              | 4       | CSS-in-utility, @tailwindcss/vite plugin |
-| **UI Components** | shadcn/ui                 | Latest  | Radix UI primitives + Tailwind           |
-| **Icons**         | Lucide React              | 0.561   | 1000+ customizable SVG icons             |
-| **Drag & Drop**   | @dnd-kit                  | 6.3     | Framework-agnostic, accessible           |
-| **Accordion**     | @radix-ui/accordion       | 1.2     | WCAG 2.1 AA compliant                    |
-| **Routing**       | React Router              | 7       | Nested routes, data loader API           |
-| **Mock API**      | json-server               | 1.0     | Zero-config REST + WebSocket             |
-| **Notifications** | Sonner                    | 2.0     | Toast notifications                      |
-| **Development**   | Vitest + @testing-library | Latest  | Unit + integration tests                 |
+| Layer             | Technology                | Version |
+| ----------------- | ------------------------- | ------- |
+| **Runtime**       | Bun                       | Latest  |
+| **Frontend**      | React                     | 19      |
+| **Language**      | TypeScript                | ~5.9    |
+| **Build Tool**    | Vite                      | 7.2     |
+| **Styling**       | Tailwind CSS              | 4       |
+| **UI Components** | shadcn/ui                 | Latest  |
+| **Icons**         | Lucide React              | 0.561   |
+| **Drag & Drop**   | @dnd-kit                  | 6.3     |
+| **Accordion**     | @radix-ui/accordion       | 1.2     |
+| **Routing**       | React Router              | 7       |
+| **Mock API**      | json-server               | 1.0     |
+| **Notifications** | Sonner                    | 2.0     |
+| **Development**   | Vitest + @testing-library | Latest  |
 
 ---
 
@@ -182,35 +182,6 @@ phillips-poc/
     ├── IMPLEMENTATION.md           # PR history + status
     └── IMPLEMENTATION_SHADCN.md    # UI migration guide
 ```
-
----
-
-## 🎬 Demo Workflow
-
-### Scene 1: Build a Program (Supervisor)
-
-1. **Search & Filter:** Type "Haas" → instant catalog filtering
-2. **Drag & Drop:** Drag "Haas Maintenance" + "Advanced Mill" into workbench
-3. **See Duration:** Badge updates: "7 Days" in real-time
-4. **Save Draft:** Saves to `db.json`
-5. **Publish:** Program becomes available for assignment
-
-### Scene 2: Assign & Enroll (Supervisor)
-
-1. **View Saved Program:** Click program in sidebar
-2. **Batch Select:** Checkbox-select 8 students
-3. **Send Invites:** "Invite Selected (8)" → toast confirms
-4. **Force Enroll:** Individually click "Force Enroll" on pending students
-5. **Select Date/Location:** Modal shows real class schedules (e.g., "Nov 20 - Bensalem, PA")
-6. **Confirm:** Toast: "Ethan enrolled in Bensalem session"
-
-### Scene 3: Student Books a Class (Learner)
-
-1. **View Dashboard:** See assigned programs with course sequences
-2. **Click Course:** Opens 2-column detail modal (left: metadata, right: skills + testimonials)
-3. **Book Class:** For ILT courses, clicks "Book Class" button
-4. **Select Date:** Modal shows available sessions
-5. **Confirm:** Status updates to "Enrolled" ✓
 
 ---
 
@@ -375,10 +346,6 @@ This is a portfolio project. For changes:
 This is a proof-of-concept project for educational and demonstration purposes.
 
 ---
-
-## 🙋 Questions?
-
-This README documents **v2.0** of the Phillips Education POC. See [IMPLEMENTATION.md](docs/IMPLEMENTATION.md) for the complete delivery timeline and technical decisions.
 
 **Last Updated:** 2025-12-16
 
