@@ -221,8 +221,8 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                       />
                     </TableHead>
                     <TableHead className="min-w-48">Name</TableHead>
-                    <TableHead className="w-32">Status</TableHead>
-                    <TableHead className="w-36 pr-6">Actions</TableHead>
+                    <TableHead className="w-32 text-center">Status</TableHead>
+                    <TableHead className="w-[130px] pr-6 text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -250,7 +250,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell className="w-32">
+                        <TableCell className="w-32 text-center">
                           {status === "registered" && (
                             <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
                               Registered
@@ -265,20 +265,25 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                             <Badge variant="outline">Unassigned</Badge>
                           )}
                         </TableCell>
-                        <TableCell className="w-36 pr-6">
-                          {status === "unassigned" && (
-                            <Button
-                              size="sm"
-                              onClick={() => handleAssignProgram(learner)}
-                            >
-                              Assign
-                            </Button>
-                          )}
-                          {status === "pending" && firstCourseId && (
-                            <Button size="sm" onClick={() => handleForceEnroll(learner)}>
-                              Force Enroll
-                            </Button>
-                          )}
+                        <TableCell className="w-[130px] pr-6">
+                          <div className="flex justify-end">
+                            {status === "unassigned" && (
+                              <Button
+                                size="sm"
+                                onClick={() => handleAssignProgram(learner)}
+                              >
+                                Assign
+                              </Button>
+                            )}
+                            {status === "pending" && firstCourseId && (
+                              <Button
+                                size="sm"
+                                onClick={() => handleForceEnroll(learner)}
+                              >
+                                Force Enroll
+                              </Button>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     );

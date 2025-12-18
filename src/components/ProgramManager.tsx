@@ -156,7 +156,9 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
       {/* Split View: Course List + Roster */}
       <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0">
         {/* Left Column: Course Sequence - width driven by its content/cards */}
-        <div className="min-w-[350px] lg:flex-shrink-0 flex flex-col border border-slate-300 rounded-lg overflow-hidden">
+        <div className="lg:w-[550px] lg:flex-shrink-0 flex flex-col border border-slate-300 rounded-lg overflow-hidden">
+          {" "}
+          {/* <- here <- */}
           <div className="h-[88px] p-4 border-b border-slate-300 bg-slate-50 flex flex-col justify-center">
             <h2 className="text-lg font-semibold">Course Sequence</h2>
             <p className="text-sm text-slate-600">
@@ -164,7 +166,6 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
               {calculateTotalDuration()}
             </p>
           </div>
-
           <div className="flex-1 overflow-y-auto p-4">
             {hydratedCourses.length === 0 ? (
               <div className="flex items-center justify-center h-full text-slate-400">
@@ -232,7 +233,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
         </div>
 
         {/* Right Column: Student Roster - fills remaining space */}
-        <div className="flex-1 flex flex-col border border-slate-300 rounded-lg overflow-hidden">
+        <div className="lg:w-[550px] flex-1 flex flex-col border border-slate-300 rounded-lg overflow-hidden">
           <RosterList
             programId={programId}
             firstCourseId={hydratedCourses[0]?.courseId}
