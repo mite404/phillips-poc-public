@@ -31,12 +31,6 @@ export function CourseCard({
     onAction();
   };
 
-  // Determine level badge variant
-  const getLevelVariant = (level: string) => {
-    if (level === "Advanced") return "default";
-    return "secondary";
-  };
-
   // Workbench variant: Vertical layout with title centered at top
   if (variant === "workbench") {
     return (
