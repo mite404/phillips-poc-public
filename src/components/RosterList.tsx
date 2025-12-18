@@ -183,10 +183,10 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
       <div className="flex flex-col h-full">
         {/* Header */}
         <div className="p-4 border-b border-slate-300 bg-slate-50">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-center mb-2 relative">
             <h2 className="text-lg font-semibold">Student Roster</h2>
             {learners.length > 0 && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 absolute right-0">
                 <input
                   type="checkbox"
                   checked={
