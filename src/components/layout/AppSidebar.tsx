@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronRight } from "lucide-react"; // Shadcn typically uses ChevronRight for collapsibles
+import { ChevronRight, FileText, Users, FolderOpen } from "lucide-react"; // Shadcn typically uses ChevronRight for collapsibles
 import { Button } from "@/components/ui/button";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
@@ -126,6 +126,7 @@ export function AppSidebar({
                       className="text-sm font-medium" // Font fix
                       onClick={() => onNavigate("builder")}
                     >
+                      <FolderOpen className="h-4 w-4" />
                       <span>Create Program</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
@@ -153,6 +154,7 @@ export function AppSidebar({
                                 className="w-full justify-start"
                                 onClick={() => onNavigate(program.id)}
                               >
+                                <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
                                 <span className="truncate">{program.programName}</span>
                                 {!program.published && (
                                   <span className="ml-auto text-[10px] text-yellow-600 bg-yellow-50 px-1 rounded">
@@ -182,6 +184,7 @@ export function AppSidebar({
                       tooltip="Student Progress"
                       className="text-sm font-medium" // Font fix
                     >
+                      <Users className="h-4 w-4" />
                       <span>Invite / Manage Students</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
