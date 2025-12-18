@@ -209,13 +209,59 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
               ) : (
                 <div className="space-y-3">
                   {filteredCourses.map((course) => (
-                    <CourseCard
+                    <Card
                       key={course.id}
-                      course={course}
-                      action="add"
-                      onAction={() => addCourse(course)}
                       onClick={() => setActiveCourse(course)}
-                    />
+                      className="flex flex-row items-center gap-3 p-3 hover:shadow-md transition-all cursor-pointer border-slate-200"
+                    >
+                      {/* Course Image */}
+                      {course.previewImageUrl ? (
+                        <img
+                          src={course.previewImageUrl}
+                          alt={course.courseTitle}
+                          className="w-20 h-14 object-cover rounded-md bg-slate-100 shrink-0"
+                        />
+                      ) : (
+                        <div className="w-20 h-14 bg-slate-100 rounded-md shrink-0 flex items-center justify-center text-xs text-slate-500">
+                          No Image
+                        </div>
+                      )}
+
+                      {/* Content: Title & Metadata */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-sm text-slate-900 truncate">
+                          {course.courseTitle}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <Badge variant="secondary" className="text-xs">
+                            {course.trainingTypeName}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {course.levelName}
+                          </Badge>
+                          <span className="text-xs text-slate-600">
+                            {course.trainingTypeName === "ILT"
+                              ? `${course.totalDays} day${course.totalDays !== 1 ? "s" : ""}`
+                              : course.hours
+                                ? `${course.hours} hour${course.hours !== 1 ? "s" : ""}`
+                                : "Self-paced"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Action Button */}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addCourse(course);
+                        }}
+                        className="ml-auto shrink-0"
+                      >
+                        Add
+                      </Button>
+                    </Card>
                   ))}
                   {filteredCourses.length === 0 && (
                     <div className="flex items-center justify-center h-full text-slate-400 text-sm py-8">
