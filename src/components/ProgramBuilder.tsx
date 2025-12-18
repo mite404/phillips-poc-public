@@ -231,10 +231,16 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                           {course.courseTitle}
                         </h3>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge
+                            variant="outline"
+                            className="border-secondary text-foreground bg-transparent text-xs font-normal"
+                          >
                             {course.trainingTypeName}
                           </Badge>
-                          <Badge variant="outline" className="text-xs">
+                          <Badge
+                            variant="outline"
+                            className="border-secondary text-foreground bg-transparent text-xs font-normal"
+                          >
                             {course.levelName}
                           </Badge>
                           <span className="text-xs text-slate-600">
