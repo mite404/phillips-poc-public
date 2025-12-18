@@ -112,24 +112,25 @@ export function ProgramProgressCard({
             return (
               <div
                 key={course.courseId}
-                className="flex items-center py-2 px-3 rounded border border-slate-100 hover:bg-card-background gap-4"
+                className="grid grid-cols-[1fr_4rem_auto] items-center py-2 px-3 rounded border border-slate-100 hover:bg-card-background gap-4"
               >
                 {/* Left: Course Title */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 truncate">
+                <div className="min-w-0 justify-self-start">
+                  <p className="pl-20 text-sm font-medium text-slate-900 truncate">
                     {course.courseTitle}
                   </p>
                 </div>
 
                 {/* Center: Course Code (right-aligned, fixed width) */}
-                <span className="text-xs text-slate-400 font-mono whitespace-nowrap text-right w-12">
+                <span className="justify-self-start pr-10 text-xs text-slate-400 font-mono whitespace-nowrap text-right">
                   #{course.courseId}
                 </span>
 
                 {/* Right: Status Badge */}
                 <Badge
                   onClick={() => toggleCompletion(course.courseId)}
-                  className={badgeProps.className}
+                  className={`${badgeProps.className} w-32 justify-center`}
+                  style={{ justifySelf: "end" }}
                 >
                   {badgeProps.text}
                 </Badge>
