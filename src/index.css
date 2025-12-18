@@ -36,6 +36,7 @@
   --secondary-foreground: #1a1a1a;
   --secondary-hover: #f4c89f;
   --button-text: #1a1a1a;
+  --text-hover: #0d0d0d;
 
   --muted: #f1f5f9; /* Slate-100 (Clean Gray) */
   --muted-foreground: #64748b; /* Slate-500 */
@@ -127,6 +128,7 @@ button:hover {
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary-hover: var(--secondary-hover);
   --color-button-text: var(--button-text);
+  --color-text-hover: var(--text-hover);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
