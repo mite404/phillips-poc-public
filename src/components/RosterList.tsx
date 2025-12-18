@@ -183,28 +183,19 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
       <div className="flex flex-col h-full">
         {/* Header */}
         <div className="h-[88px] p-4 border-b border-slate-300 bg-slate-50 flex flex-col justify-center">
-          <div className="flex items-center justify-center relative">
-            <h2 className="text-lg font-semibold">Student Roster</h2>
-            {learners.length > 0 && (
-              <div className="flex items-center gap-2 absolute right-0">
-                <input
-                  type="checkbox"
-                  checked={
-                    selectedStudentIds.length === learners.length && learners.length > 0
-                  }
-                  onChange={toggleSelectAll}
-                  className="w-4 h-4 cursor-pointer"
-                />
-                <label
-                  className="text-sm text-slate-600 cursor-pointer"
-                  onClick={toggleSelectAll}
-                >
-                  Select All
-                </label>
-              </div>
-            )}
-          </div>
+          <h2 className="text-lg font-semibold">Student Roster</h2>
           <p className="text-sm text-slate-600">{learners.length} students</p>
+        </div>
+
+        {/* Batch Invite Button */}
+        <div className="px-4 py-3 border-b border-slate-200 bg-white">
+          <Button
+            onClick={handleBatchInvite}
+            className="w-full"
+            disabled={selectedStudentIds.length === 0}
+          >
+            Invite Selected ({selectedStudentIds.length})
+          </Button>
         </div>
 
         {/* Student Table */}
