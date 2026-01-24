@@ -6,14 +6,14 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-secondary text-button-text hover:bg-secondary-hover transition-colors",
+          "bg-primary text-primary-foreground hover:bg-primary/70 transition-colors",
         destructive:
-          "bg-secondary text-button-text hover:bg-secondary-hover transition-colors",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/70 transition-colors",
         outline:
-          "bg-card-background text-button-text hover:bg-secondary-hover transition-colors",
+          "border border-primary bg-background text-primary hover:bg-primary/20 transition-colors",
         secondary:
-          "bg-secondary text-button-text hover:bg-secondary-hover transition-colors",
-        ghost: "text-button-text hover:bg-secondary transition-colors",
+          "bg-primary text-primary-foreground hover:bg-primary/70 transition-colors",
+        ghost: "text-primary hover:bg-primary/20 transition-colors",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

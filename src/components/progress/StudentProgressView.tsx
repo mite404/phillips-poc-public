@@ -140,7 +140,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   if (error) {
     return (
       <div className="h-full p-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="bg-red-50 border border-red-200 rounded-[--radius] p-6">
           <h2 className="text-xl font-semibold text-red-900 mb-2">Error</h2>
           <p className="text-red-700">{error}</p>
         </div>
@@ -155,7 +155,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
         <h2 className="text-2xl font-bold text-slate-900 mb-4">
           {student?.learnerName}'s Progress
         </h2>
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-8 text-center">
+        <div className="bg-muted border border-border rounded-[--radius] p-8 text-center">
           <p className="text-slate-600">No programs assigned to this student.</p>
         </div>
       </div>

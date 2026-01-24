@@ -120,7 +120,7 @@ export function EnrollmentModal({
                   className={`w-full p-4 border rounded-lg text-left transition-colors ${
                     selectedClass?.classId === classSession.classId
                       ? " bg-card-background"
-                      : "border-slate-200 hover:bg-card-background"
+                      : "border-border hover:bg-card-background"
                   }`}
                 >
                   <div className="flex items-start justify-between">

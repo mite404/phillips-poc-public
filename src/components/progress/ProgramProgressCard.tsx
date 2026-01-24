@@ -79,7 +79,7 @@ export function ProgramProgressCard({
   };
 
   return (
-    <div className="bg-card-background border border-slate-200 rounded-lg p-6 space-y-4">
+    <div className="bg-card-background border border-border rounded-lg p-6 space-y-4">
       {/* Header with Program Title and Progress Bar */}
       <div className="space-y-3">
         <div>

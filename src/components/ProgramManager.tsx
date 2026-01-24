@@ -156,10 +156,10 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
       {/* Split View: Course List + Roster */}
       <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0">
         {/* Left Column: Course Sequence - width driven by its content/cards */}
-        <div className="lg:w-[550px] lg:flex-shrink-0 flex flex-col border border-slate-300 rounded-lg overflow-hidden">
+        <div className="lg:w-[550px] lg:flex-shrink-0 flex flex-col border border-border rounded-[--radius] overflow-hidden">
           {" "}
           {/* <- here <- */}
-          <div className="h-[88px] p-4 border-b border-slate-300 bg-slate-50 flex flex-col justify-center">
+          <div className="h-[88px] p-4 border-b border-border bg-muted flex flex-col justify-center">
             <h2 className="text-lg font-semibold">Course Sequence</h2>
             <p className="text-sm text-slate-600">
               {hydratedCourses.length} course{hydratedCourses.length !== 1 ? "s" : ""} •{" "}
@@ -177,7 +177,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
                   <Card
                     key={course.id}
                     onClick={() => setActiveCourse(course)}
-                    className="flex flex-row items-center gap-4 p-4 hover:shadow-md transition-all cursor-pointer border-slate-200"
+                    className="flex flex-row items-center gap-4 p-4 hover:shadow-md transition-all cursor-pointer border-border"
                   >
                     {/* Sequence Number */}
                     <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-white rounded-full text-sm font-bold">
@@ -233,7 +233,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
         </div>
 
         {/* Right Column: Student Roster - fills remaining space */}
-        <div className="lg:w-[550px] flex-1 flex flex-col border border-slate-300 rounded-lg overflow-hidden">
+        <div className="lg:w-[550px] flex-1 flex flex-col border border-border rounded-[--radius] overflow-hidden">
           <RosterList
             programId={programId}
             firstCourseId={hydratedCourses[0]?.courseId}
@@ -247,7 +247,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
           Publish Program
         </Button>
         {program.published && (
-          <span className="px-4 py-2 bg-green-100 text-green-800 font-semibold rounded-lg">
+          <span className="px-4 py-2 bg-green-100 text-green-800 font-semibold rounded-[--radius]">
             ✓ Published
           </span>
         )}

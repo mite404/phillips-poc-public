@@ -50,7 +50,7 @@ export function SidebarNav({
   }, [userType, loadSavedPrograms, loadStudents, refreshTrigger]);
 
   return (
-    <nav className="w-[250px] bg-slate-50 border-r border-slate-200 flex flex-col h-full p-4 text-left">
+    <nav className="w-[250px] bg-muted border-r border-border flex flex-col h-full p-4 text-left">
       <div className="space-y-1">
         <Button
           variant="ghost"
@@ -76,7 +76,7 @@ export function SidebarNav({
 
             {/* CONDITIONAL RENDER: list appears if isBuilderOpen is true */}
             {isBuilderOpen && (
-              <div className="ml-6 mt-1 flex flex-col gap-1 border-l-2 border-slate-300 pl-2">
+              <div className="ml-6 mt-1 flex flex-col gap-1 border-l-2 border-border pl-2">
                 {/* List: Saved Programs*/}
                 {savedPrograms.length === 0 ? (
                   <div className="text-xs text-slate-400 px-2 py-1">
@@ -115,7 +115,7 @@ export function SidebarNav({
 
             {/* CONDITIONAL RENDER: student list appears if isProgressOpen is true */}
             {isProgressOpen && (
-              <div className="ml-6 mt-1 flex flex-col gap-1 border-l-2 border-slate-300 pl-2">
+              <div className="ml-6 mt-1 flex flex-col gap-1 border-l-2 border-border pl-2">
                 {/* List: Students */}
                 {students.length === 0 ? (
                   <div className="text-xs text-slate-400 px-2 py-1">
