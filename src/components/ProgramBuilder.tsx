@@ -89,9 +89,9 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
       {/* Two Column Layout */}
       <div className="flex flex-1 gap-4 min-h-0">
         {/* Left Column - My Program (50%) */}
-        <div className="flex-1 flex flex-col border border-slate-300 rounded-lg">
+        <div className="flex-1 flex flex-col border border-border rounded-[--radius]">
           {/* Header */}
-          <div className="p-4 border-b border-slate-300 space-y-2">
+          <div className="p-4 border-b border-border space-y-2">
             <Input
               type="text"
               value={programTitle}
@@ -143,7 +143,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
           </div>
 
           {/* Footer - Sticky with Duration Stats */}
-          <div className="p-4 border-t border-slate-300 bg-card-background space-y-2">
+          <div className="p-4 border-t border-border bg-card-background space-y-2">
             {selectedCourses.length > 0 && (
               <div className="text-sm text-slate-600">
                 <span className="font-semibold">Total Duration:</span>{" "}
@@ -165,9 +165,9 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
         </div>
 
         {/* Right Column - Course Catalog (50%) */}
-        <div className="flex-1 flex flex-col border border-slate-300 rounded-lg">
+        <div className="flex-1 flex flex-col border border-border rounded-[--radius]">
           {/* Header */}
-          <div className="p-4 border-b border-slate-300 space-y-3">
+          <div className="p-4 border-b border-border space-y-3">
             <h2 className="text-xl font-semibold">Course Catalog</h2>
             <Input
               type="text"
@@ -210,7 +210,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                     <Card
                       key={course.id}
                       onClick={() => setActiveCourse(course)}
-                      className="flex flex-row items-center gap-3 p-3 hover:shadow-md transition-all cursor-pointer border-slate-200"
+                      className="flex flex-row items-center gap-3 p-3 hover:shadow-md transition-all cursor-pointer border-border"
                     >
                       {/* Course Image */}
                       {course.previewImageUrl ? (

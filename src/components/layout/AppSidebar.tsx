@@ -1,6 +1,25 @@
 import { useState, useEffect } from "react";
-import { ChevronRight, FileText, Users, FolderOpen, Plus, User } from "lucide-react"; // Shadcn typically uses ChevronRight for collapsibles
+import {
+  ChevronRight,
+  FileText,
+  Users,
+  FolderOpen,
+  Plus,
+  User,
+  LayoutDashboard,
+  Settings,
+  HelpCircle,
+  Search,
+  MoreVertical,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
 import { clearStorage } from "@/api/storageUtils";
@@ -12,10 +31,11 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuSub, // NEW: For nested lists
-  SidebarMenuSubItem, // NEW: For nested items
-  SidebarMenuSubButton, // NEW: For nested buttons
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarFooter,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -80,27 +100,30 @@ export function AppSidebar({
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              onClick={() => onSetUserType(null)}
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
-            >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-phillips-orange text-sidebar-primary-foreground">
-                <img
-                  src="/assets/philips-corp-brand-mark.png"
-                  alt="P"
-                  className="h-4 w-4 brightness-0 invert" // Make logo white
-                />
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">Phillips Education</span>
-                <span className="truncate text-xs">Supervisor Console</span>
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <div className="flex items-center justify-between gap-2">
+          <SidebarMenu className="flex-1">
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                size="lg"
+                onClick={() => onSetUserType(null)}
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
+              >
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-phillips-orange text-sidebar-primary-foreground">
+                  <img
+                    src="/assets/philips-corp-brand-mark.png"
+                    alt="P"
+                    className="h-4 w-4 brightness-0 invert"
+                  />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">Phillips Education</span>
+                  <span className="truncate text-xs">Supervisor Console</span>
+                </div>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+          <SidebarTrigger className="ml-2 h-8 w-8" />
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
@@ -120,6 +143,19 @@ export function AppSidebar({
           {/* Supervisor Menu */}
           {userType === "supervisor" && (
             <>
+              {/* Dashboard */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Dashboard"
+                  isActive={currentView === "dashboard"}
+                  className="text-sm font-medium"
+                  onClick={() => onNavigate("dashboard")}
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span>Dashboard</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
               {/* Create Program Button */}
               <SidebarMenuItem>
                 <SidebarMenuButton
@@ -265,16 +301,60 @@ export function AppSidebar({
 
       <SidebarFooter>
         <SidebarMenu>
+          {/* Settings - placeholder */}
           <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={async () => {
-                clearStorage();
-                window.location.reload();
-              }}
-              className="text-xs text-muted-foreground hover:text-destructive"
-            >
-              <span>Reset Demo Data</span>
+            <SidebarMenuButton className="text-sm font-medium">
+              <Settings className="h-4 w-4" />
+              <span>Settings</span>
             </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          {/* Get Help - placeholder */}
+          <SidebarMenuItem>
+            <SidebarMenuButton className="text-sm font-medium">
+              <HelpCircle className="h-4 w-4" />
+              <span>Get Help</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          {/* Search - placeholder */}
+          <SidebarMenuItem>
+            <SidebarMenuButton className="text-sm font-medium">
+              <Search className="h-4 w-4" />
+              <span>Search</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          {/* User Profile with dropdown */}
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton className="h-auto py-2">
+                  <div className="flex items-center gap-2 flex-1">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback>SC</AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col items-start text-left group-data-[collapsible=icon]:hidden">
+                      <span className="text-sm font-semibold">shadcn</span>
+                      <span className="text-xs text-muted-foreground">m@example.com</span>
+                    </div>
+                  </div>
+                  <MoreVertical className="h-4 w-4 ml-auto group-data-[collapsible=icon]:hidden" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Account Settings</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={async () => {
+                    clearStorage();
+                    window.location.reload();
+                  }}
+                >
+                  Reset Demo Data
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

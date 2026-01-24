@@ -17,7 +17,7 @@ function App() {
     if (type === "student") {
       setCurrentView("programs");
     } else if (type === "supervisor") {
-      setCurrentView("builder");
+      setCurrentView("dashboard");
     }
   };
 
@@ -77,6 +77,7 @@ function App() {
                 setUserType={handleSetUserType}
                 currentView={currentView}
                 onProgramSaved={handleProgramSaved}
+                onNavigate={setCurrentView}
               />
             </div>
           </SidebarInset>
