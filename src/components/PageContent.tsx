@@ -30,9 +30,9 @@ export function PageContent(props: {
       ["prog_101", "prog_102", "prog_103"].includes(currentView));
 
   return (
-    <main className="flex-1 overflow-hidden flex flex-col">
+    <main className="flex-1 overflow-hidden flex flex-col w-full">
       {/* Main Content Area */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden p-8">
         {userType === "student" && currentView === "programs" ? (
           <StudentDashboard />
         ) : currentView === "dashboard" ? (
@@ -49,7 +49,7 @@ export function PageContent(props: {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-slate-300 flex justify-center">
+      <div className="p-4 border-t border-border flex justify-center">
         <Button size="sm" onClick={() => setUserType(null)}>
           Back to Auth Portal
         </Button>

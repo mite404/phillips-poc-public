@@ -71,14 +71,16 @@ function App() {
           />
           <SidebarInset>
             <SiteHeader />
-            <div className="flex flex-1 p-4 overflow-auto">
-              <PageContent
-                userType={userType}
-                setUserType={handleSetUserType}
-                currentView={currentView}
-                onProgramSaved={handleProgramSaved}
-                onNavigate={setCurrentView}
-              />
+            <div className="flex flex-1 overflow-auto">
+              <div className="flex flex-1 max-w-7xl mx-auto w-full">
+                <PageContent
+                  userType={userType}
+                  setUserType={handleSetUserType}
+                  currentView={currentView}
+                  onProgramSaved={handleProgramSaved}
+                  onNavigate={setCurrentView}
+                />
+              </div>
             </div>
           </SidebarInset>
         </SidebarProvider>

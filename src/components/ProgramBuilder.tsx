@@ -91,14 +91,8 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
         {/* Left Column - My Program (50%) */}
         <div className="flex-1 flex flex-col border border-border rounded-[--radius]">
           {/* Header */}
-          <div className="p-4 border-b border-border space-y-2">
-            <Input
-              type="text"
-              value={programTitle}
-              onChange={(e) => updateTitle(e.target.value)}
-              placeholder="My Program (Click to rename...)"
-              className="text-xl font-semibold border-none shadow-none focus-visible:ring-0 px-0"
-            />
+          <div className="p-4 border-b border-border bg-muted space-y-3 pb-9">
+            <h2 className="text-xl font-semibold">My Program</h2>
             <Textarea
               value={programDescription}
               onChange={(e) => updateDescription(e.target.value)}
@@ -167,7 +161,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
         {/* Right Column - Course Catalog (50%) */}
         <div className="flex-1 flex flex-col border border-border rounded-[--radius]">
           {/* Header */}
-          <div className="p-4 border-b border-border space-y-3">
+          <div className="p-4 border-b border-border bg-muted space-y-3">
             <h2 className="text-xl font-semibold">Course Catalog</h2>
             <Input
               type="text"

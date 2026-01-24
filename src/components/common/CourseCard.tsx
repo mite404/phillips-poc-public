@@ -34,7 +34,7 @@ export function CourseCard({
   // Workbench variant: Vertical layout with title centered at top
   if (variant === "workbench") {
     return (
-      <Card className="p-4 hover:shadow-md transition-all cursor-pointer border-slate-200">
+      <Card className="p-4 hover:shadow-md transition-all cursor-pointer border-border">
         {/* Row 1: Centered Title */}
         <div className="text-lg font-semibold text-center text-slate-900 mb-4">
           {course.courseTitle}
