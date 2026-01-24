@@ -30,7 +30,6 @@ interface ProgramBuilderProps {
 export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
   const {
-    programTitle,
     programDescription,
     selectedCourses,
     searchQuery,
@@ -40,7 +39,6 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
     addCourse,
     removeCourse,
     reorderCourses,
-    updateTitle,
     updateDescription,
     toggleFilter,
     setSearch,
