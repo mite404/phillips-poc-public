@@ -104,3 +104,12 @@ export interface Testimonial {
     courseTitle: string;
   }[];
 }
+
+export type CourseStatus = "Completed" | "Incomplete" | "Not Enrolled";
+
+export interface CourseRow {
+  course: CourseCatalogItem;
+  program: SupervisorProgram;
+  enrollment?: CourseEnrollment;
+  status: CourseStatus;
+}

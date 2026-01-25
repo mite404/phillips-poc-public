@@ -9,6 +9,8 @@ import type {
   CourseEnrollment,
   SupervisorProgram,
   CourseCatalogItem,
+  CourseRow,
+  CourseStatus,
 } from "@/types/models";
 
 interface StudentProgressViewProps {
@@ -26,6 +28,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   const [hydratedPrograms, setHydratedPrograms] = useState<HydratedProgram[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPrograms, setSelectedPrograms] = useState<Array<string>>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -104,6 +107,24 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
           })
           .filter((p): p is HydratedProgram => p !== null);
 
+        const flatCourses: Array<CourseRow> = hydratedPrograms.flatMap(
+          ({ program, courses, enrollments }) =>
+            courses.map((course) => ({
+              course,
+              program,
+              enrollment: enrollments.find((e) => e.courseId === course.courseId),
+              status: getCourseStatus(course.courseId),
+            })),
+        );
+
+        const getCourseStatus = (courseId: number): CourseStatus => {
+          const foundCourse = enrollments.find((e) => e.courseId === courseId);
+
+          if (!foundCourse || undefined) {
+            return "Not Enrolled";
+          } else return "Incomplete";
+        };
+
         setHydratedPrograms(hydrated);
       } catch (err) {
         console.error("Failed to fetch student progress data:", err);
@@ -119,6 +140,10 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   // Helper function to fetch all programs (uses network-first, localStorage-fallback)
   async function fetchAllPrograms(): Promise<SupervisorProgram[]> {
     return localApi.getAllPrograms();
+  }
+
+  function toggleProgramFilter(programId: string) {
+    setSelectedPrograms((prev) => {});
   }
 
   // Loading state
