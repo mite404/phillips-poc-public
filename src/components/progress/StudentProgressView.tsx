@@ -12,6 +12,17 @@ import type {
   CourseRow,
   CourseStatus,
 } from "@/types/models";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface StudentProgressViewProps {
   studentId: string | number;
@@ -29,6 +40,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPrograms, setSelectedPrograms] = useState<Array<string>>([]);
+  const [flatCourses, setFlatCourses] = useState<Array<CourseRow>>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -107,7 +119,8 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
           })
           .filter((p): p is HydratedProgram => p !== null);
 
-        const flatCourses: Array<CourseRow> = hydratedPrograms.flatMap(
+        // Step 6: Create flatCourses from hydrated
+        const flatCourses: Array<CourseRow> = hydrated.flatMap(
           ({ program, courses, enrollments }) =>
             courses.map((course) => ({
               course,
@@ -117,6 +130,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
             })),
         );
 
+        // Populate flatCourses.status from getCourseStatus()
         const getCourseStatus = (courseId: number): CourseStatus => {
           const foundCourse = enrollments.find((e) => e.courseId === courseId);
 
@@ -126,6 +140,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
         };
 
         setHydratedPrograms(hydrated);
+        setFlatCourses(flatCourses);
       } catch (err) {
         console.error("Failed to fetch student progress data:", err);
         setError("Failed to load student progress");
@@ -143,8 +158,19 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   }
 
   function toggleProgramFilter(programId: string) {
-    setSelectedPrograms((prev) => {});
+    setSelectedPrograms((prev) =>
+      prev.includes(programId)
+        ? prev.filter((id) => id !== programId) // remove if already selected
+        : [...prev, programId],
+    );
   }
+
+  const clearFilters = () => setSelectedPrograms([]);
+
+  const filteredCourses =
+    selectedPrograms.length > 0
+      ? flatCourses.filter((row) => selectedPrograms.includes(row.program.id))
+      : flatCourses;
 
   // Loading state
   if (isLoading) {
