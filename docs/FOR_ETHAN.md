@@ -383,6 +383,205 @@ Use when: Building interactive filter/tag systems.
 
 ---
 
+## Advanced Filtering: Multi-Filter Patterns (Phase 8)
+
+### Decision 5: Multi-Filter AND Logic
+
+**The Challenge:** You have three independent filter systems:
+
+- Program filter (existing badge toggle)
+- Status filter (new dropdown)
+- Text search (new input field)
+
+How do you combine them so ALL filters must pass (AND logic)?
+
+**The Pattern:**
+
+```typescript
+// Each filter is independent - can be on or off
+const filteredCourses = flatCourses.filter((row) => {
+  const matchesProgram =
+    selectedPrograms.length === 0 || selectedPrograms.includes(row.program.id);
+
+  const matchesStatus =
+    selectedStatuses.length === 0 || selectedStatuses.includes(row.status);
+
+  const matchesSearchText = matchesSearch(row, searchText);
+
+  return matchesProgram && matchesStatus && matchesSearchText; // ← AND logic
+});
+```
+
+**Key insight:** When a filter has NO selections (empty array), it doesn't filter anything (`length === 0` returns true). When selections exist, the row must match at least one.
+
+### Decision 6: Search Across Multiple Fields
+
+**The Challenge:** Text search needs to find matches in different data types:
+
+- Course title (string)
+- Program name (string)
+- Level name (string)
+- Training type (string)
+- Course ID (number)
+
+**The Pattern:**
+
+```typescript
+const matchesSearch = (row: CourseRow, search: string): boolean => {
+  if (!search) return true; // No search = match everything
+
+  const searchLower = search.toLowerCase();
+
+  return (
+    row.course.courseTitle.toLowerCase().includes(searchLower) ||
+    row.program.programName.toLowerCase().includes(searchLower) ||
+    row.course.levelName.toLowerCase().includes(searchLower) ||
+    row.course.trainingTypeName.toLowerCase().includes(searchLower) ||
+    row.course.courseId.toString().includes(searchLower) // ← Convert number to string
+  );
+};
+```
+
+**Key insight:** This is OR logic WITHIN search (match any field), but AND logic with other filters. The pattern is:
+
+- Search: "Does this row match THIS field OR that field OR..." (OR logic)
+- Multi-filter: "Does this row match program AND status AND search" (AND logic)
+
+### Decision 7: Status Filter with Multiple Selections
+
+**The Challenge:** Unlike program filter (already built), status filter allows multiple selections from a dropdown menu.
+
+**The Pattern:**
+
+```typescript
+const [selectedStatuses, setSelectedStatuses] = useState<CourseStatus[]>([]);
+
+// Toggle a status on/off
+const handleStatusChange = (status: CourseStatus, checked: boolean) => {
+  setSelectedStatuses(
+    (prev) =>
+      checked
+        ? [...prev, status] // Add if checked
+        : prev.filter((s) => s !== status), // Remove if unchecked
+  );
+};
+```
+
+**In the dropdown:**
+
+```typescript
+<DropdownMenuCheckboxItem
+  checked={selectedStatuses.includes("Completed")}
+  onCheckedChange={(checked) => {
+    setSelectedStatuses((prev) =>
+      checked
+        ? [...prev, "Completed"]
+        : prev.filter((s) => s !== "Completed")
+    );
+  }}
+>
+  Completed
+</DropdownMenuCheckboxItem>
+```
+
+**Key insight:** This is identical logic to program filter toggle, but implemented as checkbox items instead of badge clicks.
+
+### Decision 8: Smart Filter UI Feedback
+
+**The Challenge:** Users need to know:
+
+- What filters are currently active
+- How many results matched their filter
+- How to reset filters
+
+**The Pattern:**
+
+```typescript
+// Show filter count badge
+{selectedStatuses.length > 0 && (
+  <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+    {selectedStatuses.length}
+  </span>
+)}
+
+// Show clear button only when filters active
+{(searchText || selectedStatuses.length > 0 || selectedPrograms.length > 0) && (
+  <Button variant="ghost" size="sm" onClick={() => {
+    setSearchText("");
+    setSelectedStatuses([]);
+    setSelectedPrograms([]);
+  }}>
+    <X className="mr-2 h-4 w-4" />
+    Clear All
+  </Button>
+)}
+
+// Filter-aware empty state
+{searchText || selectedStatuses.length > 0 || selectedPrograms.length > 0
+  ? "No courses match your filters"
+  : "No courses assigned"}
+```
+
+**Key insight:** UI should communicate filter state to users. A badge count, conditional button, and smart empty messages make filtering feel like a first-class feature.
+
+---
+
+## Advanced Filtering: Real-World Scenarios
+
+### Scenario 1: Search for "CNC"
+
+```
+searchText = "cnc"
+selectedStatuses = []
+selectedPrograms = []
+↓
+Shows all courses with "CNC" in title/program/level/type
+```
+
+### Scenario 2: Filter by "Incomplete" Status Only
+
+```
+searchText = ""
+selectedStatuses = ["Incomplete"]
+selectedPrograms = []
+↓
+Shows all incomplete courses across all programs
+```
+
+### Scenario 3: Combined Filters - "Sales" courses that are "Incomplete"
+
+```
+searchText = "sales"
+selectedStatuses = ["Incomplete"]
+selectedPrograms = []
+↓
+Shows only Sales courses the student hasn't completed
+```
+
+### Scenario 4: Program + Status + Search
+
+```
+searchText = "cnc"
+selectedStatuses = ["Not Enrolled"]
+selectedPrograms = ["prog_manufacturing"]
+↓
+Shows CNC-related courses in Manufacturing program that student hasn't enrolled in
+```
+
+### Scenario 5: Clear All Filters
+
+```
+User clicks "Clear All" button
+↓
+setSearchText("")
+setSelectedStatuses([])
+setSelectedPrograms([])
+↓
+Shows all courses again
+```
+
+---
+
 ## What's Next
 
 When you implement this, pay attention to:

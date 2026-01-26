@@ -1,7 +1,6 @@
 // VIEW: Supervisor Persona. Read-only progress tracker for direct reports.
 
 import { useState, useEffect } from "react";
-import { ProgramProgressCard } from "./ProgramProgressCard";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
 import type {
@@ -70,6 +69,8 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
           return;
         }
 
+        // console.log("foundStudent:", foundStudent);
+
         setStudent(foundStudent);
 
         // Step 3: Filter assignments for this student
@@ -119,6 +120,17 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
           })
           .filter((p): p is HydratedProgram => p !== null);
 
+        // Populate flatCourses.status from getCourseStatus()
+        const getCourseStatus = (courseId: number): CourseStatus => {
+          const isEnrolled = enrollments.find((e) => e.courseId === courseId);
+
+          if (!isEnrolled) {
+            return "Not Enrolled";
+          } else {
+            return "Incomplete";
+          }
+        };
+
         // Step 6: Create flatCourses from hydrated
         const flatCourses: Array<CourseRow> = hydrated.flatMap(
           ({ program, courses, enrollments }) =>
@@ -129,15 +141,6 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
               status: getCourseStatus(course.courseId),
             })),
         );
-
-        // Populate flatCourses.status from getCourseStatus()
-        const getCourseStatus = (courseId: number): CourseStatus => {
-          const foundCourse = enrollments.find((e) => e.courseId === courseId);
-
-          if (!foundCourse || undefined) {
-            return "Not Enrolled";
-          } else return "Incomplete";
-        };
 
         setHydratedPrograms(hydrated);
         setFlatCourses(flatCourses);
@@ -152,10 +155,31 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     fetchData();
   }, [studentId]);
 
+  const filteredCourses =
+    selectedPrograms.length > 0
+      ? flatCourses.filter((row) => selectedPrograms.includes(row.program.id))
+      : flatCourses;
+
+  console.log("flattened courses:", flatCourses);
+  console.log("selectedPrograms:", selectedPrograms);
+  console.log("filteredCourses:", filteredCourses);
+
   // Helper function to fetch all programs (uses network-first, localStorage-fallback)
   async function fetchAllPrograms(): Promise<SupervisorProgram[]> {
+    console.log(localApi.getAllPrograms());
     return localApi.getAllPrograms();
   }
+
+  const getStatusClassName = (status: CourseStatus): string => {
+    switch (status) {
+      case "Completed":
+        return "bg-green-100 text-green-800 hover:bg-green-100";
+      case "Incomplete":
+        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100";
+      case "Not Enrolled":
+        return "bg-slate-100 text-slate-600 hover:bg-slate-100";
+    }
+  };
 
   function toggleProgramFilter(programId: string) {
     setSelectedPrograms((prev) =>
@@ -165,12 +189,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     );
   }
 
-  const clearFilters = () => setSelectedPrograms([]);
-
-  const filteredCourses =
-    selectedPrograms.length > 0
-      ? flatCourses.filter((row) => selectedPrograms.includes(row.program.id))
-      : flatCourses;
+  // const clearFilters = () => setSelectedPrograms([]);
 
   // Loading state
   if (isLoading) {
@@ -215,22 +234,91 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
   // Main render
   return (
-    <div className="h-full p-8 overflow-y-auto">
-      <h2 className="text-2xl font-bold text-slate-900 mb-6">
-        {student?.learnerName}'s Progress
-      </h2>
+    <>
+      <div className="h-full p-8 overflow-y-auto">
+        <h2 className="text-2xl font-bold text-slate-900 mb-6">
+          {student?.learnerName}'s Progress
+        </h2>
 
-      <div className="space-y-8 max-w-5xl">
-        {hydratedPrograms.map(({ program, courses, enrollments }) => (
-          <ProgramProgressCard
-            key={program.id}
-            programName={program.programName}
-            programDescription={program.description}
-            courses={courses}
-            enrollments={enrollments}
-          />
-        ))}
+        <div className="border border-border rounded-[--radius] overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted">
+                  <TableHead className="w-[8%]">Course ID</TableHead>
+                  <TableHead className="w-[25%]">Course Name</TableHead>
+                  <TableHead className="w-[18%]">Program</TableHead>
+                  <TableHead className="w-[12%]">Level</TableHead>
+                  <TableHead className="w-[12%]">Type</TableHead>
+                  <TableHead className="w-[10%]">Duration</TableHead>
+                  <TableHead className="w-[15%]">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredCourses.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="h-24 text-center text-muted-foreground"
+                    >
+                      {selectedPrograms.length > 0
+                        ? "No courses found in selected programs"
+                        : "No courses assigned"}
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredCourses.map((row) => (
+                    <TableRow key={`${row.program.id}-${row.course.courseId}`}>
+                      {/* Course ID */}
+                      <TableCell className="text-xs text-muted-foreground font-mono">
+                        #{row.course.courseId}
+                      </TableCell>
+
+                      {/* Course Name */}
+                      <TableCell className="font-medium">
+                        {row.course.courseTitle}
+                      </TableCell>
+
+                      {/* Program Badge (clickable sort) */}
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className="cursor-pointer hover:bg-primary/10 transition-colors"
+                          onClick={() => toggleProgramFilter(row.program.id)}
+                        >
+                          {row.program.programName}
+                        </Badge>
+                      </TableCell>
+
+                      {/* Level */}
+                      <TableCell className="text-sm text-muted-foreground">
+                        {row.course.levelName}
+                      </TableCell>
+
+                      {/* Type */}
+                      <TableCell className="text-sm text-muted-foreground">
+                        {row.course.trainingTypeName}
+                      </TableCell>
+
+                      {/* Duration */}
+                      <TableCell className="text-sm text-muted-foreground text-right">
+                        {row.course.totalDays} days
+                      </TableCell>
+
+                      {/* Status Badge */}
+                      <TableCell className="text-center">
+                        <Badge className={getStatusClassName(row.status)}>
+                          {row.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

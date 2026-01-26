@@ -502,3 +502,358 @@ After implementation:
 - **Testing & polish**: 30 minutes
 
 **Total**: ~3 hours
+
+---
+
+# Phase 8: Advanced Filtering Features
+
+## Overview
+
+Enhance the StudentProgressView table with modern filtering capabilities inspired by the shadcn Tasks template. Add text search and status filtering to help supervisors quickly find specific courses.
+
+## Requirements
+
+- **Text Search Filter**: Search across all fields (course name, program name, level, type, course ID)
+- **Status Dropdown Filter**: Filter by enrollment status (Completed/Incomplete/Not Enrolled)
+- **Multi-Filter Logic**: Combine all filters using AND logic
+- **Sharp Corners**: Maintain border-radius: 0 (Lyra theme)
+- **Filter Count Badge**: Show how many statuses are selected
+- **Smart Empty States**: Different messages based on active filters
+
+---
+
+## Phase 8A: Add Filter UI Components
+
+**File**: `src/components/progress/StudentProgressView.tsx`
+
+#### 8A.1 Add Component Imports
+
+```typescript
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ListFilter } from "lucide-react";
+```
+
+#### 8A.2 Add Filter State Variables
+
+```typescript
+const [searchText, setSearchText] = useState<string>("");
+const [selectedStatuses, setSelectedStatuses] = useState<CourseStatus[]>([]);
+```
+
+---
+
+## Phase 8B: Implement Text Search Logic
+
+**File**: `src/components/progress/StudentProgressView.tsx`
+
+#### 8B.1 Create Search Filter Function
+
+```typescript
+const matchesSearch = (row: CourseRow, search: string): boolean => {
+  if (!search) return true;
+
+  const searchLower = search.toLowerCase();
+
+  return (
+    row.course.courseTitle.toLowerCase().includes(searchLower) ||
+    row.program.programName.toLowerCase().includes(searchLower) ||
+    row.course.levelName.toLowerCase().includes(searchLower) ||
+    row.course.trainingTypeName.toLowerCase().includes(searchLower) ||
+    row.course.courseId.toString().includes(searchLower)
+  );
+};
+```
+
+#### 8B.2 Update Filtered Courses Logic
+
+Replace the current `filteredCourses` with multi-filter logic:
+
+```typescript
+const filteredCourses = flatCourses.filter((row) => {
+  // Program filter (existing)
+  const matchesProgram =
+    selectedPrograms.length === 0 || selectedPrograms.includes(row.program.id);
+
+  // Status filter (new)
+  const matchesStatus =
+    selectedStatuses.length === 0 || selectedStatuses.includes(row.status);
+
+  // Text search (new)
+  const matchesSearchText = matchesSearch(row, searchText);
+
+  return matchesProgram && matchesStatus && matchesSearchText;
+});
+```
+
+---
+
+## Phase 8C: Build Filter UI Bar
+
+**File**: `src/components/progress/StudentProgressView.tsx`
+
+#### 8C.1 Add Filter Bar (above table)
+
+Insert this between the header and the table:
+
+```typescript
+{/* Filter Bar */}
+<div className="mb-4 flex items-center gap-2">
+  {/* Text Search Input */}
+  <Input
+    placeholder="Filter courses..."
+    value={searchText}
+    onChange={(e) => setSearchText(e.target.value)}
+    className="max-w-xs"
+  />
+
+  {/* Status Filter Dropdown */}
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button variant="outline" size="sm" className="h-10">
+        <ListFilter className="mr-2 h-4 w-4" />
+        Status
+        {selectedStatuses.length > 0 && (
+          <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+            {selectedStatuses.length}
+          </span>
+        )}
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="start" className="w-[200px]">
+      <DropdownMenuLabel>Filter by status</DropdownMenuLabel>
+      <DropdownMenuSeparator />
+
+      {/* Completed */}
+      <DropdownMenuCheckboxItem
+        checked={selectedStatuses.includes("Completed")}
+        onCheckedChange={(checked) => {
+          setSelectedStatuses(prev =>
+            checked
+              ? [...prev, "Completed"]
+              : prev.filter(s => s !== "Completed")
+          );
+        }}
+      >
+        Completed
+      </DropdownMenuCheckboxItem>
+
+      {/* Incomplete */}
+      <DropdownMenuCheckboxItem
+        checked={selectedStatuses.includes("Incomplete")}
+        onCheckedChange={(checked) => {
+          setSelectedStatuses(prev =>
+            checked
+              ? [...prev, "Incomplete"]
+              : prev.filter(s => s !== "Incomplete")
+          );
+        }}
+      >
+        Incomplete
+      </DropdownMenuCheckboxItem>
+
+      {/* Not Enrolled */}
+      <DropdownMenuCheckboxItem
+        checked={selectedStatuses.includes("Not Enrolled")}
+        onCheckedChange={(checked) => {
+          setSelectedStatuses(prev =>
+            checked
+              ? [...prev, "Not Enrolled"]
+              : prev.filter(s => s !== "Not Enrolled")
+          );
+        }}
+      >
+        Not Enrolled
+      </DropdownMenuCheckboxItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+
+  {/* Clear Filters Button (if any active) */}
+  {(searchText || selectedStatuses.length > 0 || selectedPrograms.length > 0) && (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() => {
+        setSearchText("");
+        setSelectedStatuses([]);
+        setSelectedPrograms([]);
+      }}
+      className="h-10"
+    >
+      <X className="mr-2 h-4 w-4" />
+      Clear All
+    </Button>
+  )}
+</div>
+```
+
+---
+
+## Phase 8D: Update Empty State Messages
+
+**File**: `src/components/progress/StudentProgressView.tsx`
+
+#### 8D.1 Make Empty State Filter-Aware
+
+Update the empty state in the table body:
+
+```typescript
+{filteredCourses.length === 0 ? (
+  <TableRow>
+    <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+      {searchText || selectedStatuses.length > 0 || selectedPrograms.length > 0
+        ? "No courses match your filters"
+        : "No courses assigned"}
+    </TableCell>
+  </TableRow>
+) : (
+  // ... render rows
+)}
+```
+
+---
+
+## Filter Logic Flow
+
+### Multi-Filter Combination (AND logic):
+
+```
+filteredCourses = ALL of:
+  ✓ Matches program filter (if selectedPrograms not empty)
+  AND
+  ✓ Matches status filter (if selectedStatuses not empty)
+  AND
+  ✓ Matches search text (if searchText not empty)
+```
+
+### Example Scenarios:
+
+**Scenario 1: Search for "CNC"**
+
+- searchText = "cnc"
+- Shows all courses with "CNC" in title/program/level/type
+
+**Scenario 2: Filter by "Incomplete" status**
+
+- selectedStatuses = ["Incomplete"]
+- Shows only courses with Incomplete status
+
+**Scenario 3: Combined filters**
+
+- searchText = "sales"
+- selectedStatuses = ["Incomplete"]
+- selectedPrograms = ["prog_1"]
+- Shows only Sales Training courses that are Incomplete
+
+**Scenario 4: Clear all**
+
+- All filters reset
+- Shows all courses
+
+---
+
+## Updated UI Layout Structure
+
+### After Phase 8:
+
+```
+Student Progress View
+├── Header (Student Name)
+├── Summary Stats (3 cards)
+├── Program Filter Tags (existing from Phase 3)
+├── Advanced Filter Bar (NEW)
+│   ├── Text Search Input ("Filter courses...")
+│   ├── Status Dropdown (with badge count)
+│   └── "Clear All" button (if filters active)
+├── Table (with 1px border)
+│   ├── Table Header (7 columns)
+│   └── Table Body (filtered course rows)
+```
+
+---
+
+## Implementation Order for Phase 8
+
+1. **Add state variables** (searchText, selectedStatuses)
+2. **Add component imports** (Input, DropdownMenu, ListFilter icon)
+3. **Create matchesSearch helper** (search across fields)
+4. **Update filteredCourses logic** (multi-filter AND logic)
+5. **Add Filter Bar UI** (Input + Status dropdown + Clear button)
+6. **Update empty state** (filter-aware message)
+7. **Test text search** (type and verify filtering)
+8. **Test status filter** (select statuses, verify filtering)
+9. **Test combined filters** (all three filters together)
+10. **Verify styling** (borders, corners, spacing)
+
+---
+
+## Verification Steps for Phase 8
+
+### Filter Bar Checks:
+
+- [ ] Text input appears above table with placeholder "Filter courses..."
+- [ ] Status dropdown button shows "Status" label with ListFilter icon
+- [ ] Status dropdown opens on click showing 3 checkboxes
+- [ ] "Clear All" button appears when any filter is active
+- [ ] Filter count badge shows on Status button when statuses selected
+
+### Text Search Checks:
+
+- [ ] Typing in search box filters table in real-time
+- [ ] Search matches course name (e.g., "CNC" finds "CNC Machining")
+- [ ] Search matches program name (e.g., "My Program")
+- [ ] Search matches level (e.g., "Advanced")
+- [ ] Search matches type (e.g., "ILT")
+- [ ] Search matches course ID (e.g., "116" finds course #116)
+- [ ] Search is case-insensitive
+
+### Status Filter Checks:
+
+- [ ] Selecting "Completed" shows only completed courses
+- [ ] Selecting "Incomplete" shows only incomplete courses
+- [ ] Selecting "Not Enrolled" shows only not enrolled courses
+- [ ] Multiple statuses can be selected (OR logic within status filter)
+- [ ] Badge on button shows count of selected statuses
+- [ ] Unchecking a status removes it from filter
+
+### Combined Filter Checks:
+
+- [ ] Program badges + text search work together
+- [ ] Program badges + status filter work together
+- [ ] All 3 filter types work together (AND logic)
+- [ ] "Clear All" resets all filters (program, status, and search)
+- [ ] Empty state shows "No courses match your filters" when filters active
+- [ ] Empty state shows "No courses assigned" when no data and no filters
+
+### Styling Checks:
+
+- [ ] Filter bar appears above table
+- [ ] Input field uses theme styling
+- [ ] Status button uses outline variant
+- [ ] Dropdown menu aligns properly
+- [ ] All elements use sharp corners (border-radius: 0)
+- [ ] Filter count badge uses primary color
+- [ ] Spacing is consistent
+
+---
+
+## Estimated Additional Effort (Phase 8)
+
+- **State setup**: 5 minutes
+- **matchesSearch logic**: 10 minutes
+- **Multi-filter logic**: 10 minutes
+- **Filter Bar UI**: 30 minutes
+- **Status dropdown**: 20 minutes
+- **Clear All button**: 10 minutes
+- **Testing & polish**: 20 minutes
+
+**Total for Phase 8**: ~1.5 hours
+
+**Combined Total (Phases 1-8)**: ~4.5 hours
