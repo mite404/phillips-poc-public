@@ -23,15 +23,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
-interface StudentProgressViewProps {
-  studentId: string | number;
-}
-
-interface HydratedProgram {
-  program: SupervisorProgram;
-  courses: CourseCatalogItem[];
-  enrollments: CourseEnrollment[];
-}
+import type {
+  StudentMetrics,
+  HydratedProgram,
+  StudentProgressViewProps,
+} from "@/types/models";
 
 export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   const [student, setStudent] = useState<LearnerProfile | null>(null);
@@ -270,12 +266,12 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                   filteredCourses.map((row) => (
                     <TableRow key={`${row.program.id}-${row.course.courseId}`}>
                       {/* Course ID */}
-                      <TableCell className="text-xs text-muted-foreground font-mono">
+                      <TableCell className="text-xs text-muted-foreground font-mono text-left">
                         #{row.course.courseId}
                       </TableCell>
 
                       {/* Course Name */}
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium text-left">
                         {row.course.courseTitle}
                       </TableCell>
 
@@ -283,7 +279,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                       <TableCell>
                         <Badge
                           variant="outline"
-                          className="cursor-pointer hover:bg-primary/10 transition-colors"
+                          className="cursor-pointer hover:bg-primary/10 transition-colors text-left"
                           onClick={() => toggleProgramFilter(row.program.id)}
                         >
                           {row.program.programName}
@@ -291,22 +287,22 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                       </TableCell>
 
                       {/* Level */}
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="text-sm text-muted-foreground text-left">
                         {row.course.levelName}
                       </TableCell>
 
                       {/* Type */}
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="text-sm text-muted-foreground text-left">
                         {row.course.trainingTypeName}
                       </TableCell>
 
                       {/* Duration */}
-                      <TableCell className="text-sm text-muted-foreground text-right">
+                      <TableCell className="text-sm text-muted-foreground text-left">
                         {row.course.totalDays} days
                       </TableCell>
 
                       {/* Status Badge */}
-                      <TableCell className="text-center">
+                      <TableCell className="text-center text-left">
                         <Badge className={getStatusClassName(row.status)}>
                           {row.status}
                         </Badge>

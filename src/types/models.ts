@@ -105,6 +105,28 @@ export interface Testimonial {
   }[];
 }
 
+export interface DashboardMetrics {
+  totalStudents: number;
+  pendingInvites: number;
+  enrolledStudents: number;
+  programsCreated: number;
+}
+
+interface HydratedProgram {
+  program: SupervisorProgram;
+  courses: CourseCatalogItem[];
+  enrollments: CourseEnrollment[];
+}
+
+export interface StudentMetrics {
+  statusNotEnrolled: number;
+  statusIncomplete: number;
+  statusCompleted: number;
+  totalCourses: number; // statusCompleted + statusIncomplete + statusNotEnrolled
+  completionPercentage: number; // (statusCompleted / totalCourses) * 100
+  programsAssigned: number;
+}
+
 export type CourseStatus = "Completed" | "Incomplete" | "Not Enrolled";
 
 export interface CourseRow {
@@ -112,4 +134,8 @@ export interface CourseRow {
   program: SupervisorProgram;
   enrollment?: CourseEnrollment;
   status: CourseStatus;
+}
+
+interface StudentProgressViewProps {
+  studentId: string | number;
 }

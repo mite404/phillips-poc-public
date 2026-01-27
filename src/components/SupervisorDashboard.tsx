@@ -5,15 +5,13 @@ import { Skeleton } from "./ui/skeleton";
 import { localApi } from "@/api/localRoutes";
 import { legacyApi } from "@/api/legacyRoutes";
 import { Users, FileText, UserCheck, CheckCircle, Plus } from "lucide-react";
+import type { DashboardMetrics } from "@/types/models";
 
-interface DashboardMetrics {
-  totalStudents: number;
-  pendingInvites: number;
-  enrolledStudents: number;
-  programsCreated: number;
-}
-
-export function SupervisorDashboard({ onNavigate }: { onNavigate: (view: string) => void }) {
+export function SupervisorDashboard({
+  onNavigate,
+}: {
+  onNavigate: (view: string) => void;
+}) {
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     totalStudents: 0,
     pendingInvites: 0,
@@ -42,17 +40,17 @@ export function SupervisorDashboard({ onNavigate }: { onNavigate: (view: string)
       const totalStudents = roster.length;
 
       // Pending invites: students with assignments but no enrollments
-      const studentsWithAssignments = new Set(assignments.map(a => a.learnerId));
-      const studentsWithEnrollments = new Set(enrollments.map(e => e.learnerId));
+      const studentsWithAssignments = new Set(assignments.map((a) => a.learnerId));
+      const studentsWithEnrollments = new Set(enrollments.map((e) => e.learnerId));
       const pendingInvites = Array.from(studentsWithAssignments).filter(
-        id => !studentsWithEnrollments.has(id)
+        (id) => !studentsWithEnrollments.has(id),
       ).length;
 
       // Enrolled students: unique students with at least one enrollment
       const enrolledStudents = studentsWithEnrollments.size;
 
       // Programs created (published only)
-      const programsCreated = programs.filter(p => p.published).length;
+      const programsCreated = programs.filter((p) => p.published).length;
 
       setMetrics({
         totalStudents,
@@ -72,11 +70,7 @@ export function SupervisorDashboard({ onNavigate }: { onNavigate: (view: string)
       {/* Page Header */}
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-4xl font-bold text-foreground">Supervisor Dashboard</h1>
-        <Button
-          size="lg"
-          onClick={() => onNavigate("builder")}
-          className="gap-2"
-        >
+        <Button size="lg" onClick={() => onNavigate("builder")} className="gap-2">
           <Plus className="h-5 w-5" />
           Create Program
         </Button>
