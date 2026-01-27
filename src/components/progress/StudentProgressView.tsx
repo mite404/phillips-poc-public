@@ -276,7 +276,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                       </TableCell>
 
                       {/* Program Badge (clickable sort) */}
-                      <TableCell>
+                      <TableCell className="text-left">
                         <Badge
                           variant="outline"
                           className="cursor-pointer hover:bg-primary/10 transition-colors text-left"
