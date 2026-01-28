@@ -1,6 +1,6 @@
 # SPEC.md - Project Specification
 
-**Last Updated**: 2025-12-16
+**Last Updated**: 2026-01-27
 
 ## Project Overview
 
@@ -11,6 +11,7 @@ Phillips Education POC is a React + TypeScript + Vite application for managing e
 - **Program Discovery**: Browse and filter programs from Phillips X PIMS staging API
 - **Program Management**: Create custom programs with course sequences, manage builder workbench
 - **Student Roster Management**: Manage student assignments, track progress, handle enrollments
+- **Student Progress Tracking**: Table-based view of student course progress with program filtering and metrics
 - **Responsive UI**: Built with shadcn/ui components and Tailwind CSS v4
 
 ## Recent Changes
@@ -20,6 +21,7 @@ Phillips Education POC is a React + TypeScript + Vite application for managing e
 **Objective**: Modernize course detail display with improved information hierarchy and responsive 2-column design.
 
 **Changes**:
+
 - Converted vertical CardHeader/CardContent/CardFooter layout to responsive 2-column grid
 - Left column (7 cols): Metadata grid (2x2) displaying Course ID, Level, Type, Duration; Full course description
 - Right column (5 cols): Skills display with styled badges; Testimonials section with scrollable card deck
@@ -35,11 +37,11 @@ Phillips Education POC is a React + TypeScript + Vite application for managing e
 **Objective**: Implement consistent horizontal "flight ticket" style cards for course display across ProgramManager and ProgramBuilder, improving visual consistency and space efficiency.
 
 **Changes**:
+
 - **ProgramManager Course Cards**: Refactored from simple div rows to wide horizontal Card components
   - Layout: Sequence badge → Thumbnail image (24×16) → Course title + badges + duration → Level/ID badges
   - Column split adjusted from 50:40 to 50:50 for balanced layout
   - Cards use flex row layout with hover shadow transition
-  
 - **ProgramBuilder Catalog Cards**: Created inline horizontal Card layout (not using CourseCard component)
   - Layout: Course image (20×14) → Title + badges + metadata → Add button (right-aligned)
   - Column split adjusted from 60:40 to 50:50
@@ -63,6 +65,7 @@ Phillips Education POC is a React + TypeScript + Vite application for managing e
 **Objective**: Prevent duplicate program cards when students have multiple assignments to the same program.
 
 **Changes**:
+
 - Added deduplication logic using `reduce()` in StudentProgressView
 - Filter assignments by unique `programId` before rendering progress cards
 - Implemented same deduplication pattern in StudentDashboard for consistency
@@ -72,9 +75,31 @@ Phillips Education POC is a React + TypeScript + Vite application for managing e
 
 ---
 
+### PR #42: StudentProgressView Table Redesign & Metrics
+
+**Objective**: Redesign StudentProgressView from hierarchical card layout to flat table layout with progress metrics and program filtering.
+
+**Changes**:
+
+- **Data Structure**: Flattened hierarchical HydratedProgram[] to CourseRow[] for table rendering
+- **Metrics System**: Added StudentMetrics interface with 6 calculated fields (status counts, total, completion %, programs assigned)
+- **Summary Cards**: Extracted MetricCard to reusable component; renders 6 metric cards above table
+- **Table Layout**: Replaced card-based display with 7-column table (Course ID, Name, Program, Level, Type, Duration, Status)
+- **Program Filtering**: Clickable program badges toggle filter state; selected programs highlighted
+- **Clear Filters**: Button appears when filters active; resets selectedPrograms state
+- **Status Styling**: Context-aware badge colors (green/yellow/slate) via getStatusClassName helper
+- **Responsive Design**: Horizontal scroll wrapper for mobile; grid adapts to screen size
+
+**Components Updated**: `src/components/progress/StudentProgressView.tsx`, `src/components/MetricCard.tsx` (new)
+
+**Types Added**: `StudentMetrics`, `StudentProgressViewProps`, updated `CourseRow` interface
+
+---
+
 ## Component Architecture
 
 **Container Components**:
+
 - `ProgramList`: Fetches and displays programs from legacy API
 - `ProgramManager`: Manages custom programs with course sequence editor
 - `ProgramBuilder`: Allows creation/editing of program course sequences
@@ -82,12 +107,14 @@ Phillips Education POC is a React + TypeScript + Vite application for managing e
 - `RosterList`: Displays student roster with status management
 
 **Presentational Components**:
+
 - `ProgramCard`: Individual program card display
 - `CourseCard`: Flexible course display with variant system (default/workbench)
 - `ProgramProgressCard`: Course progress visualization
 - `StudentProgressView`: Student assignment and progress tracking
 
 **UI Primitives** (shadcn/ui):
+
 - Card, Badge, Button, Input, Textarea, ScrollArea, Dialog, Accordion, Table
 
 ## Data Flow

@@ -374,9 +374,7 @@ const toggleFilter = (id: string) => {
 };
 
 const filtered =
-  selectedFilters.length > 0
-    ? items.filter((item) => selectedFilters.includes(item.id))
-    : items;
+  selectedFilters.length > 0 ? items.filter((item) => selectedFilters.includes(item.id)) : items;
 ```
 
 Use when: Building interactive filter/tag systems.
@@ -400,11 +398,9 @@ How do you combine them so ALL filters must pass (AND logic)?
 ```typescript
 // Each filter is independent - can be on or off
 const filteredCourses = flatCourses.filter((row) => {
-  const matchesProgram =
-    selectedPrograms.length === 0 || selectedPrograms.includes(row.program.id);
+  const matchesProgram = selectedPrograms.length === 0 || selectedPrograms.includes(row.program.id);
 
-  const matchesStatus =
-    selectedStatuses.length === 0 || selectedStatuses.includes(row.status);
+  const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(row.status);
 
   const matchesSearchText = matchesSearch(row, searchText);
 
@@ -579,6 +575,258 @@ setSelectedPrograms([])
 ↓
 Shows all courses again
 ```
+
+---
+
+## New Session: MetricCard, StudentMetrics, and Type Organization (2026-01-27)
+
+### Decision 9: Extracting Reusable Component Patterns
+
+**The Challenge:** SupervisorDashboard had a `MetricCard` component that was really useful, but it was defined locally inside the component file. StudentProgressView needs the same pattern for summary stats cards.
+
+**The Solution:** Extract it to `src/components/MetricCard.tsx` as a standalone, reusable component.
+
+**Why it matters:**
+
+- **DRY Principle:** Don't repeat component code across files
+- **Reusability:** Any view that needs metric display can import it
+- **Maintainability:** Bug fixes or styling changes happen in one place
+
+**Pattern:**
+
+```typescript
+// Before: Local definition in SupervisorDashboard.tsx
+function MetricCard({ title, value, icon, isLoading, highlight = false }: {
+  title: string;
+  value: number;
+  icon: React.ReactNode;
+  isLoading: boolean;
+  highlight?: boolean;
+}) { ... }
+
+// After: Extract to MetricCard.tsx
+interface MetricCardProps {
+  title: string;
+  value: number;
+  icon: React.ReactNode;
+  isLoading: boolean;
+  highlight?: boolean;
+}
+
+export function MetricCard(props: MetricCardProps) { ... }
+```
+
+**The Lesson:** When a component is useful in one place, it's probably useful elsewhere. Extract early rather than duplicating later.
+
+### Decision 10: Designing StudentMetrics Interface
+
+**The Challenge:** You need to show at-a-glance metrics about a student's progress. What should you track?
+
+**Initial Thought:** Just the status breakdown (completed, incomplete, not enrolled).
+
+**Better Approach:** Add derived metrics that provide context:
+
+```typescript
+export interface StudentMetrics {
+  statusCompleted: number; // Raw count
+  statusIncomplete: number; // Raw count
+  statusNotEnrolled: number; // Raw count
+  totalCourses: number; // Context: denominator
+  completionPercentage: number; // Context: readable progress
+  programsAssigned: number; // Context: workload distribution
+}
+```
+
+**Why each field:**
+
+- **Status breakdown:** Supervisors want to know what students are doing
+- **Total courses:** Shows proportion (5 completed out of 20 is very different from 5 out of 5)
+- **Completion %:** Immediate visual understanding of progress (easy to remember "60% done")
+- **Programs assigned:** Reveals workload distribution (3 programs vs. 1 program matters)
+
+**Key insight:** Raw numbers are useless without context. Always include the denominator and a human-readable percentage.
+
+### Decision 11: Separating Data Fetching and Metric Calculation
+
+**The Challenge:** Your StudentProgressView does a lot:
+
+1. Fetches data from multiple APIs
+2. Hydrates programs with course data
+3. Flattens hierarchical data
+4. Calculates metrics from flat data
+
+Should all this happen in one `useEffect`?
+
+**The Solution:** Use two `useEffect` hooks:
+
+```typescript
+// First useEffect: Fetch & hydrate data only
+useEffect(() => {
+  // Fetch roster, assignments, enrollments, programs, catalog
+  // Hydrate programs with courses
+  // Flatten to flatCourses
+  setFlatCourses(flatCourses);
+}, [studentId]); // ← Refetch when student changes
+
+// Second useEffect: Calculate metrics from flat data
+useEffect(() => {
+  if (flatCourses.length === 0) return;
+
+  const metrics = {
+    /* calculate from flatCourses */
+  };
+  setMetrics(metrics);
+}, [flatCourses]); // ← Recalculate when courses change
+```
+
+**Why this matters:**
+
+- **Single Responsibility:** Each hook does one thing
+- **Independent Updates:** If flatCourses change, metrics recalculate automatically
+- **Easier Debugging:** When metrics are wrong, you know it's the second hook
+- **Performance:** Doesn't re-fetch data when just recalculating metrics
+
+**Key insight:** useEffect should have a single, clear purpose. If you're mixing concerns, split into multiple hooks.
+
+### Decision 12: Understanding Completion Percentage Calculation
+
+**The Formula:**
+
+```
+Completion % = (Completed Courses / Total Courses) × 100
+```
+
+**Why this formula (not the others)?**
+
+Three possible approaches:
+
+1. **Completion % = Completed / Total** ← This one ✓
+   - Shows: "Of all assigned work, X% is done"
+   - Best for: Supervisors tracking overall progress
+2. **Progress % = (Completed + Incomplete) / Total**
+   - Shows: "X% of students are actively working"
+   - Best for: Identifying who's engaged vs. idle
+3. **Completion Rate = Completed / (Completed + Incomplete)**
+   - Shows: "Of courses students started, X% are finished"
+   - Best for: Tracking course completion velocity
+
+**For StudentProgressView, option 1 is right because:**
+
+- Supervisors care: "Is this student progressing overall?"
+- Not Enrolled courses are incomplete work (can't ignore them)
+- Simple to explain: "60% complete" means 60% of work is done
+
+**Implementation:**
+
+```typescript
+completionPercentage: (flatCourses.filter((course) => course.status === "Completed").length /
+  flatCourses.length) *
+  100;
+```
+
+**Key insight:** Choose the metric that answers the business question. Different metrics tell different stories.
+
+### Decision 13: Using Set for Unique Count
+
+**The Challenge:** You have courses from multiple programs. How do you count "how many programs does this student have?"
+
+**Naïve approach:**
+
+```typescript
+hydratedPrograms.length; // ❌ Already counted earlier, no longer current
+```
+
+**Better approach:**
+
+```typescript
+new Set(flatCourses.map((course) => course.program.id)).size;
+```
+
+**How it works:**
+
+```
+Input:  [
+  { program.id: "prog_1" },
+  { program.id: "prog_1" },  ← Duplicate
+  { program.id: "prog_2" },
+  { program.id: "prog_1" },  ← Another duplicate
+]
+
+Step 1: Map to IDs
+  ["prog_1", "prog_1", "prog_2", "prog_1"]
+
+Step 2: Create Set (auto-deduplicates)
+  Set { "prog_1", "prog_2" }
+
+Step 3: Get size
+  2 ← Answer!
+```
+
+**Why Set:**
+
+- **Automatic deduplication:** Doesn't count the same ID twice
+- **Performant:** Set lookup is O(1) not O(n)
+- **Semantic:** Code says what it means: "unique programs"
+
+**When to use Set:**
+
+- Counting unique items from a list
+- Removing duplicates
+- Checking membership in a collection
+
+**When NOT to use Set:**
+
+- If you need to preserve order (Set doesn't)
+- If you need random access by index
+
+**Key insight:** Choose the right data structure for the problem. Set is built for uniqueness.
+
+### Decision 14: Type Organization and Imports
+
+**The Challenge:** You have `DashboardMetrics` defined locally in SupervisorDashboard, but also exist in models.ts. That's duplication.
+
+**The Solution:** Define types once in `src/types/models.ts`, import everywhere needed.
+
+```typescript
+// ❌ Before: Local definition
+// src/components/SupervisorDashboard.tsx
+interface DashboardMetrics {
+  totalStudents: number;
+  // ...
+}
+
+// ✅ After: Single source of truth
+// src/types/models.ts
+export interface DashboardMetrics {
+  totalStudents: number;
+  // ...
+}
+
+// src/components/SupervisorDashboard.tsx
+import type { DashboardMetrics } from "@/types/models";
+```
+
+**Why it matters:**
+
+- **Single Source of Truth:** One definition that all files use
+- **Type Safety:** When the interface changes, TypeScript catches all usage sites
+- **Discoverability:** New developers find types in models.ts, not scattered everywhere
+
+**File Organization Pattern:**
+
+```
+src/
+├── types/
+│   └── models.ts          ← All interfaces go here
+├── components/
+│   ├── MetricCard.tsx     ← Import from models.ts
+│   ├── SupervisorDashboard.tsx
+│   └── progress/
+│       └── StudentProgressView.tsx
+└── api/
+```
+
+**Key insight:** Types are the contract between your data and your UI. They belong in a centralized location, not scattered in component files.
 
 ---
 
