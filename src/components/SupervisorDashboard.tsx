@@ -1,17 +1,11 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Skeleton } from "./ui/skeleton";
+import { MetricCard } from "./MetricCard";
 import { localApi } from "@/api/localRoutes";
 import { legacyApi } from "@/api/legacyRoutes";
 import { Users, FileText, UserCheck, CheckCircle, Plus } from "lucide-react";
-
-interface DashboardMetrics {
-  totalStudents: number;
-  pendingInvites: number;
-  enrolledStudents: number;
-  programsCreated: number;
-}
+import type { DashboardMetrics } from "@/types/models";
 
 export function SupervisorDashboard({ onNavigate }: { onNavigate: (view: string) => void }) {
   const [metrics, setMetrics] = useState<DashboardMetrics>({
@@ -42,17 +36,17 @@ export function SupervisorDashboard({ onNavigate }: { onNavigate: (view: string)
       const totalStudents = roster.length;
 
       // Pending invites: students with assignments but no enrollments
-      const studentsWithAssignments = new Set(assignments.map(a => a.learnerId));
-      const studentsWithEnrollments = new Set(enrollments.map(e => e.learnerId));
+      const studentsWithAssignments = new Set(assignments.map((a) => a.learnerId));
+      const studentsWithEnrollments = new Set(enrollments.map((e) => e.learnerId));
       const pendingInvites = Array.from(studentsWithAssignments).filter(
-        id => !studentsWithEnrollments.has(id)
+        (id) => !studentsWithEnrollments.has(id),
       ).length;
 
       // Enrolled students: unique students with at least one enrollment
       const enrolledStudents = studentsWithEnrollments.size;
 
       // Programs created (published only)
-      const programsCreated = programs.filter(p => p.published).length;
+      const programsCreated = programs.filter((p) => p.published).length;
 
       setMetrics({
         totalStudents,
@@ -72,11 +66,7 @@ export function SupervisorDashboard({ onNavigate }: { onNavigate: (view: string)
       {/* Page Header */}
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-4xl font-bold text-foreground">Supervisor Dashboard</h1>
-        <Button
-          size="lg"
-          onClick={() => onNavigate("builder")}
-          className="gap-2"
-        >
+        <Button size="lg" onClick={() => onNavigate("builder")} className="gap-2">
           <Plus className="h-5 w-5" />
           Create Program
         </Button>
@@ -129,38 +119,5 @@ export function SupervisorDashboard({ onNavigate }: { onNavigate: (view: string)
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-// Helper component for metric cards
-function MetricCard({
-  title,
-  value,
-  icon,
-  isLoading,
-  highlight = false,
-}: {
-  title: string;
-  value: number;
-  icon: React.ReactNode;
-  isLoading: boolean;
-  highlight?: boolean;
-}) {
-  return (
-    <Card className={highlight ? "border-primary" : ""}>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
-        {icon}
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <Skeleton className="h-8 w-16" />
-        ) : (
-          <div className="text-3xl font-bold">{value}</div>
-        )}
-      </CardContent>
-    </Card>
   );
 }
