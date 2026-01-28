@@ -1,13 +1,23 @@
 # Project Specification & Prompt Context
 
-> **Last Updated:** 2025-12-17
-> **Project Status:** COMPLETE (v2.0 - UI Modernized & Polished)
+> **Last Updated**: 2026-01-27
+> **Project Status: Phase 2: UI Modernization (Refactor Sprint Update shadcn Look) - IN PROGRESS**
 
 ## 📌 Global Context (Paste at start of every session)
 
 **Project:** Phillips Education POC (Supervisor Program Builder)
 
-**Phase:** **Phase 2: UI Modernization (Refactor Sprint) - COMPLETE**
+## Project Overview
+
+Phillips Education POC is a React + TypeScript + Vite application for managing educational programs. The application integrates with the legacy Phillips API for program catalogs and uses a local JSON server for mock data management.
+
+## Core Features
+
+- **Program Discovery**: Browse and filter programs from Phillips X PIMS staging API
+- **Program Management**: Create custom programs with course sequences, manage builder workbench
+- **Student Roster Management**: Manage student assignments, track progress, handle enrollments
+- **Student Progress Tracking**: Table-based view of student course progress with program filtering and metrics
+- **Responsive UI**: Built with shadcn/ui components and Tailwind CSS v4
 
 **Goal:** Replace "Bare-bones" HTML/Tailwind with professional `shadcn/ui` components without breaking business logic.
 
@@ -815,3 +825,185 @@ https://phillipsx-pims-stage.azurewebsites.net/api
 - **StudentDashboard duplicate filtering (lines 66-79):** Uses `reduce()` to deduplicate assignments by `programId`, keeping only the first assignment per program. This prevents duplicate accordion items for students with multiple assignments to the same program.
 - **Radix UI Accordion usage:** Direct import from `@radix-ui/react-accordion` instead of shadcn/ui wrapper provides full control over accordion behavior with clean, semantic JSX.
 - **Table component benefits:** Automatic cell alignment, consistent border rendering, responsive design, and semantic HTML structure (`<table>`, `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>`).
+
+---
+
+## Recent Changes
+
+### PR #39: Refactor CourseDetailModal Layout
+
+**Objective**: Modernize course detail display with improved information hierarchy and responsive 2-column design.
+
+**Changes**:
+
+- Converted vertical CardHeader/CardContent/CardFooter layout to responsive 2-column grid
+- Left column (7 cols): Metadata grid (2x2) displaying Course ID, Level, Type, Duration; Full course description
+- Right column (5 cols): Skills display with styled badges; Testimonials section with scrollable card deck
+- Updated button styling to use shadcn Button component with `variant="outline"`
+- Maintained `onBookClick` logic for ILT course detail interactions
+
+**Components Updated**: `src/components/common/CourseDetailModal.tsx`
+
+---
+
+### PR #40: Horizontal Course Card Redesign
+
+**Objective**: Implement consistent horizontal "flight ticket" style cards for course display across ProgramManager and ProgramBuilder, improving visual consistency and space efficiency.
+
+**Changes**:
+
+- **ProgramManager Course Cards**: Refactored from simple div rows to wide horizontal Card components
+  - Layout: Sequence badge → Thumbnail image (24×16) → Course title + badges + duration → Level/ID badges
+  - Column split adjusted from 50:40 to 50:50 for balanced layout
+  - Cards use flex row layout with hover shadow transition
+- **ProgramBuilder Catalog Cards**: Created inline horizontal Card layout (not using CourseCard component)
+  - Layout: Course image (20×14) → Title + badges + metadata → Add button (right-aligned)
+  - Column split adjusted from 60:40 to 50:50
+  - Maintains consistent styling with ProgramManager cards
+
+- **CourseCard Component Enhancement**: Added `variant` prop system
+  - `variant="default"`: Original vertical CardHeader/CardContent/CardFooter layout
+  - `variant="workbench"`: Optimized for Workbench display with drag handle integration
+  - Workbench layout: Title (centered bold) → Drag handle + badges + duration → Remove button
+
+- **SortableCourseItem Refactor**: Switched from wrapper div approach to cloneElement-based prop injection
+  - Drag handle button with GripVertical icon passed via props to child CourseCard
+  - Maintains dnd-kit opacity and transform styling for drag feedback
+
+**Components Updated**: `src/components/ProgramManager.tsx`, `src/components/ProgramBuilder.tsx`, `src/components/common/CourseCard.tsx`, `src/components/SortableCourseItem.tsx`
+
+---
+
+### PR #41: Deduplicate Student Assignments
+
+**Objective**: Prevent duplicate program cards when students have multiple assignments to the same program.
+
+**Changes**:
+
+- Added deduplication logic using `reduce()` in StudentProgressView
+- Filter assignments by unique `programId` before rendering progress cards
+- Implemented same deduplication pattern in StudentDashboard for consistency
+- Maintains all assignment data while eliminating duplicate program displays
+
+**Components Updated**: `src/components/progress/StudentProgressView.tsx`, `src/components/student/StudentDashboard.tsx`
+
+---
+
+### PR #42: StudentProgressView Table Redesign & Metrics
+
+**Objective**: Redesign StudentProgressView from hierarchical card layout to flat table layout with progress metrics and program filtering.
+
+**Changes**:
+
+- **Data Structure**: Flattened hierarchical HydratedProgram[] to CourseRow[] for table rendering
+- **Metrics System**: Added StudentMetrics interface with 6 calculated fields (status counts, total, completion %, programs assigned)
+- **Summary Cards**: Extracted MetricCard to reusable component; renders 6 metric cards above table
+- **Table Layout**: Replaced card-based display with 7-column table (Course ID, Name, Program, Level, Type, Duration, Status)
+- **Program Filtering**: Clickable program badges toggle filter state; selected programs highlighted
+- **Clear Filters**: Button appears when filters active; resets selectedPrograms state
+- **Status Styling**: Context-aware badge colors (green/yellow/slate) via getStatusClassName helper
+- **Responsive Design**: Horizontal scroll wrapper for mobile; grid adapts to screen size
+
+**Components Updated**: `src/components/progress/StudentProgressView.tsx`, `src/components/MetricCard.tsx` (new)
+
+**Types Added**: `StudentMetrics`, `StudentProgressViewProps`, updated `CourseRow` interface
+
+---
+
+### PR #43: Advanced Filtering Logic
+
+**Objective**: Introduce text search and enrollment status filtering to the Student Progress View table with AND logic combination.
+
+**Changes**:
+
+- Added `searchText` and `selectedStatuses` state to StudentProgressView
+- Implemented `matchesSearch()` helper function to search across course and program fields
+- Updated `filteredCourses` logic to combine program filter + status filter + text search using AND logic
+- Supports three status types: Completed, Incomplete, Not Enrolled
+- Existing program filter behavior remains unchanged
+
+**Components Updated**: `src/components/progress/StudentProgressView.tsx`
+
+**Scope**: Filter behavior only; no UI components
+
+---
+
+### PR #44: Advanced Filter UI
+
+**Objective**: Add filter bar UI above the course table for text search and status filtering.
+
+**Changes**:
+
+- Added filter bar component above table with:
+  - Text search input for real-time filtering
+  - Status dropdown with multi-select checkboxes
+  - Active status count badge on status button
+  - "Clear All" action to reset all filters
+- Maintained sharp corner styling (Lyra theme)
+- Filter bar layout preserves table alignment
+- Supports real-time filtering as user types/selects
+
+**Components Updated**: `src/components/progress/StudentProgressView.tsx`
+
+**Scope**: UI layer only; filter logic implemented in PR #43
+
+---
+
+### PR #45: Filter-Aware Empty States
+
+**Objective**: Improve table empty state messaging based on filter status.
+
+**Changes**:
+
+- Added context-aware empty state messages:
+  - When filters active and no results: "No courses match your filters"
+  - When no filters active and no courses: "No courses assigned"
+- Verified spacing and alignment with filter bar
+- No regressions in table rendering
+
+**Components Updated**: `src/components/progress/StudentProgressView.tsx`
+
+**Scope**: Empty state messaging only
+
+---
+
+## Component Architecture
+
+**Container Components**:
+
+- `ProgramList`: Fetches and displays programs from legacy API
+- `ProgramManager`: Manages custom programs with course sequence editor
+- `ProgramBuilder`: Allows creation/editing of program course sequences
+- `StudentDashboard`: Displays student's enrolled programs and progress
+- `RosterList`: Displays student roster with status management
+
+**Presentational Components**:
+
+- `ProgramCard`: Individual program card display
+- `CourseCard`: Flexible course display with variant system (default/workbench)
+- `ProgramProgressCard`: Course progress visualization
+- `StudentProgressView`: Student assignment and progress tracking
+
+**UI Primitives** (shadcn/ui):
+
+- Card, Badge, Button, Input, Textarea, ScrollArea, Dialog, Accordion, Table
+
+## Data Flow
+
+1. **Program Discovery**: ProgramList → Legacy API → Program grid display
+2. **Custom Programs**: ProgramBuilder → json-server → Custom program storage
+3. **Student Progress**: StudentDashboard → Assignments from json-server → Deduped progress view
+4. **Course Management**: ProgramManager → Course sequence editor → Workbench with drag/drop
+
+## Styling System
+
+- **Tailwind CSS v4** with @tailwindcss/vite plugin
+- **Brand Colors** (CSS custom properties in src/index.css):
+  - `--phillips-blue`: #005596
+  - `--phillips-red`: #D31245
+- **Dark Mode**: Configured with custom variant in Tailwind config
+- **shadcn/ui**: New York style with Lucide icons
+
+---
+
+**Status**: ✅ Actively maintained
