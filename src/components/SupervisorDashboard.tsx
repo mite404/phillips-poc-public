@@ -1,17 +1,13 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Skeleton } from "./ui/skeleton";
+import { MetricCard } from "./MetricCard";
 import { localApi } from "@/api/localRoutes";
 import { legacyApi } from "@/api/legacyRoutes";
 import { Users, FileText, UserCheck, CheckCircle, Plus } from "lucide-react";
 import type { DashboardMetrics } from "@/types/models";
 
-export function SupervisorDashboard({
-  onNavigate,
-}: {
-  onNavigate: (view: string) => void;
-}) {
+export function SupervisorDashboard({ onNavigate }: { onNavigate: (view: string) => void }) {
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     totalStudents: 0,
     pendingInvites: 0,
@@ -123,38 +119,5 @@ export function SupervisorDashboard({
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-// Helper component for metric cards
-function MetricCard({
-  title,
-  value,
-  icon,
-  isLoading,
-  highlight = false,
-}: {
-  title: string;
-  value: number;
-  icon: React.ReactNode;
-  isLoading: boolean;
-  highlight?: boolean;
-}) {
-  return (
-    <Card className={highlight ? "border-primary" : ""}>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
-        {icon}
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <Skeleton className="h-8 w-16" />
-        ) : (
-          <div className="text-3xl font-bold">{value}</div>
-        )}
-      </CardContent>
-    </Card>
   );
 }

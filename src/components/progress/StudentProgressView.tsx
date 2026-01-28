@@ -1,16 +1,9 @@
 // VIEW: Supervisor Persona. Read-only progress tracker for direct reports.
 
-import { useState, useEffect } from "react";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
-import type {
-  LearnerProfile,
-  CourseEnrollment,
-  SupervisorProgram,
-  CourseCatalogItem,
-  CourseRow,
-  CourseStatus,
-} from "@/types/models";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -19,15 +12,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
-
+import { MetricCard } from "../MetricCard";
 import type {
-  StudentMetrics,
+  CourseCatalogItem,
+  CourseRow,
+  CourseStatus,
+  LearnerProfile,
+  SupervisorProgram,
   HydratedProgram,
+  StudentMetrics,
   StudentProgressViewProps,
 } from "@/types/models";
+import { CheckCircle, FileText, UserCheck, Users, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   const [student, setStudent] = useState<LearnerProfile | null>(null);
@@ -36,7 +33,16 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedPrograms, setSelectedPrograms] = useState<Array<string>>([]);
   const [flatCourses, setFlatCourses] = useState<Array<CourseRow>>([]);
+  const [metrics, setMetrics] = useState<StudentMetrics>({
+    statusCompleted: 0,
+    statusIncomplete: 0,
+    statusNotEnrolled: 0,
+    totalCourses: 0,
+    completionPercentage: 0,
+    programsAssigned: 0,
+  });
 
+  // TODO: make this only fetch & hydrate data
   useEffect(() => {
     async function fetchData() {
       try {
@@ -44,19 +50,17 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
         setError(null);
 
         // Step 1: Fetch all data in parallel
-        const [roster, assignments, enrollments, allPrograms, catalog] =
-          await Promise.all([
-            legacyApi.getRoster(),
-            localApi.getAssignments(),
-            localApi.getEnrollments(),
-            fetchAllPrograms(),
-            legacyApi.getCatalog(),
-          ]);
+        const [roster, assignments, enrollments, allPrograms, catalog] = await Promise.all([
+          legacyApi.getRoster(),
+          localApi.getAssignments(),
+          localApi.getEnrollments(),
+          fetchAllPrograms(),
+          legacyApi.getCatalog(),
+        ]);
 
         // Step 2: Find the student
         const foundStudent = roster.find(
-          (s) =>
-            s.learnerId === String(studentId) || s.learner_Data_Id === Number(studentId),
+          (s) => s.learnerId === String(studentId) || s.learner_Data_Id === Number(studentId),
         );
 
         if (!foundStudent) {
@@ -66,7 +70,6 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
         }
 
         // console.log("foundStudent:", foundStudent);
-
         setStudent(foundStudent);
 
         // Step 3: Filter assignments for this student
@@ -151,6 +154,25 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     fetchData();
   }, [studentId]);
 
+  // TODO: second useEffect - calculate metrics from flat data
+  useEffect(() => {
+    if (flatCourses.length === 0) return;
+
+    const metrics: StudentMetrics = {
+      statusCompleted: flatCourses.filter((course) => course.status === "Completed").length,
+      statusIncomplete: flatCourses.filter((course) => course.status === "Incomplete").length,
+      statusNotEnrolled: flatCourses.filter((course) => course.status === "Not Enrolled").length,
+      totalCourses: flatCourses.length, // statusCompleted + statusIncomplete + statusNotEnrolled
+      completionPercentage:
+        (flatCourses.filter((course) => course.status === "Completed").length /
+          flatCourses.length) *
+        100, // (statusCompleted / totalCourses) * 100
+      programsAssigned: new Set(flatCourses.map((course) => course.program.id)).size,
+    };
+
+    setMetrics(metrics);
+  }, [flatCourses]);
+
   const filteredCourses =
     selectedPrograms.length > 0
       ? flatCourses.filter((row) => selectedPrograms.includes(row.program.id))
@@ -185,7 +207,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     );
   }
 
-  // const clearFilters = () => setSelectedPrograms([]);
+  const clearFilters = () => setSelectedPrograms([]);
 
   // Loading state
   if (isLoading) {
@@ -236,6 +258,55 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
           {student?.learnerName}'s Progress
         </h2>
 
+        {/* summary cards */}
+        <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-4 gap-4 mb-8">
+          {/* summary cards */}
+          <MetricCard
+            title="Courses Not Enrolled"
+            value={metrics.statusNotEnrolled}
+            icon={<CheckCircle className="h-5 w-5 text-muted-foreground" />}
+            isLoading={isLoading}
+            highlight={metrics.statusNotEnrolled > 0}
+          />
+          <MetricCard
+            title="Courses Completed"
+            value={metrics.statusCompleted}
+            icon={<Users className="h-5 w-5 text-muted-foreground" />}
+            isLoading={isLoading}
+          />
+          <MetricCard
+            title="Courses Incomplete"
+            value={metrics.statusIncomplete}
+            icon={<UserCheck className="h-5 w-5 text-muted-foreground" />}
+            isLoading={isLoading}
+          />
+          <MetricCard
+            title="Total Courses Created"
+            value={metrics.totalCourses}
+            icon={<FileText className="h-5 w-5 text-muted-foreground" />}
+            isLoading={isLoading}
+          />
+          <MetricCard
+            title="Courses Completed"
+            value={metrics.completionPercentage}
+            icon={<FileText className="h-5 w-5 text-muted-foreground" />}
+            isLoading={isLoading}
+          />
+          <MetricCard
+            title="Programs Assigned"
+            value={metrics.programsAssigned}
+            icon={<FileText className="h-5 w-5 text-muted-foreground" />}
+            isLoading={isLoading}
+          />
+        </div>
+
+        {selectedPrograms.length > 0 && (
+          <Button size="sm" onClick={() => clearFilters()} className="gap-2">
+            Clear Filters
+            <X className="h-5 w-5" />
+          </Button>
+        )}
+
         <div className="border border-border rounded-[--radius] overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
@@ -253,10 +324,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
               <TableBody>
                 {filteredCourses.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={7}
-                      className="h-24 text-center text-muted-foreground"
-                    >
+                    <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                       {selectedPrograms.length > 0
                         ? "No courses found in selected programs"
                         : "No courses assigned"}
@@ -266,7 +334,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                   filteredCourses.map((row) => (
                     <TableRow key={`${row.program.id}-${row.course.courseId}`}>
                       {/* Course ID */}
-                      <TableCell className="text-xs text-muted-foreground font-mono text-left">
+                      <TableCell className="text-xs text-muted-foreground font-mono text-right">
                         #{row.course.courseId}
                       </TableCell>
 
@@ -302,10 +370,8 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                       </TableCell>
 
                       {/* Status Badge */}
-                      <TableCell className="text-center text-left">
-                        <Badge className={getStatusClassName(row.status)}>
-                          {row.status}
-                        </Badge>
+                      <TableCell className="text-left">
+                        <Badge className={getStatusClassName(row.status)}>{row.status}</Badge>
                       </TableCell>
                     </TableRow>
                   ))

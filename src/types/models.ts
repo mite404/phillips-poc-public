@@ -112,16 +112,16 @@ export interface DashboardMetrics {
   programsCreated: number;
 }
 
-interface HydratedProgram {
+export interface HydratedProgram {
   program: SupervisorProgram;
   courses: CourseCatalogItem[];
   enrollments: CourseEnrollment[];
 }
 
 export interface StudentMetrics {
-  statusNotEnrolled: number;
-  statusIncomplete: number;
   statusCompleted: number;
+  statusIncomplete: number;
+  statusNotEnrolled: number;
   totalCourses: number; // statusCompleted + statusIncomplete + statusNotEnrolled
   completionPercentage: number; // (statusCompleted / totalCourses) * 100
   programsAssigned: number;
@@ -136,6 +136,6 @@ export interface CourseRow {
   status: CourseStatus;
 }
 
-interface StudentProgressViewProps {
+export interface StudentProgressViewProps {
   studentId: string | number;
 }
