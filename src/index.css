@@ -76,6 +76,50 @@
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
+.dark {
+  /* --- Stone dark palette --- */
+  --background: oklch(0.09 0.002 17.2);
+  --foreground: oklch(0.985 0.001 17.2);
+
+  --card: oklch(0.13 0.003 17.2);
+  --card-foreground: oklch(0.985 0.001 17.2);
+  --card-background: oklch(0.13 0.003 17.2);
+
+  --popover: oklch(0.13 0.003 17.2);
+  --popover-foreground: oklch(0.985 0.001 17.2);
+
+  --primary: #ff5000;
+  --primary-foreground: #ffffff;
+
+  --secondary: oklch(0.18 0.004 17.2);
+  --secondary-foreground: oklch(0.985 0.001 17.2);
+  --secondary-hover: oklch(0.26 0.004 17.2);
+  --button-text: oklch(0.985 0.001 17.2);
+  --text-hover: oklch(0.88 0.003 17.2);
+
+  --muted: oklch(0.18 0.004 17.2);
+  --muted-foreground: oklch(0.64 0.005 17.2);
+
+  --accent: oklch(0.18 0.004 17.2);
+  --accent-foreground: oklch(0.985 0.001 17.2);
+
+  --destructive: #7f1d1d;
+  --destructive-foreground: #ffffff;
+
+  --border: oklch(0.26 0.004 17.2);
+  --input: oklch(0.26 0.004 17.2);
+  --ring: #ff5000;
+
+  --sidebar: oklch(0.13 0.003 17.2);
+  --sidebar-foreground: oklch(0.985 0.001 17.2);
+  --sidebar-primary: #ff5000;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: oklch(0.18 0.004 17.2);
+  --sidebar-accent-foreground: oklch(0.985 0.001 17.2);
+  --sidebar-border: oklch(0.26 0.004 17.2);
+  --sidebar-ring: #ff5000;
+}
+
 /* 3. Global Resets */
 body {
   @apply bg-background text-foreground font-sans antialiased;
