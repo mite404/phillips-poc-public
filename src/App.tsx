@@ -88,8 +88,8 @@ function App() {
           />
           <SidebarInset>
             <SiteHeader lightMode={lightMode} onThemeToggle={handleThemeToggle} />
-            <div className="flex flex-1 overflow-auto">
-              <div className="flex flex-1 max-w-7xl mx-auto w-full">
+            <div className="flex flex-1 min-h-0">
+              <div className="flex flex-1 max-w-7xl mx-auto w-full min-h-0">
                 <PageContent
                   userType={userType}
                   setUserType={handleSetUserType}
