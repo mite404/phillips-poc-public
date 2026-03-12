@@ -26,8 +26,6 @@ import type {
 import {
   CheckCircle,
   FileText,
-  UserCheck,
-  Users,
   X,
   Search,
   ArrowUp,
@@ -408,20 +406,29 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   useEffect(() => {
     if (flatCourses.length === 0) return;
 
+    // Count unique programs from currently filtered courses
+    const filteredCourses = flatCourses.filter((row) => {
+      const matchesLevel =
+        selectedLevels.length === 0 || selectedLevels.includes(row.course.levelName);
+      const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(row.status);
+      const matchesSearchText = matchesSearch(row, searchText);
+      return matchesLevel && matchesStatus && matchesSearchText;
+    });
+
     const metrics: StudentMetrics = {
       statusCompleted: flatCourses.filter((course) => course.status === "Completed").length,
       statusIncomplete: flatCourses.filter((course) => course.status === "Incomplete").length,
       statusNotEnrolled: flatCourses.filter((course) => course.status === "Not Enrolled").length,
-      totalCourses: flatCourses.length, // statusCompleted + statusIncomplete + statusNotEnrolled
+      totalCourses: flatCourses.length,
       completionPercentage:
         (flatCourses.filter((course) => course.status === "Completed").length /
           flatCourses.length) *
-        100, // (statusCompleted / totalCourses) * 100
-      programsAssigned: new Set(flatCourses.map((course) => course.program.id)).size,
+        100,
+      programsAssigned: new Set(filteredCourses.map((course) => course.program.id)).size,
     };
 
     setMetrics(metrics);
-  }, [flatCourses]);
+  }, [flatCourses, selectedLevels, selectedStatuses, searchText]);
 
   useEffect(() => {
     console.log("searchText changed to:", searchText);
@@ -523,7 +530,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   // Loading state
   if (isLoading) {
     return (
-      <div className="h-full p-8">
+      <div className="h-full p-4 @sm:p-6 @lg:p-8">
         <div className="space-y-6">
           <div className="h-8 w-64 bg-slate-200 rounded animate-pulse"></div>
           <div className="space-y-4">
@@ -538,7 +545,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   // Error state
   if (error) {
     return (
-      <div className="h-full p-8">
+      <div className="h-full p-4 @sm:p-6 @lg:p-8">
         <div className="bg-red-50 border border-red-200 rounded-[--radius] p-6">
           <h2 className="text-xl font-semibold text-red-900 mb-2">Error</h2>
           <p className="text-red-700">{error}</p>
@@ -550,7 +557,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   // Empty state (no programs assigned)
   if (hydratedPrograms.length === 0) {
     return (
-      <div className="h-full p-8">
+      <div className="h-full p-4 @sm:p-6 @lg:p-8">
         <h2 className="text-2xl font-bold text-slate-900 mb-4">
           {student?.learnerName}'s Progress
         </h2>
@@ -564,36 +571,16 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   // Main render
   return (
     <>
-      <div className="h-full p-8 overflow-y-auto">
+      <div className="h-full p-4 @sm:p-6 @lg:p-8 overflow-y-auto">
         <h2 className="text-2xl font-bold text-slate-900 mb-6">
           {student?.learnerName}'s Progress
         </h2>
 
         {/* summary cards */}
-        <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-4 gap-4 mb-8">
-          {/* summary cards */}
+        <div className="grid grid-cols-2 @sm:grid-cols-3 @lg:grid-cols-5 gap-4 mb-8">
           <MetricCard
-            title="Courses Not Enrolled"
-            value={metrics.statusNotEnrolled}
-            icon={<CheckCircle className="h-5 w-5 text-muted-foreground" />}
-            isLoading={isLoading}
-            highlight={metrics.statusNotEnrolled > 0}
-          />
-          <MetricCard
-            title="Courses Completed"
-            value={metrics.statusCompleted}
-            icon={<Users className="h-5 w-5 text-muted-foreground" />}
-            isLoading={isLoading}
-          />
-          <MetricCard
-            title="Courses Incomplete"
-            value={metrics.statusIncomplete}
-            icon={<UserCheck className="h-5 w-5 text-muted-foreground" />}
-            isLoading={isLoading}
-          />
-          <MetricCard
-            title="Total Courses Created"
-            value={metrics.totalCourses}
+            title="Programs Assigned"
+            value={metrics.programsAssigned}
             icon={<FileText className="h-5 w-5 text-muted-foreground" />}
             isLoading={isLoading}
           />
@@ -604,16 +591,29 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
             isLoading={isLoading}
           />
           <MetricCard
-            title="Programs Assigned"
-            value={metrics.programsAssigned}
+            title="Courses Not Enrolled"
+            value={metrics.statusNotEnrolled}
+            icon={<CheckCircle className="h-5 w-5 text-muted-foreground" />}
+            isLoading={isLoading}
+            highlight={metrics.statusNotEnrolled > 0}
+          />
+          <MetricCard
+            title="Courses Incomplete"
+            value={metrics.statusIncomplete}
+            icon={<Timer className="h-5 w-5 text-muted-foreground" />}
+            isLoading={isLoading}
+          />
+          <MetricCard
+            title="Total Courses"
+            value={metrics.totalCourses}
             icon={<FileText className="h-5 w-5 text-muted-foreground" />}
             isLoading={isLoading}
           />
         </div>
 
         {/* Filter Toolbar */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="relative flex-1 max-w-sm">
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <div className="relative w-full @sm:flex-1 @sm:max-w-sm">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
               placeholder="Filter courses..."
@@ -664,7 +664,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
         <div className="border border-border rounded-[--radius] overflow-hidden">
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="min-w-[640px]">
               <TableHeader>
                 <TableRow className="bg-muted">
                   {!hiddenCols.has("courseId") && (
@@ -711,9 +711,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                       />
                     </TableHead>
                   )}
-                  {!hiddenCols.has("type") && <TableHead className="w-[12%]">Type</TableHead>}
+                  {!hiddenCols.has("type") && <TableHead className="w-[12%] hidden @sm:table-cell">Type</TableHead>}
                   {!hiddenCols.has("duration") && (
-                    <TableHead className="w-[10%]">Duration</TableHead>
+                    <TableHead className="w-[10%] hidden @sm:table-cell">Duration</TableHead>
                   )}
                   {!hiddenCols.has("status") && (
                     <TableHead className="w-[15%]">
@@ -778,14 +778,14 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
                       {/* Type */}
                       {!hiddenCols.has("type") && (
-                        <TableCell className="text-sm text-muted-foreground text-left">
+                        <TableCell className="text-sm text-muted-foreground text-left hidden @sm:table-cell">
                           {row.course.trainingTypeName}
                         </TableCell>
                       )}
 
                       {/* Duration */}
                       {!hiddenCols.has("duration") && (
-                        <TableCell className="text-sm text-muted-foreground text-left">
+                        <TableCell className="text-sm text-muted-foreground text-left hidden @sm:table-cell">
                           {row.course.totalDays} days
                         </TableCell>
                       )}

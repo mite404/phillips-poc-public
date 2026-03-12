@@ -62,11 +62,11 @@ export function SupervisorDashboard({ onNavigate }: { onNavigate: (view: string)
   }
 
   return (
-    <div className="h-full p-8 overflow-y-auto">
+    <div className="h-full p-4 @sm:p-6 @lg:p-8 overflow-y-auto">
       {/* Page Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-4xl font-bold text-foreground">Supervisor Dashboard</h1>
-        <Button size="lg" onClick={() => onNavigate("builder")} className="gap-2">
+      <div className="mb-8 flex flex-col gap-3 @sm:flex-row @sm:items-center @sm:justify-between">
+        <h1 className="text-2xl font-bold text-foreground @sm:text-3xl @lg:text-4xl">Supervisor Dashboard</h1>
+        <Button size="default" onClick={() => onNavigate("builder")} className="gap-2 w-full @sm:w-auto">
           <Plus className="h-5 w-5" />
           Create Program
         </Button>
@@ -106,7 +106,7 @@ export function SupervisorDashboard({ onNavigate }: { onNavigate: (view: string)
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
         </CardHeader>
-        <CardContent className="flex gap-4">
+        <CardContent className="flex flex-wrap gap-3">
           <Button variant="outline" onClick={() => onNavigate("builder")}>
             Create New Program
           </Button>

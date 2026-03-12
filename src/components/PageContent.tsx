@@ -30,9 +30,9 @@ export function PageContent(props: {
       ["prog_101", "prog_102", "prog_103"].includes(currentView));
 
   return (
-    <main className="flex-1 overflow-hidden flex flex-col w-full">
+    <main className="flex-1 overflow-hidden flex flex-col w-full @container">
       {/* Main Content Area */}
-      <div className="flex-1 overflow-hidden p-8">
+      <div className="flex-1 overflow-hidden">
         {userType === "student" && currentView === "programs" ? (
           <StudentDashboard />
         ) : currentView === "dashboard" ? (
@@ -42,9 +42,7 @@ export function PageContent(props: {
         ) : isProgramView ? (
           <ProgramManager programId={currentView} />
         ) : (
-          <div className="h-full p-8">
-            <ProgramBuilder onProgramSaved={onProgramSaved} />
-          </div>
+          <ProgramBuilder onProgramSaved={onProgramSaved} />
         )}
       </div>
 
