@@ -35,10 +35,11 @@ import {
   ArrowUpDown,
   SlidersHorizontal,
   EyeOff,
+  Timer,
+  HelpCircle,
 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -49,6 +50,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+
+interface FacetOption<T> {
+  value: T;
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+}
 
 function FacetFilter<T extends string>({
   label,
@@ -58,7 +66,7 @@ function FacetFilter<T extends string>({
   onClear,
 }: {
   label: string;
-  options: T[];
+  options: FacetOption<T>[];
   selected: T[];
   onToggle: (value: T) => void;
   onClear: () => void;
@@ -67,35 +75,79 @@ function FacetFilter<T extends string>({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5 h-9 text-sm">
-          + {label}
+        <Button variant="outline" size="sm" className="gap-1.5 h-9 text-sm border-dashed">
+          <span className="mr-1">+ {label}</span>
           {activeCount > 0 && (
-            <span className="ml-0.5 flex h-4 min-w-4 items-center justify-center rounded bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
-              {activeCount}
-            </span>
+            <>
+              <div className="h-4 w-[1px] bg-border" />
+              <Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
+                {activeCount}
+              </Badge>
+              <div className="hidden space-x-1 lg:flex">
+                {activeCount > 2 ? (
+                  <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+                    {activeCount} selected
+                  </Badge>
+                ) : (
+                  options
+                    .filter((option) => selected.includes(option.value))
+                    .map((option) => (
+                      <Badge
+                        variant="secondary"
+                        key={option.value}
+                        className="rounded-sm px-1 font-normal"
+                      >
+                        {option.label}
+                      </Badge>
+                    ))
+                )}
+              </div>
+            </>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-48 p-2 space-y-0.5" align="start">
+      <PopoverContent className="w-[200px] p-0" align="start">
+        <div className="p-1">
+          {options.map((option) => {
+            const isSelected = selected.includes(option.value);
+            return (
+              <div
+                key={option.value}
+                className={cn(
+                  "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                )}
+                onClick={() => onToggle(option.value)}
+              >
+                <div
+                  className={cn(
+                    "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                    isSelected
+                      ? "bg-primary text-primary-foreground"
+                      : "opacity-50 [&_svg]:invisible",
+                  )}
+                >
+                  <CheckCircle className={cn("h-4 w-4")} />
+                </div>
+                {option.icon && <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
+                <span>{option.label}</span>
+              </div>
+            );
+          })}
+        </div>
         {activeCount > 0 && (
-          <button
-            onClick={onClear}
-            className="flex w-full items-center gap-2 rounded px-2 py-1 text-xs text-muted-foreground hover:bg-muted focus-visible:outline-none"
-          >
-            <X className="h-3 w-3" />
-            Clear filter
-          </button>
+          <>
+            <div className="h-[1px] bg-border my-1" />
+            <div className="p-1">
+              <Button
+                variant="ghost"
+                className="w-full justify-center text-center text-sm font-normal"
+                onClick={onClear}
+              >
+                Clear filters
+              </Button>
+            </div>
+          </>
         )}
-        {options.map((opt) => (
-          <button
-            key={opt}
-            onClick={() => onToggle(opt)}
-            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-muted focus-visible:outline-none"
-          >
-            <Checkbox checked={selected.includes(opt)} className="pointer-events-none" />
-            <span>{opt}</span>
-          </button>
-        ))}
       </PopoverContent>
     </Popover>
   );
@@ -454,9 +506,17 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     setSelectedStatuses([]);
   };
 
-  const ALL_STATUSES: CourseStatus[] = ["Completed", "Incomplete", "Not Enrolled"];
-  const allLevels = useMemo(
-    () => [...new Set(flatCourses.map((r) => r.course.levelName).filter(Boolean))].sort(),
+  const statusOptions: FacetOption<CourseStatus>[] = [
+    { label: "Completed", value: "Completed", icon: CheckCircle },
+    { label: "Incomplete", value: "Incomplete", icon: Timer },
+    { label: "Not Enrolled", value: "Not Enrolled", icon: HelpCircle },
+  ];
+
+  const levelOptions: FacetOption<string>[] = useMemo(
+    () =>
+      [...new Set(flatCourses.map((r) => r.course.levelName).filter(Boolean))]
+        .sort()
+        .map((level) => ({ label: level, value: level })),
     [flatCourses],
   );
 
@@ -565,7 +625,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
           <FacetFilter
             label="Status"
-            options={ALL_STATUSES}
+            options={statusOptions}
             selected={selectedStatuses}
             onToggle={(v) =>
               setSelectedStatuses((prev) =>
@@ -577,7 +637,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
           <FacetFilter
             label="Level"
-            options={allLevels}
+            options={levelOptions}
             selected={selectedLevels}
             onToggle={(v) =>
               setSelectedLevels((prev) =>
