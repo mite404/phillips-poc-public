@@ -10,6 +10,7 @@ function App() {
   const [userType, setUserType] = useState<"supervisor" | "student" | null>(null);
   const [currentView, setCurrentView] = useState<string>("builder");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [lightMode, setLightMode] = useState(false);
 
   // Set initial view based on user type
   const handleSetUserType = (type: "supervisor" | "student" | null) => {
@@ -24,6 +25,15 @@ function App() {
   // Handler to trigger sidebar refresh when a program is saved
   const handleProgramSaved = () => {
     setRefreshTrigger((prev) => prev + 1);
+  };
+
+  // Handler to toggle theme
+  const handleThemeToggle = () => {
+    const next = !lightMode;
+    requestAnimationFrame(() => {
+      document.documentElement.classList.toggle('dark', !next);
+    });
+    setLightMode(next);
   };
 
   if (userType === null) {
@@ -70,7 +80,7 @@ function App() {
             refreshTrigger={refreshTrigger}
           />
           <SidebarInset>
-            <SiteHeader />
+            <SiteHeader lightMode={lightMode} onThemeToggle={handleThemeToggle} />
             <div className="flex flex-1 overflow-auto">
               <div className="flex flex-1 max-w-7xl mx-auto w-full">
                 <PageContent
