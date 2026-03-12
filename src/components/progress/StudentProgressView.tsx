@@ -4,7 +4,14 @@ import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { MetricCard } from "../MetricCard";
 import type {
   CourseCatalogItem,
@@ -16,8 +23,175 @@ import type {
   StudentMetrics,
   StudentProgressViewProps,
 } from "@/types/models";
-import { CheckCircle, FileText, UserCheck, Users, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  CheckCircle,
+  FileText,
+  UserCheck,
+  Users,
+  X,
+  Search,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+  SlidersHorizontal,
+} from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+
+function FacetFilter<T extends string>({
+  label,
+  options,
+  selected,
+  onToggle,
+  onClear,
+}: {
+  label: string;
+  options: T[];
+  selected: T[];
+  onToggle: (value: T) => void;
+  onClear: () => void;
+}) {
+  const activeCount = selected.length;
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-1.5 h-9 text-sm">
+          + {label}
+          {activeCount > 0 && (
+            <span className="ml-0.5 flex h-4 min-w-4 items-center justify-center rounded bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+              {activeCount}
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-48 p-2 space-y-0.5" align="start">
+        {activeCount > 0 && (
+          <button
+            onClick={onClear}
+            className="flex w-full items-center gap-2 rounded px-2 py-1 text-xs text-muted-foreground hover:bg-muted focus-visible:outline-none"
+          >
+            <X className="h-3 w-3" />
+            Clear filter
+          </button>
+        )}
+        {options.map((opt) => (
+          <button
+            key={opt}
+            onClick={() => onToggle(opt)}
+            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-muted focus-visible:outline-none"
+          >
+            <Checkbox checked={selected.includes(opt)} className="pointer-events-none" />
+            <span>{opt}</span>
+          </button>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function SortHeader({
+  col,
+  label,
+  sort,
+  onSort,
+}: {
+  col: "level" | "status";
+  label: string;
+  sort: { col: string | null; dir: "asc" | "desc" };
+  onSort: (col: "level" | "status", dir: "asc" | "desc") => void;
+}) {
+  const isActive = sort.col === col;
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="flex items-center gap-1 focus-visible:outline-none group">
+          {label}
+          <span className={isActive ? "opacity-100" : "opacity-40 group-hover:opacity-100"}>
+            {isActive && sort.dir === "asc" ? (
+              <ArrowUp className="h-3 w-3" />
+            ) : isActive && sort.dir === "desc" ? (
+              <ArrowDown className="h-3 w-3" />
+            ) : (
+              <ArrowUpDown className="h-3 w-3" />
+            )}
+          </span>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-32">
+        <DropdownMenuItem onClick={() => onSort(col, "asc")}>
+          <ArrowUp className="h-3.5 w-3.5" />
+          Asc
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onSort(col, "desc")}>
+          <ArrowDown className="h-3.5 w-3.5" />
+          Desc
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function ColumnToggle({
+  hiddenCols,
+  onToggle,
+}: {
+  hiddenCols: Set<string>;
+  onToggle: (col: string) => void;
+}) {
+  const cols: { key: string; label: string }[] = [
+    { key: "courseId", label: "Course ID" },
+    { key: "courseName", label: "Course Name" },
+    { key: "program", label: "Program" },
+    { key: "level", label: "Level" },
+    { key: "type", label: "Training Type" },
+    { key: "duration", label: "Duration" },
+    { key: "status", label: "Status" },
+  ];
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-1.5 h-9 ml-auto">
+          <SlidersHorizontal className="h-4 w-4" />
+          View
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-44">
+        <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+          Toggle columns
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {cols.map(({ key, label }) => (
+          <DropdownMenuCheckboxItem
+            key={key}
+            checked={!hiddenCols.has(key)}
+            onCheckedChange={() => onToggle(key)}
+          >
+            {label}
+          </DropdownMenuCheckboxItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+const LEVEL_ORDER: Record<string, number> = { Basic: 0, Intermediate: 1, Advanced: 2 };
+const STATUS_ORDER: Record<CourseStatus, number> = {
+  "Not Enrolled": 0,
+  Incomplete: 1,
+  Completed: 2,
+};
 
 export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   const [student, setStudent] = useState<LearnerProfile | null>(null);
@@ -36,6 +210,26 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     completionPercentage: 0,
     programsAssigned: 0,
   });
+
+  type SortCol = "level" | "status";
+  const [sort, setSort] = useState<{ col: SortCol | null; dir: "asc" | "desc" }>({
+    col: null,
+    dir: "asc",
+  });
+
+  type ColKey = "courseId" | "courseName" | "program" | "level" | "type" | "duration" | "status";
+  const [hiddenCols, setHiddenCols] = useState<Set<ColKey>>(new Set());
+
+  const toggleCol = (col: ColKey) =>
+    setHiddenCols((prev) => {
+      const next = new Set(prev);
+      if (next.has(col)) {
+        next.delete(col);
+      } else {
+        next.add(col);
+      }
+      return next;
+    });
 
   // Fetch & hydrate data
   useEffect(() => {
@@ -68,7 +262,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
         setStudent(foundStudent);
 
         // Step 3: Filter assignments for this student
-        const studentAssignments = assignments.filter((a) => a.learnerId === foundStudent.learnerId);
+        const studentAssignments = assignments.filter(
+          (a) => a.learnerId === foundStudent.learnerId,
+        );
 
         // Step 3.5: Deduplicate assignments by programId (keep only first occurrence)
         const uniqueAssignments = studentAssignments.reduce(
@@ -83,7 +279,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
         );
 
         // Step 4: Filter enrollments for this student
-        const studentEnrollments = enrollments.filter((e) => e.learnerId === foundStudent.learnerId);
+        const studentEnrollments = enrollments.filter(
+          (e) => e.learnerId === foundStudent.learnerId,
+        );
 
         // Step 5: Hydrate programs with course data
         const hydrated: HydratedProgram[] = uniqueAssignments
@@ -98,7 +296,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
               .filter((c): c is CourseCatalogItem => c !== undefined);
 
             // Filter enrollments for this program
-            const programEnrollments = studentEnrollments.filter((e) => e.programId === assignment.programId);
+            const programEnrollments = studentEnrollments.filter(
+              (e) => e.programId === assignment.programId,
+            );
 
             return {
               program,
@@ -120,13 +320,14 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
         };
 
         // Step 6: Create flatCourses from hydrated
-        const flatCourses: Array<CourseRow> = hydrated.flatMap(({ program, courses, enrollments }) =>
-          courses.map((course) => ({
-            course,
-            program,
-            enrollment: enrollments.find((e) => e.courseId === course.courseId),
-            status: getCourseStatus(course.courseId),
-          })),
+        const flatCourses: Array<CourseRow> = hydrated.flatMap(
+          ({ program, courses, enrollments }) =>
+            courses.map((course) => ({
+              course,
+              program,
+              enrollment: enrollments.find((e) => e.courseId === course.courseId),
+              status: getCourseStatus(course.courseId),
+            })),
         );
 
         setHydratedPrograms(hydrated);
@@ -152,7 +353,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
       statusNotEnrolled: flatCourses.filter((course) => course.status === "Not Enrolled").length,
       totalCourses: flatCourses.length, // statusCompleted + statusIncomplete + statusNotEnrolled
       completionPercentage:
-        (flatCourses.filter((course) => course.status === "Completed").length / flatCourses.length) * 100, // (statusCompleted / totalCourses) * 100
+        (flatCourses.filter((course) => course.status === "Completed").length /
+          flatCourses.length) *
+        100, // (statusCompleted / totalCourses) * 100
       programsAssigned: new Set(flatCourses.map((course) => course.program.id)).size,
     };
 
@@ -181,7 +384,8 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
   // filteredCourese is 'derived state' computed from other state on every render
   const filteredCourses = flatCourses.filter((row) => {
-    const matchesLevel = selectedLevels.length === 0 || selectedLevels.includes(row.course.levelName);
+    const matchesLevel =
+      selectedLevels.length === 0 || selectedLevels.includes(row.course.levelName);
     const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(row.status);
     const matchesSearchText = matchesSearch(row, searchText);
 
@@ -190,6 +394,21 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
     return matchesLevel && matchesStatus && matchesSearchText;
   });
+
+  const sortedCourses = useMemo(() => {
+    if (!sort.col) return filteredCourses;
+    return [...filteredCourses].sort((a, b) => {
+      let cmp = 0;
+      if (sort.col === "level") {
+        const aO = LEVEL_ORDER[a.course.levelName] ?? 99;
+        const bO = LEVEL_ORDER[b.course.levelName] ?? 99;
+        cmp = aO - bO;
+      } else if (sort.col === "status") {
+        cmp = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
+      }
+      return sort.dir === "asc" ? cmp : -cmp;
+    });
+  }, [filteredCourses, sort]);
 
   // filter courses to only show those where the status is 'Completed'
   // const completedCourses = filteredCourses.filter((course) => course.status === "Completed");
@@ -214,19 +433,17 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     }
   };
 
-  // function toggleProgramFilter(programId: string) {
-  //   setSelectedPrograms((prev) =>
-  //     prev.includes(programId)
-  //       ? prev.filter((id) => id !== programId) // remove if already selected
-  //       : [...prev, programId],
-  //   );
-  // }
-
   const clearFilters = () => {
     setSearchText("");
     setSelectedLevels([]);
     setSelectedStatuses([]);
   };
+
+  const ALL_STATUSES: CourseStatus[] = ["Completed", "Incomplete", "Not Enrolled"];
+  const allLevels = useMemo(
+    () => [...new Set(flatCourses.map((r) => r.course.levelName).filter(Boolean))].sort(),
+    [flatCourses],
+  );
 
   // Loading state
   if (isLoading) {
@@ -259,7 +476,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   if (hydratedPrograms.length === 0) {
     return (
       <div className="h-full p-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">{student?.learnerName}'s Progress</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-4">
+          {student?.learnerName}'s Progress
+        </h2>
         <div className="bg-muted border border-border rounded-[--radius] p-8 text-center">
           <p className="text-slate-600">No programs assigned to this student.</p>
         </div>
@@ -271,7 +490,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   return (
     <>
       <div className="h-full p-8 overflow-y-auto">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">{student?.learnerName}'s Progress</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-6">
+          {student?.learnerName}'s Progress
+        </h2>
 
         {/* summary cards */}
         <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-4 gap-4 mb-8">
@@ -315,78 +536,163 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
           />
         </div>
 
-        {selectedLevels.length > 0 ||
-          selectedStatuses.length > 0 ||
-          (searchText !== "" && (
-            <Button size="sm" onClick={() => clearFilters()} className="gap-2">
-              Clear Filters
-              <X className="h-5 w-5" />
+        {/* Filter Toolbar */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Filter courses..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="pl-8 h-9"
+            />
+          </div>
+
+          <FacetFilter
+            label="Status"
+            options={ALL_STATUSES}
+            selected={selectedStatuses}
+            onToggle={(v) =>
+              setSelectedStatuses((prev) =>
+                prev.includes(v) ? prev.filter((s) => s !== v) : [...prev, v],
+              )
+            }
+            onClear={() => setSelectedStatuses([])}
+          />
+
+          <FacetFilter
+            label="Level"
+            options={allLevels}
+            selected={selectedLevels}
+            onToggle={(v) =>
+              setSelectedLevels((prev) =>
+                prev.includes(v) ? prev.filter((l) => l !== v) : [...prev, v],
+              )
+            }
+            onClear={() => setSelectedLevels([])}
+          />
+
+          {(selectedStatuses.length > 0 || selectedLevels.length > 0 || searchText !== "") && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="gap-1.5 text-muted-foreground"
+            >
+              <X className="h-4 w-4" />
+              Clear all
             </Button>
-          ))}
+          )}
+
+          <ColumnToggle hiddenCols={hiddenCols} onToggle={(col) => toggleCol(col as ColKey)} />
+        </div>
 
         <div className="border border-border rounded-[--radius] overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted">
-                  <TableHead className="w-[8%]">Course ID</TableHead>
-                  <TableHead className="w-[25%]">Course Name</TableHead>
-                  <TableHead className="w-[18%]">Program</TableHead>
-                  <TableHead className="w-[12%]">Level</TableHead>
-                  <TableHead className="w-[12%]">Type</TableHead>
-                  <TableHead className="w-[10%]">Duration</TableHead>
-                  <TableHead className="w-[15%]">Status</TableHead>
+                  {!hiddenCols.has("courseId") && (
+                    <TableHead className="w-[8%]">Course ID</TableHead>
+                  )}
+                  {!hiddenCols.has("courseName") && (
+                    <TableHead className="w-[25%]">Course Name</TableHead>
+                  )}
+                  {!hiddenCols.has("program") && <TableHead className="w-[18%]">Program</TableHead>}
+                  {!hiddenCols.has("level") && (
+                    <TableHead className="w-[12%]">
+                      <SortHeader
+                        col="level"
+                        label="Level"
+                        sort={sort}
+                        onSort={(col, dir) => setSort({ col, dir })}
+                      />
+                    </TableHead>
+                  )}
+                  {!hiddenCols.has("type") && <TableHead className="w-[12%]">Type</TableHead>}
+                  {!hiddenCols.has("duration") && (
+                    <TableHead className="w-[10%]">Duration</TableHead>
+                  )}
+                  {!hiddenCols.has("status") && (
+                    <TableHead className="w-[15%]">
+                      <SortHeader
+                        col="status"
+                        label="Status"
+                        sort={sort}
+                        onSort={(col, dir) => setSort({ col, dir })}
+                      />
+                    </TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCourses.length === 0 ? (
+                {sortedCourses.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                    <TableCell
+                      colSpan={7 - hiddenCols.size}
+                      className="h-24 text-center text-muted-foreground"
+                    >
                       {selectedLevels.length > 0 || selectedStatuses.length > 0 || searchText !== ""
                         ? "No courses found"
                         : "No courses assigned"}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredCourses.map((row) => (
+                  sortedCourses.map((row) => (
                     <TableRow key={`${row.program.id}-${row.course.courseId}`}>
                       {/* Course ID */}
-                      <TableCell className="text-xs text-muted-foreground font-mono text-right">
-                        #{row.course.courseId}
-                      </TableCell>
+                      {!hiddenCols.has("courseId") && (
+                        <TableCell className="text-xs text-muted-foreground font-mono text-right">
+                          #{row.course.courseId}
+                        </TableCell>
+                      )}
 
                       {/* Course Name */}
-                      <TableCell className="font-medium text-left">{row.course.courseTitle}</TableCell>
+                      {!hiddenCols.has("courseName") && (
+                        <TableCell className="font-medium text-left">
+                          {row.course.courseTitle}
+                        </TableCell>
+                      )}
 
                       {/* Program Badge (clickable sort) */}
-                      <TableCell className="text-left">
-                        <Badge
-                          variant="outline"
-                          className="cursor-pointer hover:bg-primary/10 transition-colors text-left"
-                        >
-                          {row.program.programName}
-                        </Badge>
-                      </TableCell>
+                      {!hiddenCols.has("program") && (
+                        <TableCell className="text-left">
+                          <Badge
+                            variant="outline"
+                            className="cursor-pointer hover:bg-primary/10 transition-colors text-left"
+                          >
+                            {row.program.programName}
+                          </Badge>
+                        </TableCell>
+                      )}
 
                       {/* Level */}
-                      <TableCell className="text-sm text-muted-foreground text-left">
-                        {row.course.levelName}
-                      </TableCell>
+                      {!hiddenCols.has("level") && (
+                        <TableCell className="text-sm text-muted-foreground text-left">
+                          {row.course.levelName}
+                        </TableCell>
+                      )}
 
                       {/* Type */}
-                      <TableCell className="text-sm text-muted-foreground text-left">
-                        {row.course.trainingTypeName}
-                      </TableCell>
+                      {!hiddenCols.has("type") && (
+                        <TableCell className="text-sm text-muted-foreground text-left">
+                          {row.course.trainingTypeName}
+                        </TableCell>
+                      )}
 
                       {/* Duration */}
-                      <TableCell className="text-sm text-muted-foreground text-left">
-                        {row.course.totalDays} days
-                      </TableCell>
+                      {!hiddenCols.has("duration") && (
+                        <TableCell className="text-sm text-muted-foreground text-left">
+                          {row.course.totalDays} days
+                        </TableCell>
+                      )}
 
                       {/* Status Badge */}
-                      <TableCell className="text-left">
-                        <Badge className={getStatusClassName(row.status)}>{row.status}</Badge>
-                      </TableCell>
+                      {!hiddenCols.has("status") && (
+                        <TableCell className="text-left">
+                          <Badge className={getStatusClassName(row.status)}>{row.status}</Badge>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))
                 )}
