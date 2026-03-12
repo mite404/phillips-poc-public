@@ -1,5 +1,5 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageContent } from "./components/PageContent";
 import { AppSidebar } from "./components/layout/AppSidebar";
 import { SiteHeader } from "./components/layout/SiteHeader";
@@ -10,7 +10,9 @@ function App() {
   const [userType, setUserType] = useState<"supervisor" | "student" | null>(null);
   const [currentView, setCurrentView] = useState<string>("builder");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [lightMode, setLightMode] = useState(false);
+  const [lightMode, setLightMode] = useState(() => {
+    return localStorage.getItem('theme') === 'light';
+  });
 
   // Set initial view based on user type
   const handleSetUserType = (type: "supervisor" | "student" | null) => {
@@ -36,6 +38,11 @@ function App() {
     setLightMode(next);
   };
 
+  // Persist theme preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('theme', lightMode ? 'light' : 'dark');
+  }, [lightMode]);
+
   if (userType === null) {
     return (
       <>
@@ -52,13 +59,13 @@ function App() {
               <h1 className="text-2xl font-bold italic">Phillips</h1>
             </header>
             <button
-              className="bg-orange-500! text-gray-950! px-6 py-3 rounded mx-auto font-medium"
+              className="bg-orange-500! text-gray-950! px-6 py-3 rounded-[--radius] mx-auto font-medium hover:bg-orange-400! focus-visible:bg-orange-400! transition-colors"
               onClick={() => handleSetUserType("supervisor")}
             >
               Education Supervisor
             </button>
             <button
-              className="bg-orange-500! text-gray-950! px-6 py-3 rounded mx-auto font-medium"
+              className="bg-orange-500! text-gray-950! px-6 py-3 rounded-[--radius] mx-auto font-medium hover:bg-orange-400! focus-visible:bg-orange-400! transition-colors"
               onClick={() => handleSetUserType("student")}
             >
               Student
