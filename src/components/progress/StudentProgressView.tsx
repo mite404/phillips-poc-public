@@ -34,6 +34,7 @@ import {
   ArrowDown,
   ArrowUpDown,
   SlidersHorizontal,
+  EyeOff,
 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -100,16 +101,20 @@ function FacetFilter<T extends string>({
   );
 }
 
+type SortCol = "courseId" | "courseName" | "program" | "level" | "status";
+
 function SortHeader({
   col,
   label,
   sort,
   onSort,
+  onHide,
 }: {
-  col: "level" | "status";
+  col: SortCol;
   label: string;
   sort: { col: string | null; dir: "asc" | "desc" };
-  onSort: (col: "level" | "status", dir: "asc" | "desc") => void;
+  onSort: (col: SortCol, dir: "asc" | "desc") => void;
+  onHide: () => void;
 }) {
   const isActive = sort.col === col;
   return (
@@ -130,12 +135,17 @@ function SortHeader({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-32">
         <DropdownMenuItem onClick={() => onSort(col, "asc")}>
-          <ArrowUp className="h-3.5 w-3.5" />
+          <ArrowUp className="h-3.5 w-3.5 text-muted-foreground/70" />
           Asc
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onSort(col, "desc")}>
-          <ArrowDown className="h-3.5 w-3.5" />
+          <ArrowDown className="h-3.5 w-3.5 text-muted-foreground/70" />
           Desc
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={onHide}>
+          <EyeOff className="h-3.5 w-3.5 text-muted-foreground/70" />
+          Hide
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -211,7 +221,6 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     programsAssigned: 0,
   });
 
-  type SortCol = "level" | "status";
   const [sort, setSort] = useState<{ col: SortCol | null; dir: "asc" | "desc" }>({
     col: null,
     dir: "asc",
@@ -405,6 +414,12 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
         cmp = aO - bO;
       } else if (sort.col === "status") {
         cmp = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
+      } else if (sort.col === "courseId") {
+        cmp = a.course.courseId - b.course.courseId;
+      } else if (sort.col === "courseName") {
+        cmp = a.course.courseTitle.localeCompare(b.course.courseTitle);
+      } else if (sort.col === "program") {
+        cmp = a.program.programName.localeCompare(b.program.programName);
       }
       return sort.dir === "asc" ? cmp : -cmp;
     });
@@ -593,12 +608,38 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
               <TableHeader>
                 <TableRow className="bg-muted">
                   {!hiddenCols.has("courseId") && (
-                    <TableHead className="w-[8%]">Course ID</TableHead>
+                    <TableHead className="w-[8%]">
+                      <SortHeader
+                        col="courseId"
+                        label="Course ID"
+                        sort={sort}
+                        onSort={(col, dir) => setSort({ col, dir })}
+                        onHide={() => toggleCol("courseId")}
+                      />
+                    </TableHead>
                   )}
                   {!hiddenCols.has("courseName") && (
-                    <TableHead className="w-[25%]">Course Name</TableHead>
+                    <TableHead className="w-[25%]">
+                      <SortHeader
+                        col="courseName"
+                        label="Course Name"
+                        sort={sort}
+                        onSort={(col, dir) => setSort({ col, dir })}
+                        onHide={() => toggleCol("courseName")}
+                      />
+                    </TableHead>
                   )}
-                  {!hiddenCols.has("program") && <TableHead className="w-[18%]">Program</TableHead>}
+                  {!hiddenCols.has("program") && (
+                    <TableHead className="w-[18%]">
+                      <SortHeader
+                        col="program"
+                        label="Program"
+                        sort={sort}
+                        onSort={(col, dir) => setSort({ col, dir })}
+                        onHide={() => toggleCol("program")}
+                      />
+                    </TableHead>
+                  )}
                   {!hiddenCols.has("level") && (
                     <TableHead className="w-[12%]">
                       <SortHeader
@@ -606,6 +647,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                         label="Level"
                         sort={sort}
                         onSort={(col, dir) => setSort({ col, dir })}
+                        onHide={() => toggleCol("level")}
                       />
                     </TableHead>
                   )}
@@ -620,6 +662,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                         label="Status"
                         sort={sort}
                         onSort={(col, dir) => setSort({ col, dir })}
+                        onHide={() => toggleCol("status")}
                       />
                     </TableHead>
                   )}
