@@ -49,6 +49,14 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import {
+  COLUMNS,
+  filterCourses,
+  sortCourses,
+  toggleColumn,
+  type ColKey,
+  type SortCol,
+} from "./courseTable";
 
 interface FacetOption<T> {
   value: T;
@@ -151,8 +159,6 @@ function FacetFilter<T extends string>({
   );
 }
 
-type SortCol = "courseId" | "courseName" | "program" | "level" | "status";
-
 function SortHeader({
   col,
   label,
@@ -206,19 +212,9 @@ function ColumnToggle({
   hiddenCols,
   onToggle,
 }: {
-  hiddenCols: Set<string>;
-  onToggle: (col: string) => void;
+  hiddenCols: Set<ColKey>;
+  onToggle: (col: ColKey) => void;
 }) {
-  const cols: { key: string; label: string }[] = [
-    { key: "courseId", label: "Course ID" },
-    { key: "courseName", label: "Course Name" },
-    { key: "program", label: "Program" },
-    { key: "level", label: "Level" },
-    { key: "type", label: "Training Type" },
-    { key: "duration", label: "Duration" },
-    { key: "status", label: "Status" },
-  ];
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -232,7 +228,7 @@ function ColumnToggle({
           Toggle columns
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {cols.map(({ key, label }) => (
+        {COLUMNS.map(({ key, label }) => (
           <DropdownMenuCheckboxItem
             key={key}
             checked={!hiddenCols.has(key)}
@@ -245,13 +241,6 @@ function ColumnToggle({
     </DropdownMenu>
   );
 }
-
-const LEVEL_ORDER: Record<string, number> = { Basic: 0, Intermediate: 1, Advanced: 2 };
-const STATUS_ORDER: Record<CourseStatus, number> = {
-  "Not Enrolled": 0,
-  Incomplete: 1,
-  Completed: 2,
-};
 
 export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   const [student, setStudent] = useState<LearnerProfile | null>(null);
@@ -276,19 +265,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     dir: "asc",
   });
 
-  type ColKey = "courseId" | "courseName" | "program" | "level" | "type" | "duration" | "status";
   const [hiddenCols, setHiddenCols] = useState<Set<ColKey>>(new Set());
 
-  const toggleCol = (col: ColKey) =>
-    setHiddenCols((prev) => {
-      const next = new Set(prev);
-      if (next.has(col)) {
-        next.delete(col);
-      } else {
-        next.add(col);
-      }
-      return next;
-    });
+  const toggleCol = (col: ColKey) => setHiddenCols((prev) => toggleColumn(prev, col));
 
   // Fetch & hydrate data
   useEffect(() => {
@@ -407,12 +386,10 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     if (flatCourses.length === 0) return;
 
     // Count unique programs from currently filtered courses
-    const filteredCourses = flatCourses.filter((row) => {
-      const matchesLevel =
-        selectedLevels.length === 0 || selectedLevels.includes(row.course.levelName);
-      const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(row.status);
-      const matchesSearchText = matchesSearch(row, searchText);
-      return matchesLevel && matchesStatus && matchesSearchText;
+    const filteredCourses = filterCourses(flatCourses, {
+      levels: selectedLevels,
+      statuses: selectedStatuses,
+      search: searchText,
     });
 
     const metrics: StudentMetrics = {
@@ -430,54 +407,17 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     setMetrics(metrics);
   }, [flatCourses, selectedLevels, selectedStatuses, searchText]);
 
-  // Compare our search against any CourseRow's string
-  function matchesSearch(row: CourseRow, search: string): boolean {
-    if (search.trim() === "") {
-      return true;
-    }
-
-    const searchLower = search.toLowerCase();
-
-    const matchesId = row.course.courseId.toString().includes(searchLower);
-    const matchesTitle = row.course.courseTitle.toLowerCase().includes(searchLower);
-    const matchesProgram = row.program.programName.toLowerCase().includes(searchLower);
-
-    return matchesId || matchesTitle || matchesProgram;
-  }
-
-  // filteredCourese is 'derived state' computed from other state on every render
-  const filteredCourses = flatCourses.filter((row) => {
-    const matchesLevel =
-      selectedLevels.length === 0 || selectedLevels.includes(row.course.levelName);
-    const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(row.status);
-    const matchesSearchText = matchesSearch(row, searchText);
-
-    return matchesLevel && matchesStatus && matchesSearchText;
+  // filteredCourses is 'derived state' computed from other state on every render
+  const filteredCourses = filterCourses(flatCourses, {
+    levels: selectedLevels,
+    statuses: selectedStatuses,
+    search: searchText,
   });
 
   const hasActiveFilters =
     selectedStatuses.length > 0 || selectedLevels.length > 0 || searchText !== "";
 
-  const sortedCourses = useMemo(() => {
-    if (!sort.col) return filteredCourses;
-    return [...filteredCourses].sort((a, b) => {
-      let cmp = 0;
-      if (sort.col === "level") {
-        const aO = LEVEL_ORDER[a.course.levelName] ?? 99;
-        const bO = LEVEL_ORDER[b.course.levelName] ?? 99;
-        cmp = aO - bO;
-      } else if (sort.col === "status") {
-        cmp = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
-      } else if (sort.col === "courseId") {
-        cmp = a.course.courseId - b.course.courseId;
-      } else if (sort.col === "courseName") {
-        cmp = a.course.courseTitle.localeCompare(b.course.courseTitle);
-      } else if (sort.col === "program") {
-        cmp = a.program.programName.localeCompare(b.program.programName);
-      }
-      return sort.dir === "asc" ? cmp : -cmp;
-    });
-  }, [filteredCourses, sort]);
+  const sortedCourses = sortCourses(filteredCourses, sort);
 
   // filter courses to only show those where the status is 'Completed'
   // const completedCourses = filteredCourses.filter((course) => course.status === "Completed");
@@ -650,7 +590,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
             </Button>
           )}
 
-          <ColumnToggle hiddenCols={hiddenCols} onToggle={(col) => toggleCol(col as ColKey)} />
+          <ColumnToggle hiddenCols={hiddenCols} onToggle={toggleCol} />
         </div>
 
         <div className="border border-border rounded-[--radius] overflow-hidden">
@@ -723,7 +663,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                 {sortedCourses.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={7 - hiddenCols.size}
+                      colSpan={COLUMNS.length - hiddenCols.size}
                       className="h-24 text-center text-muted-foreground"
                     >
                       {hasActiveFilters ? "No courses match your filters" : "No courses assigned"}
