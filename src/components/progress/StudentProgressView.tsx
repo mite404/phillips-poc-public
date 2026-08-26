@@ -430,14 +430,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     setMetrics(metrics);
   }, [flatCourses, selectedLevels, selectedStatuses, searchText]);
 
-  useEffect(() => {
-    console.log("searchText changed to:", searchText);
-  }, [searchText]);
-
   // Compare our search against any CourseRow's string
   function matchesSearch(row: CourseRow, search: string): boolean {
     if (search.trim() === "") {
-      console.log("Empty search, returning true");
       return true;
     }
 
@@ -456,9 +451,6 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
       selectedLevels.length === 0 || selectedLevels.includes(row.course.levelName);
     const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(row.status);
     const matchesSearchText = matchesSearch(row, searchText);
-
-    console.log("Filters active:", { searchText, selectedLevels, selectedStatuses });
-    console.log("Row Checks:", { matchesSearchText, matchesLevel, matchesStatus });
 
     return matchesLevel && matchesStatus && matchesSearchText;
   });
@@ -487,12 +479,8 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   // filter courses to only show those where the status is 'Completed'
   // const completedCourses = filteredCourses.filter((course) => course.status === "Completed");
 
-  console.log("flattened courses:", flatCourses);
-  console.log("filteredCourses:", filteredCourses);
-
   // Helper function to fetch all programs (uses network-first, localStorage-fallback)
   async function fetchAllPrograms(): Promise<SupervisorProgram[]> {
-    console.log(localApi.getAllPrograms());
     return localApi.getAllPrograms();
   }
 
