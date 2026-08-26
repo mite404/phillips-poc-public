@@ -411,6 +411,110 @@ inside `<TableBody>`, and a user gets "No courses assigned" with **Clear all** s
 above it contradicting the sentence. No build break. No failing test. **Naming a duplicated
 expression once is what stops the two copies from drifting apart later.**
 
+### 7. **Extract the Rule Before You Test It** (ETH-39, 2026-08-26)
+
+ETH-39 asked for tests over the filter, sort and column-toggle behaviour. The first move was not a
+test file. It was noticing that the thing to test lived in two places.
+
+`StudentProgressView` filtered its rows twice: once inside the metrics `useEffect` to count
+programs, and once in the render pass to build `filteredCourses`. Same three comparisons, typed out
+twice, 40 lines apart.
+
+```ts
+// src/components/progress/courseTable.ts - one predicate, both callers.
+// (row: CourseRow, filters: CourseFilters) -> boolean
+export function matchesFilters(row: CourseRow, filters: CourseFilters): boolean {
+  const matchesLevel = filters.levels.length === 0 || filters.levels.includes(row.course.levelName);
+  const matchesStatus = filters.statuses.length === 0 || filters.statuses.includes(row.status);
+
+  return matchesLevel && matchesStatus && matchesSearch(row, filters.search);
+}
+```
+
+Read the two halves of each line separately, because they are two different rules:
+
+- `filters.levels.length === 0 ||` is **"an empty facet means all"**. No checkboxes ticked is not a
+  filter that matches nothing, it is the absence of a filter.
+- `filters.levels.includes(...)` is **OR within a facet**. Tick Basic and Advanced and you get
+  both, not the empty intersection of both.
+- The `&&` between the three is **AND across facets**. Basic + Not Enrolled means rows that are
+  both.
+
+```mermaid
+flowchart LR
+    A["flatCourses (CourseRow[])"] --> B["filterCourses(rows, filters)"]
+    B --> C["filteredCourses"]
+    C --> D["sortCourses(rows, sort)"]
+    D --> E["sortedCourses -> <TableBody>"]
+    C --> F["metrics useEffect: programsAssigned"]
+    E --> G["hiddenCols: which cells to render"]
+
+    style B fill:#d4f5d4
+    style D fill:#d4f5d4
+```
+
+Notice where `hiddenCols` sits in that chain: at the very end, on the render, downstream of both
+`filterCourses` and `sortCourses`. That is the whole reason hiding a column cannot lose row data -
+the Set is never consulted while rows are being selected or ordered, only while cells are being
+drawn. The test for it asserts exactly that: hide Status, then check the same row still shows
+`#11`, `Basic` and `CNC Fundamentals`.
+
+**Why extract first.** A test that renders the component and clicks checkboxes would have covered
+the render path and left the metrics copy untested. Two copies means two behaviours to pin, and the
+one you forget is the one that drifts. Pulling the rule into `courseTable.ts` turned "test both
+paths" into "test one function that both paths call".
+
+**Why the commits are in that order.** The render tests are the first commit, sitting on top of the
+*old* component, before `courseTable.ts` exists. They pass there. Then the refactor lands and they
+still pass. That ordering is the entire proof that the extraction changed no behaviour, and it only
+works in that direction: tests written after a refactor can only tell you the new code is
+self-consistent. Check out the first commit and run `bunx vitest run src/components/progress` if
+you want to watch it.
+
+**Proving the tests actually bite.** The ticket asked for tests that fail if a predicate is
+inverted, so that got checked rather than assumed. That check is a committed script, not a story:
+
+```bash
+bun run test:mutants
+```
+
+`scripts/mutation-check.mjs` breaks one rule at a time, reruns the suite, and requires it to go
+red. It refuses to start unless the baseline is green, because a suite that was already red would
+score every mutant as "killed" for free.
+
+```
+killed    8 failing  level facet no longer accepts an empty selection as 'all'
+killed    3 failing  status facet predicate inverted
+killed    8 failing  facets combined with OR instead of AND
+killed    1 failing  search stops looking at the program name
+killed   11 failing  blank search no longer matches every row
+killed    6 failing  sort direction flipped
+killed    4 failing  level ordering collapsed so Basic and Advanced tie
+killed    2 failing  status ordering collapsed
+killed    1 failing  toggleColumn can hide a column but never show it again
+killed    1 failing  metrics path stops passing the search text to the shared filter
+```
+
+The last one is the ticket's actual fear. It edits `StudentProgressView` rather than
+`courseTable.ts`, simulating someone quietly reintroducing a second, stale predicate on the metrics
+path. Exactly one test dies: the one asserting the **Programs Assigned** card drops from 2 to 1
+when you search. Without that test the mutant lives, and so does the drift.
+
+A green suite is not evidence. A suite you have watched go red on demand is. The difference between
+those two is a file a reviewer can rerun, which is why the check is `scripts/mutation-check.mjs`
+and not a paragraph in this doc claiming it was done.
+
+**The post-production analogy.** This is building the LUT once and applying it to every shot,
+instead of eyeballing the same grade twice on two different monitors. When the look changes, you
+change the LUT. And the mutation pass is punching a deliberately wrong value into the LUT to
+confirm the monitors are actually reading from it.
+
+**One thing that came along for the ride:** the old `sortedCourses` was wrapped in `useMemo` with
+`[filteredCourses, sort]` as deps. `filteredCourses` is a fresh array on every render, so that dep
+never compared equal and the memo never once hit - it paid the comparison and did the sort anyway.
+Same lesson as ETH-9, one file over: a `useMemo` whose deps change identity every render is pure
+overhead wearing a performance costume.
+
 ---
 
 ## Key Concepts Reference
