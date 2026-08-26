@@ -1,10 +1,13 @@
 # AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this
+repository.
 
 ## Project Overview
 
-This is a Phillips Education POC - a React + TypeScript + Vite application for managing educational programs. The application integrates with a legacy Phillips API to display program catalogs and includes a mock JSON server for local data management.
+This is a Phillips Education POC - a React + TypeScript + Vite application for managing educational
+programs. The application integrates with a legacy Phillips API to display program catalogs and
+includes a mock JSON server for local data management.
 
 ---
 
@@ -41,7 +44,9 @@ bun run preview      # Preview production build
 
 ### Key Integrations
 
-**Legacy API Integration**: The application fetches from the Phillips X PIMS staging API at `https://phillipsx-pims-stage.azurewebsites.net/api/Program/GetAll`. This returns a `result` array of `LegacyProgram` objects that are filtered for active programs.
+**Legacy API Integration**: The application fetches from the Phillips X PIMS staging API at
+`https://phillipsx-pims-stage.azurewebsites.net/api/Program/GetAll`. This returns a `result` array
+of `LegacyProgram` objects that are filtered for active programs.
 
 **Local Mock Data**: `db.json` contains three collections:
 
@@ -55,16 +60,21 @@ Access via json-server at `http://localhost:3001/{collection}`
 
 ### Project Structure
 
-**Path Aliases**: The project uses `@/_` to reference `./src/_` (configured in both vite.config.ts and tsconfig.json)
+**Path Aliases**: The project uses `@/_` to reference `./src/_` (configured in both vite.config.ts
+and tsconfig.json)
 
 **Component Architecture**:
 
-- `ProgramList` (src/components/ProgramList.tsx): Main container component that fetches programs from the legacy API, handles loading/error states, and renders a grid of program cards
-- `ProgramCard` (src/components/ProgramCard.tsx): Presentational component for displaying individual program details with image, metadata (duration, course count), skills, and pricing
+- `ProgramList` (src/components/ProgramList.tsx): Main container component that fetches programs
+  from the legacy API, handles loading/error states, and renders a grid of program cards
+- `ProgramCard` (src/components/ProgramCard.tsx): Presentational component for displaying individual
+  program details with image, metadata (duration, course count), skills, and pricing
 
-**Type Definitions**: Located in `src/types/models.ts`. The primary model is `LegacyProgram` which includes program metadata, courses, skills, and pricing information.
+**Type Definitions**: Located in `src/types/models.ts`. The primary model is `LegacyProgram` which
+includes program metadata, courses, skills, and pricing information.
 
-**UI Components**: shadcn/ui components in `src/components/ui/` including button, card, badge, skeleton, and sonner (toast notifications)
+**UI Components**: shadcn/ui components in `src/components/ui/` including button, card, badge,
+skeleton, and sonner (toast notifications)
 
 ### Styling System
 
@@ -75,17 +85,22 @@ Access via json-server at `http://localhost:3001/{collection}`
 
 Use in Tailwind: `text-phillips-blue`, `bg-phillips-red`, etc.
 
-**Tailwind Configuration**: The project uses Tailwind v4 with the Vite plugin. Configuration is minimal in tailwind.config.js (primarily for defining content paths). Most theming happens via CSS custom properties in src/index.css using the `@theme inline` directive.
+**Tailwind Configuration**: The project uses Tailwind v4 with the Vite plugin. Configuration is
+minimal in tailwind.config.js (primarily for defining content paths). Most theming happens via CSS
+custom properties in src/index.css using the `@theme inline` directive.
 
-**Dark Mode**: Configured with custom variant `@custom-variant dark (&:is(.dark *))` and full dark mode color palette defined in src/index.css
+**Dark Mode**: Configured with custom variant `@custom-variant dark (&:is(.dark *))` and full dark
+mode color palette defined in src/index.css
 
 ## Development Notes
 
-**Concurrent Development**: The `bun dev` command runs both Vite (default port 5173) and json-server (port 3001) simultaneously. Both services must be running for full functionality.
+**Concurrent Development**: The `bun dev` command runs both Vite (default port 5173) and json-server
+(port 3001) simultaneously. Both services must be running for full functionality.
 
 **Data Flow**: Currently, the ProgramList component only reads from the external API.
 
-**ESLint Configuration**: Uses flat config format with TypeScript ESLint, React Hooks plugin, and React Refresh plugin. Ignores the dist directory.
+**ESLint Configuration**: Uses flat config format with TypeScript ESLint, React Hooks plugin, and
+React Refresh plugin. Ignores the dist directory.
 
 ---
 
