@@ -332,6 +332,85 @@ This is powerful because:
 - Status is always consistent (calculated fresh each time)
 - If enrollment changes, status automatically updates
 
+### 6. **Not Every Derived Value Earns a `useMemo`** (ETH-9, 2026-08-26)
+
+`StudentProgressView` asks "are any filters active?" in two places. The **Clear all** button uses
+it to decide whether to show itself, and the empty table cell uses it to pick between "No courses
+match your filters" and "No courses assigned". ETH-9 gave that question one name:
+
+```tsx
+// Three comparisons, recomputed on every render, on purpose.
+// Read at two sites 90 lines apart: the Clear all button and the empty-state cell.
+const hasActiveFilters =
+  selectedStatuses.length > 0 || selectedLevels.length > 0 || searchText !== "";
+```
+
+The interesting decision is what it is **not**. Three options were on the table.
+
+**Option A, plain `const`.** Recompute every render. Three comparisons, effectively free.
+
+**Option B, `useMemo`.** People reach for this reflexively on anything called "derived state", but
+look at what `useMemo` actually does. It stores the previous result plus a dependency array, and on
+every render it walks that array comparing each dep to the stored one. Only then does it decide
+whether to skip the work. Here the work being skipped is three comparisons, and the deciding costs
+three comparisons plus the storage. **You pay more to avoid the work than the work costs.** The
+tell is one line up in the same file: `filteredCourses` iterates all 24 rows and is not memoized
+either.
+
+**Option C, `useState` plus a `useEffect` to keep it current.** This one is not just wasteful, it
+is wrong, and the reason is worth sitting with. `sortedCourses` is recalculated fresh on every
+render. A `useState` boolean is not; it lags one render behind whatever effect updates it. So the
+frame after you type into the filter box, the rows are already gone while the boolean still says
+"no filters are active" - and the table renders **"No courses assigned"** underneath a hidden
+**Clear all** button. The row list and the sentence explaining it would be reading from two
+different points in time.
+
+```mermaid
+flowchart TD
+    A["User types 'zzzzz' in the filter box"] --> B["setSearchText, React re-renders"]
+    B --> C["sortedCourses recalculates fresh: 24 rows to 0"]
+    C --> D{"How is hasActiveFilters produced?"}
+
+    D -->|"const (what we shipped)"| E["Run 3 comparisons"]
+    E --> F["Boolean is true, same tick as the rows"]
+    F --> G["'No courses match your filters' + Clear all"]
+
+    D -->|useMemo| H["Compare 3 deps to the stored array"]
+    H --> I["A dep changed, so run the same 3 comparisons anyway"]
+    I --> F
+
+    D -->|"useState + useEffect"| J["Render 1: rows empty, boolean still stale false"]
+    J --> K["Flash of 'No courses assigned', Clear all hidden"]
+    K --> L["Effect fires, setHasActiveFilters(true)"]
+    L --> M["Render 2: finally correct"]
+
+    style E fill:#d4f5d4
+    style G fill:#d4f5d4
+    style I fill:#fff3cd
+    style K fill:#f5d4d4
+```
+
+**The post-production analogy.** `useMemo` is a render cache. You cache a shot because rendering it
+costs four hours. You do not cache a text overlay you can redraw live in the viewer, because then
+you are managing a cache folder, checking timestamps, and invalidating stale versions - all of it
+more work than redrawing. And Option C is baking that overlay out to a separate file you have to
+remember to re-export whenever the text changes. Miss one export and your timeline and your
+delivery disagree.
+
+**The rule to carry forward:** `useMemo` buys you skipped work, and it is not free. Reach for it
+when the work is genuinely expensive (a big sort, a large filter, a new object or array identity
+that a `memo` child depends on). A boolean from three comparisons is none of those. Measure the
+thing you are avoiding before you pay to avoid it.
+
+The second half of ETH-9 is the reason this const exists at all. That expression used to be typed
+out twice, at the button and at the cell, with the operands in a different order at each site.
+`||` does not care about order, so they behaved identically - the mismatched order is just the
+fingerprint of two separate typings. The failure it was set up for is quiet: add a fourth filter,
+update the copy sitting next to the toolbar you happen to be editing, miss the one 90 lines away
+inside `<TableBody>`, and a user gets "No courses assigned" with **Clear all** sitting directly
+above it contradicting the sentence. No build break. No failing test. **Naming a duplicated
+expression once is what stops the two copies from drifting apart later.**
+
 ---
 
 ## Key Concepts Reference
