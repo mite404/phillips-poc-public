@@ -455,6 +455,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     return matchesLevel && matchesStatus && matchesSearchText;
   });
 
+  const hasActiveFilters =
+    selectedStatuses.length > 0 || selectedLevels.length > 0 || searchText !== "";
+
   const sortedCourses = useMemo(() => {
     if (!sort.col) return filteredCourses;
     return [...filteredCourses].sort((a, b) => {
@@ -635,7 +638,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
             onClear={() => setSelectedLevels([])}
           />
 
-          {(selectedStatuses.length > 0 || selectedLevels.length > 0 || searchText !== "") && (
+          {hasActiveFilters && (
             <Button
               variant="ghost"
               size="sm"
@@ -723,9 +726,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                       colSpan={7 - hiddenCols.size}
                       className="h-24 text-center text-muted-foreground"
                     >
-                      {selectedLevels.length > 0 || selectedStatuses.length > 0 || searchText !== ""
-                        ? "No courses found"
-                        : "No courses assigned"}
+                      {hasActiveFilters ? "No courses match your filters" : "No courses assigned"}
                     </TableCell>
                   </TableRow>
                 ) : (
