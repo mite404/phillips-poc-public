@@ -23,7 +23,7 @@ independent and can land any time.
 
 | Plan | Covers | Depends on | Status |
 | --- | --- | --- | --- |
-| [001](001-motion-tokens.md) | Motion token scale + global reduced-motion | - | IN ARENA |
+| [001](001-motion-tokens.md) | Motion token scale + global reduced-motion | - | **DONE** ([synthesis](arena/001-synthesis.md)) |
 | [002](002-fix-accordion.md) | Dead `animate-accordion-*` keyframes | 001 | TODO |
 | [003](003-kill-transition-all.md) | `transition-all` in six files | 001 | TODO |
 | [004](004-press-feedback.md) | Press/active feedback on buttons | 001 | TODO |
@@ -31,6 +31,7 @@ independent and can land any time.
 | [006](006-loading-and-swap.md) | Skeleton crossfade, icon swap, stagger | 001 | TODO |
 | [007](007-view-and-theme-transition.md) | Screen transitions, theme, count-up | 001 | TODO |
 | [008](008-starter-cleanup.md) | Delete Vite starter leftovers | - | TODO |
+| [009](009-source-not-docs.md) | Exclude `docs/` from the Tailwind content scan | - | TODO |
 
 ## How each plan gets implemented
 

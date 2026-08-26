@@ -74,6 +74,31 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+  /* --- Motion: Duration ---
+     Keyed to travel distance, since distance is what governs whether a duration
+     feels right.
+
+     Tailwind v4 resolves the `duration-*` utility against the
+     `--transition-duration-*` namespace, NOT `--duration-*`. Registering these
+     under the contract's names would generate no utility and raise no error, so
+     they are plain custom properties consumed as `duration-(--duration-pop)`.
+     That emits `transition-duration: var(--duration-pop)`, which the reduced
+     motion block below retunes for every consumer at once. Using the real
+     namespace instead would mean two names for one value. Plain properties are
+     also never tree-shaken, unlike `@theme` entries. */
+  --duration-micro: 100ms; /* tint, press, focus ring. no travel */
+  --duration-swap: 160ms; /* in-place swap; also the exit of small surfaces */
+  --duration-pop: 240ms; /* small anchored surface: menu, tooltip, badge */
+  --duration-surface: 320ms; /* modal, accordion, resize, toast */
+  --duration-travel: 460ms; /* sheet, side panel, page-level */
+  --duration-stagger: 45ms; /* per-item offset. multiply by index */
+
+  /* --- Motion: Travel and scale ---
+     Never scale(0); nothing in the physical world appears from nothing. */
+  --travel-md: 8px; /* the only travel value plans 002-008 actually name */
+  --scale-in: 0.96;
+  --scale-press: 0.97;
 }
 
 .dark {
@@ -216,6 +241,133 @@ button:hover {
   --color-phillips-gray: hsl(var(--phillips-gray));
   --color-phillips-orange: var(--phillips-orange);
   --color-phillips-dark: var(--phillips-dark);
+}
+
+/* 5. Motion: easing curves
+   `--ease-*` is a real Tailwind v4 theme namespace, so each token below also
+   generates a utility: `ease-out`, `ease-in-out`, `ease-drawer`, `ease-exit`.
+
+   DELIBERATE OVERRIDE: `--ease-out` and `--ease-in-out` are stock Tailwind
+   keys. Redefining them replaces Tailwind's curves everywhere, upgrading every
+   existing use in the codebase to the contract's strong curve in one edit.
+   Stock ease-out is cubic-bezier(0, 0, 0.2, 1) - far weaker, and it will not
+   read as "quick, then a long soft landing". Do not "fix" this back.
+
+   `static`, NOT `inline`: Tailwind drops any theme variable it cannot see a
+   reference to. Verified - with the plan docs excluded from the content scan,
+   an `@theme inline` block loses `--ease-out`, `--ease-drawer` and
+   `--ease-exit` entirely, variable and utility both, because the only thing
+   referencing them today is prose in the plan markdown. `static` force-emits
+   all four, so `var(--ease-drawer)` stays resolvable from hand-authored CSS no
+   matter what the scanner sees. The utility classes still need a real consumer,
+   which plans 002-007 provide. Cost of `static` here is four declarations.
+
+   NOTE: `--ease-exit` is byte-identical to Tailwind's stock `--ease-in`
+   (theme.css:386, cubic-bezier(0.4, 0, 1, 1)), so the compiler merges them into
+   one rule: `.ease-exit,.ease-in{...}`. That is not a duplication bug. The
+   contract bans `ease-in` on entrances; the same curve is correct on exits, and
+   `--ease-exit` names the intent. Do not "deduplicate" these. */
+@theme static {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1); /* default: entering, settling */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); /* moving on screen, resize */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1); /* sheets and drawers */
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1); /* leaving. the only accelerating curve */
+}
+
+/* 6. Reduced Motion
+   Less movement, not less feedback. There is no `transition: none` and no
+   `animation: none` below: killing the transition outright removes the signal
+   that a state changed at all, which is a worse outcome than the motion. What
+   goes away is travel, scale, rotation, and waiting. What survives is a short
+   crossfade, so every state change stays perceptible.
+
+   Four mechanisms, because no single one reaches everything:
+     (a) tokens        - what plans 002-007 will consume
+     (b) the `*` rule  - hardcoded `duration-200` / `duration-500` and stock
+                         shadcn transitions the tokens cannot reach
+     (c) --tw-*-*      - tailwindcss-animate's private travel/scale vars
+     (d) .animate-pulse - the one indefinite loop, deliberately spared
+
+   `src/App.css:30` holds an INVERTED query, `prefers-reduced-motion:
+   no-preference`, guarding the dead Vite logo spinner. It is disjoint from
+   this block by construction - exactly one of the two can ever match - so it
+   neither weakens nor is weakened by anything here. Removing it is plan 008. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    /* (a) Zero the travel and flatten the scales. A duration clamp alone would
+       only make an 8px slide *fast*; this is what makes it not move. */
+    --travel-md: 0px;
+    --scale-in: 1;
+    --scale-press: 1;
+
+    /* Collapse durations onto the shortest real token rather than to zero, and
+       drop the stagger so a list does not cascade in. */
+    --duration-swap: var(--duration-micro);
+    --duration-pop: var(--duration-micro);
+    --duration-surface: var(--duration-micro);
+    --duration-travel: var(--duration-micro);
+    --duration-stagger: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    /* (b) These rules are UNLAYERED, so they outrank everything Tailwind emits
+       into `@layer utilities` no matter how specific it is - `duration-500`
+       included - without a single `!important`. That is the point: a component
+       that genuinely needs longer can still opt out with `duration-500!` or any
+       unlayered rule of its own. A blanket `!important` would take that away. */
+    animation-duration: var(--duration-micro);
+    transition-duration: var(--duration-micro);
+    animation-delay: 0ms;
+    transition-delay: 0ms;
+    scroll-behavior: auto;
+
+    /* (c) tailwindcss-animate stores its travel in private custom properties
+       read by the shared `enter` / `exit` keyframes, so clamping duration would
+       still slide and zoom, just faster. Zeroing these turns all 21 call sites
+       of `slide-in-from-*-2` and `zoom-in-95` into the pure crossfade the
+       contract asks for. `--tw-enter-opacity` / `--tw-exit-opacity` are
+       untouched on purpose - the fade IS the retained signal. */
+    --tw-enter-translate-x: 0;
+    --tw-enter-translate-y: 0;
+    --tw-exit-translate-x: 0;
+    --tw-exit-translate-y: 0;
+    --tw-enter-scale: 1;
+    --tw-exit-scale: 1;
+    --tw-enter-rotate: 0deg;
+    --tw-exit-rotate: 0deg;
+  }
+
+  /* (d) An indefinite loop is not a one-shot transition and must not be treated
+     as one. `animate-pulse` is the app's loading indicator (skeleton.tsx and
+     StudentProgressView.tsx); the `*` clamp above would run its 2s cycle at
+     100ms, strobing a skeleton instead of calming it, and `animation: none`
+     would delete the only sign the app is still working. Its motion is opacity
+     only - zero travel, ~0.5Hz, nowhere near a photosensitivity threshold - so
+     the accessible treatment is to leave it running. Re-asserting the theme
+     shorthand restores name, duration, curve, and iteration count together, with
+     no duration duplicated out of the theme. A class beats `*`. */
+  .animate-pulse {
+    animation: var(--animate-pulse);
+  }
+
+  /* Same reasoning, pre-emptive. None of these are in the tree today, but the
+     moment plan 003+ adds a spinner the `*` clamp above would strobe it exactly
+     as it would have strobed the pulse. Cost of covering them now is three
+     lines; cost of missing one later is an accessibility regression nobody
+     thinks to look for. */
+  .animate-spin {
+    animation: var(--animate-spin);
+  }
+
+  .animate-ping {
+    animation: var(--animate-ping);
+  }
+
+  .animate-bounce {
+    animation: var(--animate-bounce);
+  }
 }
 
 @layer base {

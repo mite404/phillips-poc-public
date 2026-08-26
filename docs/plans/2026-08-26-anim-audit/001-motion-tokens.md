@@ -84,9 +84,18 @@ Copy these exactly from `MOTION-CONTRACT.md`. Do not approximate a cubic-bezier.
 
 1. `bun run build` passes.
 2. Add a scratch element using `ease-drawer` and `duration-(--duration-surface)`, run
-   `bun run build`, and confirm the generated CSS contains
-   `cubic-bezier(0.23,1,0.32,1)` and `320ms`. Remove the scratch element.
+   `bun run build`, and confirm the generated CSS contains `cubic-bezier(.23,1,.32,1)`
+   and `.32s`. Remove the scratch element.
+
+   Note the normalized forms. Lightning CSS rewrites `320ms` to `.32s` and strips the
+   leading zero from bezier arguments, so grepping for the values as written in this
+   document will never match, even with minification disabled.
+
    This is the check that catches a token defined in a namespace Tailwind ignores -
    the failure mode is silent, since Tailwind does not error on unknown utilities.
+3. Verify the tokens survive WITHOUT these docs in the content scan:
+   `mv docs /tmp/x && bun run build && mv /tmp/x docs`, then confirm all four
+   easing variables are still in the bundle. Tailwind scans markdown too, so a token
+   named only in prose looks consumed when it is not.
 3. `bun run lint` and `bun run test` stay green.
 4. Feel-check: none yet. This plan is invisible by design.

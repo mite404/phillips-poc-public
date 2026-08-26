@@ -40,6 +40,13 @@ in a component.
 | `--ease-drawer` | `cubic-bezier(0.32, 0.72, 0, 1)` | Sheets and drawers |
 | `--ease-exit` | `cubic-bezier(0.4, 0, 1, 1)` | Elements leaving. The only accelerating curve |
 
+`--ease-exit` is byte-identical to Tailwind's stock `--ease-in`
+(`node_modules/tailwindcss/theme.css:386`), so the compiler merges them into one
+rule, `.ease-exit,.ease-in{...}`. That is not a duplication bug and must not be
+"cleaned up". The ban on `ease-in` is about never putting an accelerating curve on
+something *entering*. The same curve is correct on something *leaving*, and
+`--ease-exit` is the name that says which one you meant.
+
 `--ease-out` is a deliberately strong curve. It reaches most of its travel in the first
 third of its duration, which is what produces the "quick, then a long soft landing" read.
 Tailwind's stock `ease-out` (`cubic-bezier(0, 0, 0.2, 1)`) is far weaker and will not.
@@ -59,8 +66,12 @@ Keyed to travel distance, since distance is what governs whether a duration feel
 
 ### Travel and scale
 
-`--travel-sm` 4px, `--travel-md` 8px, `--travel-lg` 16px, `--scale-in` 0.96,
-`--scale-press` 0.97.
+`--travel-md` 8px, `--scale-in` 0.96, `--scale-press` 0.97.
+
+Only these three are defined. `--travel-sm` (4px) and `--travel-lg` (16px) were in
+an earlier draft of this contract and were cut: a grep across plans 002-008 found no
+consumer for either. A one-off nudge should use a literal at the call site rather
+than a token used once.
 
 Never `scale(0)`. Nothing in the physical world appears from nothing.
 
@@ -93,6 +104,16 @@ this app. If a candidate wants a spring, it needs to justify it against this lin
 - shadcn/ui on Radix primitives. `src/components/ui/` is vendored, so editing it is fine.
 - Tailwind v4 config lives in `@theme` in `src/index.css`. `tailwind.config.js` is
   **never loaded** - v4 requires an explicit `@config` directive and there is none.
-- Tailwind v4 has an `--ease-*` theme namespace but **no `--duration-*` namespace**.
-  Duration tokens are plain custom properties, referenced as `duration-(--duration-pop)`.
+- Tailwind v4 has an `--ease-*` theme namespace. It resolves the `duration-*`
+  utility against **`--transition-duration-*`**, not `--duration-*`; a token
+  registered as `--duration-pop` generates no utility and raises no error. Duration
+  tokens are therefore plain custom properties, referenced as
+  `duration-(--duration-pop)`, rather than carrying two names for one value.
+- Easing tokens use `@theme static`, not `@theme inline`. Tailwind tree-shakes any
+  theme variable it sees no reference to, and until plans 002-007 land the only
+  thing referencing these curves is the prose in this directory. Verified: under
+  `@theme inline` with these docs excluded from the content scan, `--ease-out`,
+  `--ease-drawer` and `--ease-exit` vanish from the bundle entirely, silently.
+- Build output is emitted by Lightning CSS, which normalizes time units:
+  `320ms` appears as `.32s`. Grep for the normalized form when verifying.
 - `motion` (Framer) is approved for plan 007 only. No GSAP anywhere.
