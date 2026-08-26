@@ -55,7 +55,7 @@ Access via json-server at `http://localhost:3001/{collection}`
 
 ### Project Structure
 
-**Path Aliases**: The project uses `@/`_ to reference `./src/`_ (configured in both vite.config.ts and tsconfig.json)
+**Path Aliases**: The project uses `@/_` to reference `./src/_` (configured in both vite.config.ts and tsconfig.json)
 
 **Component Architecture**:
 
