@@ -30,11 +30,12 @@ independent and can land any time.
 | [005](005-overlay-starting-style.md) | Overlays: keyframes to transitions | 001 | **DONE** ([synthesis](arena/005-synthesis.md)) |
 | [006](006-loading-and-swap.md) | Skeleton crossfade, icon swap, stagger | 001 | **DONE** ([synthesis](arena/006-synthesis.md)) |
 | [007](007-view-and-theme-transition.md) | Screen transitions, theme, count-up | 001 | **DONE** ([notes](arena/007-synthesis.md), no arena) |
-| [008](008-starter-cleanup.md) | Delete Vite starter leftovers | - | TODO |
+| [008](008-starter-cleanup.md) | Delete Vite starter leftovers | - | **DONE** ([synthesis](arena/008-synthesis.md)) |
 | [009](009-source-not-docs.md) | Exclude `docs/` from the Tailwind content scan | - | TODO |
 | [010](010-restore-focus-rings.md) | Restore focus indicators (WCAG 2.4.7 failure) | - | TODO |
 | [011](011-dialog-consumer-unmount.md) | Dialog consumers unmount before their exit plays | 005 | TODO |
 | [012](012-fetch-abort-guard.md) | Guard the catalog fetch against double-invocation | - | TODO |
+| [013](013-tailwind-v3-bracket-syntax.md) | Fix 23 v3 bracket-syntax class names (visible layout bug) | - | TODO |
 
 ## How each plan gets implemented
 

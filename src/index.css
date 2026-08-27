@@ -155,27 +155,13 @@ body {
   padding: 0;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+/* Not starter cruft, despite sitting where the rest of it did. Tailwind v4's
+   preflight resets a button's border-radius and font but never sets a cursor,
+   and no shadcn variant carries `cursor-pointer`, so deleting this reverts every
+   button in the app to the default arrow. border-radius and font-family ARE
+   redundant with preflight and are gone; the cursor stays. */
 button {
-  border-radius: var(--radius);
-  font-family: inherit;
   cursor: pointer;
-}
-button:hover {
-  border-color: #646cff;
 }
 
 /* 4. Tailwind Theme Configuration */
