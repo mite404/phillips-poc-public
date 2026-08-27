@@ -30,25 +30,33 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
   const [selectedLearner, setSelectedLearner] = useState<LearnerProfile | null>(null);
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
 
+  // StrictMode double-invokes this effect in dev; abort the stale request and ignore
+  // its response so it can't overwrite a later, live one.
   useEffect(() => {
-    loadRosterData();
+    const controller = new AbortController();
+    loadRosterData(controller.signal);
+    return () => controller.abort();
   }, []);
 
-  async function loadRosterData() {
+  async function loadRosterData(signal?: AbortSignal) {
     setIsLoading(true);
     try {
-      const [fetchedLearners, fetchedAssignments, fetchedEnrollments] = await Promise.all(
-        [legacyApi.getRoster(), localApi.getAssignments(), localApi.getEnrollments()],
-      );
+      const [fetchedLearners, fetchedAssignments, fetchedEnrollments] = await Promise.all([
+        legacyApi.getRoster(signal),
+        localApi.getAssignments(signal),
+        localApi.getEnrollments(signal),
+      ]);
+      if (signal?.aborted) return;
 
       setLearners(fetchedLearners);
       setAssignments(fetchedAssignments);
       setEnrollments(fetchedEnrollments);
     } catch (error) {
+      if (signal?.aborted) return;
       console.error("Failed to load roster data:", error);
       toast.error("Failed to load student roster");
     } finally {
-      setIsLoading(false);
+      if (!signal?.aborted) setIsLoading(false);
     }
   }
 

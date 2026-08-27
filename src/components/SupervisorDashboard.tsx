@@ -16,21 +16,26 @@ export function SupervisorDashboard({ onNavigate }: { onNavigate: (view: string)
   });
   const [isLoading, setIsLoading] = useState(true);
 
+  // StrictMode double-invokes this effect in dev; abort the stale request and ignore
+  // its response so it can't overwrite a later, live one.
   useEffect(() => {
-    loadMetrics();
+    const controller = new AbortController();
+    loadMetrics(controller.signal);
+    return () => controller.abort();
   }, []);
 
-  async function loadMetrics() {
+  async function loadMetrics(signal?: AbortSignal) {
     try {
       setIsLoading(true);
 
       // Fetch data from APIs
       const [roster, assignments, enrollments, programs] = await Promise.all([
-        legacyApi.getRoster(),
-        localApi.getAssignments(),
-        localApi.getEnrollments(),
-        localApi.getAllPrograms(),
+        legacyApi.getRoster(signal),
+        localApi.getAssignments(signal),
+        localApi.getEnrollments(signal),
+        localApi.getAllPrograms(signal),
       ]);
+      if (signal?.aborted) return;
 
       // Calculate metrics
       const totalStudents = roster.length;
@@ -55,9 +60,10 @@ export function SupervisorDashboard({ onNavigate }: { onNavigate: (view: string)
         programsCreated,
       });
     } catch (error) {
+      if (signal?.aborted) return;
       console.error("Failed to load dashboard metrics:", error);
     } finally {
-      setIsLoading(false);
+      if (!signal?.aborted) setIsLoading(false);
     }
   }
 

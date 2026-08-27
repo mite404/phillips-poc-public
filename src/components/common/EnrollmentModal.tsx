@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
 import type {
@@ -58,26 +58,40 @@ export function EnrollmentModal({
     setDisplayCourseId(courseId);
   }
 
-  const loadInventory = useCallback(async () => {
-    if (courseId === null) return;
-
-    setIsLoading(true);
-    try {
-      const data = await legacyApi.getInventory(courseId);
-      setInventory(data);
-    } catch (error) {
-      console.error("Failed to load class inventory:", error);
-      toast.error("Failed to load class schedules");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [courseId]);
-
+  // Plan 011 made this dialog stay permanently mounted (rendered unconditionally by
+  // the parent so its exit transition can play), so the SAME instance now lives
+  // through many different `courseId` values instead of unmounting between them (see
+  // StudentDashboard, which opens this modal for a different course per program). If
+  // one course's inventory fetch is still in flight when a different course opens,
+  // the stale response can land after the new one and show the wrong class list.
+  // `ignore` discards it - see docs/plans/2026-08-26-anim-audit/012-fetch-abort-guard.md.
   useEffect(() => {
-    if (isOpen) {
-      loadInventory();
+    if (!isOpen || courseId === null) return;
+    const activeCourseId = courseId;
+
+    let ignore = false;
+
+    async function loadInventory() {
+      setIsLoading(true);
+      try {
+        const data = await legacyApi.getInventory(activeCourseId);
+        if (ignore) return;
+        setInventory(data);
+      } catch (error) {
+        if (ignore) return;
+        console.error("Failed to load class inventory:", error);
+        toast.error("Failed to load class schedules");
+      } finally {
+        if (!ignore) setIsLoading(false);
+      }
     }
-  }, [isOpen, loadInventory]);
+
+    loadInventory();
+
+    return () => {
+      ignore = true;
+    };
+  }, [isOpen, courseId]);
 
   const handleEnroll = async () => {
     if (!selectedClass || !displayLearner || displayCourseId === null) {

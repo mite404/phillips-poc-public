@@ -270,8 +270,12 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
   const toggleCol = (col: ColKey) => setHiddenCols((prev) => toggleColumn(prev, col));
 
-  // Fetch & hydrate data
+  // Fetch & hydrate data.
+  // StrictMode double-invokes this effect in dev; abort the stale request and ignore
+  // its response so it can't overwrite a later, live one.
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchData() {
       try {
         setIsLoading(true);
@@ -279,12 +283,13 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
         // Step 1: Fetch all data in parallel
         const [roster, assignments, enrollments, allPrograms, catalog] = await Promise.all([
-          legacyApi.getRoster(),
-          localApi.getAssignments(),
-          localApi.getEnrollments(),
-          fetchAllPrograms(),
-          legacyApi.getCatalog(),
+          legacyApi.getRoster(controller.signal),
+          localApi.getAssignments(controller.signal),
+          localApi.getEnrollments(controller.signal),
+          fetchAllPrograms(controller.signal),
+          legacyApi.getCatalog(controller.signal),
         ]);
+        if (controller.signal.aborted) return;
 
         // Step 2: Find the student
         const foundStudent = roster.find(
@@ -372,14 +377,16 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
         setHydratedPrograms(hydrated);
         setFlatCourses(flatCourses);
       } catch (err) {
+        if (controller.signal.aborted) return;
         console.error("Failed to fetch student progress data:", err);
         setError("Failed to load student progress");
       } finally {
-        setIsLoading(false);
+        if (!controller.signal.aborted) setIsLoading(false);
       }
     }
 
     fetchData();
+    return () => controller.abort();
   }, [studentId]);
 
   // Calculate metrics from flat data
@@ -424,8 +431,8 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   // const completedCourses = filteredCourses.filter((course) => course.status === "Completed");
 
   // Helper function to fetch all programs (uses network-first, localStorage-fallback)
-  async function fetchAllPrograms(): Promise<SupervisorProgram[]> {
-    return localApi.getAllPrograms();
+  async function fetchAllPrograms(signal?: AbortSignal): Promise<SupervisorProgram[]> {
+    return localApi.getAllPrograms(signal);
   }
 
   const getStatusClassName = (status: CourseStatus): string => {

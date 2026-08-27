@@ -64,11 +64,19 @@ export function StudentDashboard() {
     courseId: number;
   } | null>(null);
 
+  // `ignore` discards a stale response from StrictMode's double-invoke (or any
+  // remount mid-flight) - see docs/plans/2026-08-26-anim-audit/012-fetch-abort-guard.md.
+  // Checked after every await in this function, since it makes several sequential
+  // network calls rather than a single one.
   useEffect(() => {
-    loadStudentData();
+    let ignore = false;
+    loadStudentData(() => ignore);
+    return () => {
+      ignore = true;
+    };
   }, []);
 
-  async function loadStudentData() {
+  async function loadStudentData(isIgnored: () => boolean) {
     setIsLoading(true);
     try {
       // Fetch all data in parallel
@@ -77,6 +85,7 @@ export function StudentDashboard() {
         localApi.getEnrollments(),
         legacyApi.getCatalog(),
       ]);
+      if (isIgnored()) return;
 
       // Filter assignments for this student and deduplicate by program ID
       const myAssignments = assignments.filter(
@@ -115,8 +124,10 @@ export function StudentDashboard() {
       const hydratedPrograms: HydratedProgram[] = [];
 
       for (const assignment of uniqueAssignments) {
+        if (isIgnored()) return;
         try {
           const program = await localApi.getProgramById(assignment.programId);
+          if (isIgnored()) return;
 
           // Hydrate course sequence
           const courses: Course[] = program.courseSequence
@@ -136,8 +147,10 @@ export function StudentDashboard() {
       // Step 6: Pre-fetch inventory for all ILT courses (BEFORE rendering)
       try {
         const inventoryMap = await legacyApi.getAllInventory();
+        if (isIgnored()) return;
         setCourseInventory(inventoryMap);
       } catch (error) {
+        if (isIgnored()) return;
         console.error("Failed to pre-fetch inventory:", error);
         // Continue without inventory cache (buttons will still show)
       }
@@ -164,10 +177,11 @@ export function StudentDashboard() {
       };
       setCompletedPrograms([mockCompletedProgram]);
     } catch (error) {
+      if (isIgnored()) return;
       console.error("Failed to load student data:", error);
       toast.error("Failed to load programs");
     } finally {
-      setIsLoading(false);
+      if (!isIgnored()) setIsLoading(false);
     }
   }
 

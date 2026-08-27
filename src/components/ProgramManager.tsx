@@ -29,15 +29,20 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
 
+  // StrictMode double-invokes this effect in dev; abort the stale request and ignore
+  // its response so it can't overwrite a later, live one.
   useEffect(() => {
+    const controller = new AbortController();
+
     async function loadProgramData() {
       setIsLoading(true);
       try {
         // Fetch program and catalog in parallel
         const [fetchedProgram, catalog] = await Promise.all([
-          localApi.getProgramById(programId),
-          legacyApi.getCatalog(),
+          localApi.getProgramById(programId, controller.signal),
+          legacyApi.getCatalog(controller.signal),
         ]);
+        if (controller.signal.aborted) return;
 
         setProgram(fetchedProgram);
 
@@ -58,14 +63,16 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
 
         setHydratedCourses(hydrated);
       } catch (error) {
+        if (controller.signal.aborted) return;
         console.error("Failed to load program data:", error);
         toast.error("Failed to load program");
       } finally {
-        setIsLoading(false);
+        if (!controller.signal.aborted) setIsLoading(false);
       }
     }
 
     loadProgramData();
+    return () => controller.abort();
   }, [programId]);
 
   // Calculate total duration

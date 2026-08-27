@@ -34,7 +34,7 @@ independent and can land any time.
 | [009](009-source-not-docs.md) | Scope the Tailwind content scan to `src/` | - | **DONE** ([synthesis](arena/009-synthesis.md)) |
 | [010](010-restore-focus-rings.md) | Restore focus indicators (WCAG 2.4.7 failure) | - | **DONE** ([synthesis](arena/010-synthesis.md)) |
 | [011](011-dialog-consumer-unmount.md) | Dialog consumers unmount before their exit plays | 005 | **DONE** ([synthesis](arena/011-synthesis.md)) |
-| [012](012-fetch-abort-guard.md) | Guard the catalog fetch against double-invocation | - | TODO |
+| [012](012-fetch-abort-guard.md) | Guard the catalog fetch against double-invocation | - | **DONE** ([synthesis](arena/012-synthesis.md)) |
 | [013](013-tailwind-v3-bracket-syntax.md) | Fix 23 v3 bracket-syntax class names (visible layout bug) | - | TODO |
 | [014](014-keyboard-traps.md) | Facet filter options unreachable by keyboard (WCAG A) | - | TODO |
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Course } from "../../hooks/useProgramBuilder";
 import { legacyApi } from "@/api/legacyRoutes";
 import type { Testimonial } from "@/types/models";
@@ -45,28 +45,40 @@ export function CourseDetailModal({
     setTestimonials([]);
   }
 
-  const loadTestimonials = useCallback(async () => {
-    if (!course) return;
-
-    try {
-      const allTestimonials = await legacyApi.getTestimonials();
-      // Filter testimonials for this specific course
-      const filtered = allTestimonials.filter((t) =>
-        t.courses.some((c) => c.courseId === course.courseId),
-      );
-      setTestimonials(filtered);
-    } catch (error) {
-      console.error("Failed to load testimonials:", error);
-      setTestimonials([]);
-    }
-  }, [course]);
-
+  // Plan 011 made this dialog stay permanently mounted (rendered unconditionally by
+  // the parent so its exit transition can play), so the SAME instance now lives
+  // through many different `course` values instead of unmounting between them. If a
+  // course closes before its testimonials fetch resolves and a different course opens,
+  // the stale response can land after the new one and show the wrong testimonials.
+  // `ignore` discards it - see docs/plans/2026-08-26-anim-audit/012-fetch-abort-guard.md.
   useEffect(() => {
-    if (isOpen && course) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      loadTestimonials();
+    if (!isOpen || !course) return;
+    const activeCourse = course;
+
+    let ignore = false;
+
+    async function loadTestimonials() {
+      try {
+        const allTestimonials = await legacyApi.getTestimonials();
+        if (ignore) return;
+        // Filter testimonials for this specific course
+        const filtered = allTestimonials.filter((t) =>
+          t.courses.some((c) => c.courseId === activeCourse.courseId),
+        );
+        setTestimonials(filtered);
+      } catch (error) {
+        if (ignore) return;
+        console.error("Failed to load testimonials:", error);
+        setTestimonials([]);
+      }
     }
-  }, [isOpen, course, loadTestimonials]);
+
+    loadTestimonials();
+
+    return () => {
+      ignore = true;
+    };
+  }, [isOpen, course]);
 
   const showBookButton =
     onBookClick && displayCourse?.trainingTypeName.includes("ILT");
