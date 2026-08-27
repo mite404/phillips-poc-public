@@ -29,12 +29,24 @@ function App() {
     setRefreshTrigger((prev) => prev + 1);
   };
 
-  // Handler to toggle theme
+  // Handler to toggle theme.
+  // The View Transition API crossfades every changed colour in one compositor
+  // pass, with no layout involvement, so nothing moves. Deliberately NOT Motion:
+  // the platform already does this and the library would add nothing. Firefox has
+  // no support and falls back to an instant swap, which is exactly the behaviour
+  // this replaces, so there is no regression to guard against.
+  //
+  // The old requestAnimationFrame wrapper is gone. It deferred the class flip by a
+  // frame but never coordinated it with anything, so the flash it was presumably
+  // meant to avoid happened anyway.
   const handleThemeToggle = () => {
     const next = !lightMode;
-    requestAnimationFrame(() => {
-      document.documentElement.classList.toggle('dark', !next);
-    });
+    const apply = () => document.documentElement.classList.toggle('dark', !next);
+    if (document.startViewTransition) {
+      document.startViewTransition(apply);
+    } else {
+      apply();
+    }
     setLightMode(next);
   };
 

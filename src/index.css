@@ -305,6 +305,21 @@ button:hover {
   }
 }
 
+/* 5c. Theme switch
+   handleThemeToggle in App.tsx wraps the `dark` class flip in
+   document.startViewTransition, which snapshots the old and new frames and
+   crossfades between them. Only the timing is set here; the default
+   cross-fade is exactly what the contract asks for - colour changes with zero
+   layout movement.
+
+   The root snapshot is excluded from the usual travel/scale rules on purpose:
+   this is a full-page dissolve, not an element moving. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--duration-swap);
+  animation-timing-function: var(--ease-out);
+}
+
 /* 6. Reduced Motion
    Less movement, not less feedback. There is no `transition: none` and no
    `animation: none` below: killing the transition outright removes the signal
