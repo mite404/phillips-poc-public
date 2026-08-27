@@ -24,7 +24,7 @@ independent and can land any time.
 | Plan | Covers | Depends on | Status |
 | --- | --- | --- | --- |
 | [001](001-motion-tokens.md) | Motion token scale + global reduced-motion | - | **DONE** ([synthesis](arena/001-synthesis.md)) |
-| [002](002-fix-accordion.md) | Dead `animate-accordion-*` keyframes | 001 | TODO |
+| [002](002-fix-accordion.md) | Accordion collapse animation | 001 | **DONE** ([synthesis](arena/002-synthesis.md)) |
 | [003](003-kill-transition-all.md) | `transition-all` in six files | 001 | TODO |
 | [004](004-press-feedback.md) | Press/active feedback on buttons | 001 | TODO |
 | [005](005-overlay-starting-style.md) | Overlays: keyframes to transitions | 001 | TODO |
@@ -32,6 +32,7 @@ independent and can land any time.
 | [007](007-view-and-theme-transition.md) | Screen transitions, theme, count-up | 001 | TODO |
 | [008](008-starter-cleanup.md) | Delete Vite starter leftovers | - | TODO |
 | [009](009-source-not-docs.md) | Exclude `docs/` from the Tailwind content scan | - | TODO |
+| [010](010-restore-focus-rings.md) | Restore focus indicators (WCAG 2.4.7 failure) | - | TODO |
 
 ## How each plan gets implemented
 

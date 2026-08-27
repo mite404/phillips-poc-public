@@ -11,6 +11,7 @@ import type {
 import { Course } from "@/hooks/useProgramBuilder";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronDown } from "lucide-react";
+import { AccordionContent } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,6 +19,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CourseDetailModal } from "@/components/common/CourseDetailModal";
 import { EnrollmentModal } from "@/components/common/EnrollmentModal";
 import { toast } from "sonner";
+
+// Chevron timing mirrors AccordionContent's panel so the two land together:
+// 320ms ease-out opening, 160ms ease-exit closing.
+const CHEVRON_CLASS =
+  "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-(--duration-swap) ease-exit " +
+  "group-data-[state=open]:rotate-180 group-data-[state=open]:duration-(--duration-surface) group-data-[state=open]:ease-out";
 
 interface HydratedProgram {
   program: SupervisorProgram;
@@ -260,9 +267,9 @@ export function StudentDashboard() {
                       >
                         {enrolled ? "Registered" : "Pending"}
                       </Badge>
-                      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                      <ChevronDown className={CHEVRON_CLASS} />
                     </Accordion.Trigger>
-                    <Accordion.Content className="px-4 pb-4 pt-2">
+                    <AccordionContent className="px-4 pb-4 pt-2">
                       {hydrated.program.description && (
                         <p className="text-sm text-slate-600 mb-4">
                           {hydrated.program.description}
@@ -336,7 +343,7 @@ export function StudentDashboard() {
                           );
                         })}
                       </div>
-                    </Accordion.Content>
+                    </AccordionContent>
                   </Accordion.Item>
                 );
               })}
@@ -367,9 +374,9 @@ export function StudentDashboard() {
                     <Badge className="bg-green-100 text-green-800 hover:bg-green-100 mr-2">
                       ✓ Complete
                     </Badge>
-                    <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    <ChevronDown className={CHEVRON_CLASS} />
                   </Accordion.Trigger>
-                  <Accordion.Content className="px-4 pb-4 pt-2">
+                  <AccordionContent className="px-4 pb-4 pt-2">
                     {hydrated.program.description && (
                       <p className="text-sm text-slate-600 mb-4">
                         {hydrated.program.description}
@@ -408,7 +415,7 @@ export function StudentDashboard() {
                         </Card>
                       ))}
                     </div>
-                  </Accordion.Content>
+                  </AccordionContent>
                 </Accordion.Item>
               ))}
             </Accordion.Root>
