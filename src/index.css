@@ -69,7 +69,20 @@
   --sidebar-foreground: #0a0a0a;
   --sidebar-primary: #ff5000;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f5f5f5;
+  /* Hover / active fill for sidebar rows. Against a #fafafa rail (OKLCH
+     L 0.985) the stock #f5f5f5 was L 0.970 - a 0.015 lightness step at 1.04:1,
+     invisible on anything but a calibrated panel. #c9c9c9 is L 0.836: a 0.149
+     step at 1.59:1, matched by contrast (not by raw lightness delta) to the
+     dark theme's 1.58:1.
+
+     Light mode moves DOWN in luminance to gain contrast. The rail is already
+     near white, so lifting the fill toward white would erase the hover, not
+     strengthen it.
+
+     This is past the conventional "subtle tint" range on purpose. A ~1.2:1
+     fill is the usual dashboard default and it tested as not visible enough
+     here. Do not walk it back toward #e5e5e5 for subtlety. */
+  --sidebar-accent: #c9c9c9;
   --sidebar-accent-foreground: #0a0a0a;
   --sidebar-border: #e5e5e5;
   --sidebar-ring: #ff5000;
@@ -154,7 +167,18 @@
   --sidebar-foreground: oklch(0.985 0.001 17.2);
   --sidebar-primary: #ff5000;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: oklch(0.18 0.004 17.2);
+  /* Lifted from the stock L 0.18 to L 0.32 against the L 0.13 rail: 0.05 ->
+     0.19 of lightness, 1.07:1 -> 1.58:1. Deliberately NOT a symmetric OKLCH
+     delta with the light theme - equal lightness steps read weaker at the dark
+     end on an emissive display, so both themes are tuned to the same contrast
+     ratio instead.
+
+     This deliberately sits ABOVE --sidebar-border (L 0.26). An earlier pass
+     capped it below the border to "keep the rail edge reading"; that rule was
+     invented, it has no basis, and it was the thing holding the hover down at
+     an invisible 1.22:1. A transient hover fill outshining a static divider is
+     normal and correct. */
+  --sidebar-accent: oklch(0.32 0.005 17.2);
   --sidebar-accent-foreground: oklch(0.985 0.001 17.2);
   --sidebar-border: oklch(0.26 0.004 17.2);
   --sidebar-ring: #ff5000;
