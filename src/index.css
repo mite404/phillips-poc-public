@@ -1,7 +1,19 @@
 /* 1. Import Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inconsolata:wght@400;700&display=swap");
 
-@import "tailwindcss";
+/* Scope automatic content scanning to `src/`, not the current working
+   directory. Without this, Tailwind's scanner - which has no file-type
+   opinion and treats any class-shaped token as a candidate, even a plain
+   English word in prose like "lowercase" or "static" - walks every
+   non-gitignored file in the repo: the docs/ audit tree, AGENTS.md,
+   README.md, etc. Those emit real (if dead) CSS for any class name they
+   happen to mention. An allow-list of one path is also immune to new
+   top-level clutter (another root-level .md file, a new script) without
+   ever needing an update; a `@source not "..."` deny-list would need a new
+   line each time. See docs/plans/2026-08-26-anim-audit/009-source-not-docs.md
+   for background; the mechanism comparison and measured bundle sizes for
+   the alternatives are recorded outside this worktree. */
+@import "tailwindcss" source("../src");
 
 /* 2. Theme Variables */
 :root {
