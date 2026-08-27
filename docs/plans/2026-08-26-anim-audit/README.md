@@ -27,12 +27,13 @@ independent and can land any time.
 | [002](002-fix-accordion.md) | Accordion collapse animation | 001 | **DONE** ([synthesis](arena/002-synthesis.md)) |
 | [003](003-kill-transition-all.md) | `transition-all` in six files | 001 | **DONE** ([synthesis](arena/003-synthesis.md)) |
 | [004](004-press-feedback.md) | Press/active feedback on buttons | 001 | **DONE** ([synthesis](arena/004-synthesis.md)) |
-| [005](005-overlay-starting-style.md) | Overlays: keyframes to transitions | 001 | TODO |
+| [005](005-overlay-starting-style.md) | Overlays: keyframes to transitions | 001 | **DONE** ([synthesis](arena/005-synthesis.md)) |
 | [006](006-loading-and-swap.md) | Skeleton crossfade, icon swap, stagger | 001 | TODO |
 | [007](007-view-and-theme-transition.md) | Screen transitions, theme, count-up | 001 | TODO |
 | [008](008-starter-cleanup.md) | Delete Vite starter leftovers | - | TODO |
 | [009](009-source-not-docs.md) | Exclude `docs/` from the Tailwind content scan | - | TODO |
 | [010](010-restore-focus-rings.md) | Restore focus indicators (WCAG 2.4.7 failure) | - | TODO |
+| [011](011-dialog-consumer-unmount.md) | Dialog consumers unmount before their exit plays | 005 | TODO |
 
 ## How each plan gets implemented
 

@@ -2,7 +2,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inconsolata:wght@400;700&display=swap");
 
 @import "tailwindcss";
-@plugin "tailwindcss-animate";
 
 /* 2. Theme Variables */
 :root {
@@ -97,6 +96,10 @@
   /* --- Motion: Travel and scale ---
      Never scale(0); nothing in the physical world appears from nothing. */
   --travel-md: 8px; /* the only travel value plans 002-008 actually name */
+  /* The sheet crosses the whole viewport, so its travel is its own size rather
+     than a fixed distance. Tokened only so the reduced-motion block below can
+     zero it: `translate-x-full` is a literal and nothing else can reach it. */
+  --travel-sheet: 100%;
   --scale-in: 0.96;
   --scale-press: 0.97;
 }
@@ -273,6 +276,35 @@ button:hover {
   --ease-exit: cubic-bezier(0.4, 0, 1, 1); /* leaving. the only accelerating curve */
 }
 
+/* 5b. Overlay exit gate
+   `@radix-ui/react-presence` defers unmounting an exiting node only while a
+   real CSS *animation* is running on it - it reads
+   `getComputedStyle(node).animationName` and nothing else, never
+   `transitionProperty`. Dialog, sheet, dropdown-menu, popover and tooltip
+   (ui/dialog.tsx, ui/sheet.tsx, ui/dropdown-menu.tsx, ui/popover.tsx,
+   ui/tooltip.tsx) all drive their real motion with `transition` instead of
+   `tailwindcss-animate`'s keyframes, specifically so a fast re-open retargets
+   from wherever the element currently is instead of restarting the enter
+   keyframe from frame zero. That means nothing tells Presence to hold the
+   node mounted while the exit transition plays, so without this it would be
+   removed from the DOM on the same frame `data-state` flips to "closed" -
+   the transition would be declared but never get a frame to run.
+
+   This keyframe changes only an unused custom property, `--exit-gate`, so it
+   has no visual effect of its own. It exists purely so Presence sees a
+   genuine `animationName` on `data-state=closed` and defers unmount for
+   exactly `animation-duration` - each consumer sets that to match its own
+   exit transition length, so the node disappears right as the transition
+   finishes, never before and never with a dangling pause after. */
+@keyframes exit-gate {
+  from {
+    --exit-gate: 0;
+  }
+  to {
+    --exit-gate: 1;
+  }
+}
+
 /* 6. Reduced Motion
    Less movement, not less feedback. There is no `transition: none` and no
    `animation: none` below: killing the transition outright removes the signal
@@ -280,12 +312,19 @@ button:hover {
    goes away is travel, scale, rotation, and waiting. What survives is a short
    crossfade, so every state change stays perceptible.
 
-   Four mechanisms, because no single one reaches everything:
-     (a) tokens        - what plans 002-007 will consume
+   Three mechanisms, because no single one reaches everything:
+     (a) tokens        - what plans 002-007 consume
      (b) the `*` rule  - hardcoded `duration-200` / `duration-500` and stock
                          shadcn transitions the tokens cannot reach
-     (c) --tw-*-*      - tailwindcss-animate's private travel/scale vars
-     (d) .animate-pulse - the one indefinite loop, deliberately spared
+     (c) .animate-pulse - the one indefinite loop, deliberately spared
+
+   Plan 005 removed the fourth mechanism that used to live here: zeroing
+   `tailwindcss-animate`'s private per-direction custom properties. It
+   converted every consumer of that plugin's directional/scale/fade utilities
+   to plain `transition`s driven by `--travel-md` / `--scale-in` instead,
+   which (a) already clamps under reduced motion, and removed the `@plugin`
+   directive once grep and a built-CSS diff confirmed nothing else
+   referenced it.
 
    `src/App.css:30` holds an INVERTED query, `prefers-reduced-motion:
    no-preference`, guarding the dead Vite logo spinner. It is disjoint from
@@ -296,6 +335,7 @@ button:hover {
     /* (a) Zero the travel and flatten the scales. A duration clamp alone would
        only make an 8px slide *fast*; this is what makes it not move. */
     --travel-md: 0px;
+    --travel-sheet: 0%;
     --scale-in: 1;
     --scale-press: 1;
 
@@ -321,24 +361,9 @@ button:hover {
     animation-delay: 0ms;
     transition-delay: 0ms;
     scroll-behavior: auto;
-
-    /* (c) tailwindcss-animate stores its travel in private custom properties
-       read by the shared `enter` / `exit` keyframes, so clamping duration would
-       still slide and zoom, just faster. Zeroing these turns all 21 call sites
-       of `slide-in-from-*-2` and `zoom-in-95` into the pure crossfade the
-       contract asks for. `--tw-enter-opacity` / `--tw-exit-opacity` are
-       untouched on purpose - the fade IS the retained signal. */
-    --tw-enter-translate-x: 0;
-    --tw-enter-translate-y: 0;
-    --tw-exit-translate-x: 0;
-    --tw-exit-translate-y: 0;
-    --tw-enter-scale: 1;
-    --tw-exit-scale: 1;
-    --tw-enter-rotate: 0deg;
-    --tw-exit-rotate: 0deg;
   }
 
-  /* (d) An indefinite loop is not a one-shot transition and must not be treated
+  /* (c) An indefinite loop is not a one-shot transition and must not be treated
      as one. `animate-pulse` is the app's loading indicator (skeleton.tsx and
      StudentProgressView.tsx); the `*` clamp above would run its 2s cycle at
      100ms, strobing a skeleton instead of calming it, and `animation: none`
