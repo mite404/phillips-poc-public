@@ -13,32 +13,51 @@ const SheetClose = SheetPrimitive.Close
 
 const SheetPortal = SheetPrimitive.Portal
 
+/* Same exit-gate need as Dialog (see index.css and dialog.tsx): Presence only
+   defers unmount for a real `animation`, never a `transition`, so the fade
+   below pairs each transition with a matching `exit-gate` run. Sheet's own
+   contract row is travel (460ms) in / surface (320ms) out on --ease-drawer /
+   --ease-exit, one step slower than Dialog's since a sheet crosses more of
+   the viewport. */
+const SHEET_OVERLAY_MOTION_CLASS =
+  "opacity-100 transition-[opacity] duration-(--duration-travel) ease-drawer " +
+  "starting:opacity-0 " +
+  "data-[state=closed]:opacity-0 data-[state=closed]:duration-(--duration-surface) data-[state=closed]:ease-exit " +
+  "data-[state=closed]:[animation:exit-gate_var(--duration-surface)_linear]"
+
 const SheetOverlay = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
-    className={cn(
-      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className
-    )}
+    className={cn("fixed inset-0 z-50 bg-black/80", SHEET_OVERLAY_MOTION_CLASS, className)}
     {...props}
     ref={ref}
   />
 ))
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
 
+/* Sheet lives on an edge, so contract rule 3 puts its origin there too - a
+   pure `translate`, never a scale, sliding fully off-screen and back rather
+   than nudging by `--travel-md`. `starting:` and `data-[state=closed]:` carry
+   the identical off-screen offset per side: `starting:` seeds where the
+   enter transition begins, `data-[state=closed]:` is where the exit ends -
+   the original also slid all the way back out on close, per side, so this
+   keeps that instead of fading in place. */
 const sheetVariants = cva(
-  "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out",
+  "fixed z-50 gap-4 bg-background p-6 shadow-lg translate-x-0 translate-y-0 " +
+    "transition-[translate] duration-(--duration-travel) ease-drawer " +
+    "data-[state=closed]:duration-(--duration-surface) data-[state=closed]:ease-exit " +
+    "data-[state=closed]:[animation:exit-gate_var(--duration-surface)_linear]",
   {
     variants: {
       side: {
-        top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+        top: "inset-x-0 top-0 border-b starting:-translate-y-(--travel-sheet) data-[state=closed]:-translate-y-(--travel-sheet)",
         bottom:
-          "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-        left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
+          "inset-x-0 bottom-0 border-t starting:translate-y-(--travel-sheet) data-[state=closed]:translate-y-(--travel-sheet)",
+        left: "inset-y-0 left-0 h-full w-3/4 border-r starting:-translate-x-(--travel-sheet) data-[state=closed]:-translate-x-(--travel-sheet) sm:max-w-sm",
         right:
-          "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
+          "inset-y-0 right-0 h-full w-3/4 border-l starting:translate-x-(--travel-sheet) data-[state=closed]:translate-x-(--travel-sheet) sm:max-w-sm",
       },
     },
     defaultVariants: {
@@ -62,7 +81,7 @@ const SheetContent = React.forwardRef<
       className={cn(sheetVariants({ side }), className)}
       {...props}
     >
-      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </SheetPrimitive.Close>

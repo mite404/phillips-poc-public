@@ -15,12 +15,15 @@ import type {
 
 /**
  * Get all programs for a supervisor
+ * @param signal - Optional AbortSignal to cancel an in-flight request (e.g. on unmount)
  */
-export async function getAllPrograms(): Promise<SupervisorProgram[]> {
+export async function getAllPrograms(signal?: AbortSignal): Promise<SupervisorProgram[]> {
   // 1. Try network (dev only)
   if (!import.meta.env.PROD) {
     try {
-      const response = await fetchApi<SupervisorProgram[]>(`${LOCAL_API_BASE}/programs`);
+      const response = await fetchApi<SupervisorProgram[]>(`${LOCAL_API_BASE}/programs`, {
+        signal,
+      });
       return response || [];
     } catch {
       console.warn("json-server offline, using localStorage");
@@ -37,14 +40,18 @@ export async function getAllPrograms(): Promise<SupervisorProgram[]> {
 /**
  * Get a specific program by ID
  * @param id - The program UUID
+ * @param signal - Optional AbortSignal to cancel an in-flight request (e.g. on unmount)
  */
-export async function getProgramById(id: string): Promise<SupervisorProgram> {
+export async function getProgramById(
+  id: string,
+  signal?: AbortSignal,
+): Promise<SupervisorProgram> {
   // 1. Try network (dev only)
   if (!import.meta.env.PROD) {
     try {
-      const response = await fetchApi<SupervisorProgram>(
-        `${LOCAL_API_BASE}/programs/${id}`,
-      );
+      const response = await fetchApi<SupervisorProgram>(`${LOCAL_API_BASE}/programs/${id}`, {
+        signal,
+      });
       return response;
     } catch {
       console.warn("json-server offline, using localStorage");
@@ -140,13 +147,15 @@ export async function updateProgram(
 
 /**
  * Get all program assignments
+ * @param signal - Optional AbortSignal to cancel an in-flight request (e.g. on unmount)
  */
-export async function getAssignments(): Promise<ProgramAssignment[]> {
+export async function getAssignments(signal?: AbortSignal): Promise<ProgramAssignment[]> {
   // 1. Try network (dev only)
   if (!import.meta.env.PROD) {
     try {
       const response = await fetchApi<ProgramAssignment[]>(
         `${LOCAL_API_BASE}/program_registrations`,
+        { signal },
       );
       return response || [];
     } catch {
@@ -200,14 +209,15 @@ export async function assignProgram(
 
 /**
  * Get all course enrollments
+ * @param signal - Optional AbortSignal to cancel an in-flight request (e.g. on unmount)
  */
-export async function getEnrollments(): Promise<CourseEnrollment[]> {
+export async function getEnrollments(signal?: AbortSignal): Promise<CourseEnrollment[]> {
   // 1. Try network (dev only)
   if (!import.meta.env.PROD) {
     try {
-      const response = await fetchApi<CourseEnrollment[]>(
-        `${LOCAL_API_BASE}/enrollments`,
-      );
+      const response = await fetchApi<CourseEnrollment[]>(`${LOCAL_API_BASE}/enrollments`, {
+        signal,
+      });
       return response || [];
     } catch {
       console.warn("json-server offline, using localStorage");

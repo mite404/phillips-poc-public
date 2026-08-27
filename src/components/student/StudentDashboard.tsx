@@ -11,6 +11,7 @@ import type {
 import { Course } from "@/hooks/useProgramBuilder";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronDown } from "lucide-react";
+import { AccordionContent } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,6 +19,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CourseDetailModal } from "@/components/common/CourseDetailModal";
 import { EnrollmentModal } from "@/components/common/EnrollmentModal";
 import { toast } from "sonner";
+
+// Chevron timing mirrors AccordionContent's panel so the two land together:
+// 320ms ease-out opening, 160ms ease-exit closing.
+const CHEVRON_CLASS =
+  "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-(--duration-swap) ease-exit " +
+  "group-data-[state=open]:rotate-180 group-data-[state=open]:duration-(--duration-surface) group-data-[state=open]:ease-out";
 
 interface HydratedProgram {
   program: SupervisorProgram;
@@ -57,11 +64,19 @@ export function StudentDashboard() {
     courseId: number;
   } | null>(null);
 
+  // `ignore` discards a stale response from StrictMode's double-invoke (or any
+  // remount mid-flight) - see docs/plans/2026-08-26-anim-audit/012-fetch-abort-guard.md.
+  // Checked after every await in this function, since it makes several sequential
+  // network calls rather than a single one.
   useEffect(() => {
-    loadStudentData();
+    let ignore = false;
+    loadStudentData(() => ignore);
+    return () => {
+      ignore = true;
+    };
   }, []);
 
-  async function loadStudentData() {
+  async function loadStudentData(isIgnored: () => boolean) {
     setIsLoading(true);
     try {
       // Fetch all data in parallel
@@ -70,6 +85,7 @@ export function StudentDashboard() {
         localApi.getEnrollments(),
         legacyApi.getCatalog(),
       ]);
+      if (isIgnored()) return;
 
       // Filter assignments for this student and deduplicate by program ID
       const myAssignments = assignments.filter(
@@ -108,8 +124,10 @@ export function StudentDashboard() {
       const hydratedPrograms: HydratedProgram[] = [];
 
       for (const assignment of uniqueAssignments) {
+        if (isIgnored()) return;
         try {
           const program = await localApi.getProgramById(assignment.programId);
+          if (isIgnored()) return;
 
           // Hydrate course sequence
           const courses: Course[] = program.courseSequence
@@ -129,8 +147,10 @@ export function StudentDashboard() {
       // Step 6: Pre-fetch inventory for all ILT courses (BEFORE rendering)
       try {
         const inventoryMap = await legacyApi.getAllInventory();
+        if (isIgnored()) return;
         setCourseInventory(inventoryMap);
       } catch (error) {
+        if (isIgnored()) return;
         console.error("Failed to pre-fetch inventory:", error);
         // Continue without inventory cache (buttons will still show)
       }
@@ -157,10 +177,11 @@ export function StudentDashboard() {
       };
       setCompletedPrograms([mockCompletedProgram]);
     } catch (error) {
+      if (isIgnored()) return;
       console.error("Failed to load student data:", error);
       toast.error("Failed to load programs");
     } finally {
-      setIsLoading(false);
+      if (!isIgnored()) setIsLoading(false);
     }
   }
 
@@ -231,10 +252,10 @@ export function StudentDashboard() {
       <div className="grid grid-cols-2 gap-6 h-full">
         {/* Left Column: Assigned Programs */}
         <div className="space-y-4 overflow-y-auto">
-          <h2 className="text-xl font-semibold text-slate-800">Assigned Programs</h2>
+          <h2 className="text-xl font-semibold text-foreground">Assigned Programs</h2>
 
           {assignedPrograms.length === 0 ? (
-            <div className="p-8 text-center text-slate-400">No programs assigned yet</div>
+            <div className="p-8 text-center text-muted-foreground">No programs assigned yet</div>
           ) : (
             <Accordion.Root type="single" collapsible className="space-y-3">
               {assignedPrograms.map((hydrated) => {
@@ -245,10 +266,10 @@ export function StudentDashboard() {
                   <Accordion.Item
                     key={hydrated.program.id}
                     value={hydrated.program.id}
-                    className="border border-border rounded-[--radius] overflow-hidden bg-card-background"
+                    className="border border-border rounded-(--radius) overflow-hidden bg-card-background"
                   >
-                    <Accordion.Trigger className="flex w-full items-center px-4 py-3 hover:bg-card-background [&[data-state=open]]:bg-card-background text-left group">
-                      <span className="font-semibold text-slate-900 flex-1">
+                    <Accordion.Trigger className="flex w-full items-center px-4 py-3 hover:bg-card-background [&[data-state=open]]:bg-card-background text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
+                      <span className="font-semibold text-foreground flex-1">
                         {hydrated.program.programName}
                       </span>
                       <Badge
@@ -260,11 +281,11 @@ export function StudentDashboard() {
                       >
                         {enrolled ? "Registered" : "Pending"}
                       </Badge>
-                      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                      <ChevronDown className={CHEVRON_CLASS} />
                     </Accordion.Trigger>
-                    <Accordion.Content className="px-4 pb-4 pt-2">
+                    <AccordionContent className="px-4 pb-4 pt-2">
                       {hydrated.program.description && (
-                        <p className="text-sm text-slate-600 mb-4">
+                        <p className="text-sm text-muted-foreground mb-4">
                           {hydrated.program.description}
                         </p>
                       )}
@@ -278,7 +299,7 @@ export function StudentDashboard() {
                           return (
                             <Card
                               key={course.id}
-                              className="cursor-pointer border border-border rounded-[--radius] p-4 bg-card-background transition-colors"
+                              className="cursor-pointer border border-border rounded-(--radius) p-4 bg-card-background transition-colors"
                               onClick={() =>
                                 handleCourseClick(course, hydrated.program.id)
                               }
@@ -291,10 +312,10 @@ export function StudentDashboard() {
 
                                 {/* Course Info */}
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-semibold text-slate-900 truncate">
+                                  <p className="text-sm font-semibold text-foreground truncate">
                                     {course.courseTitle}
                                   </p>
-                                  <p className="text-xs text-slate-500">
+                                  <p className="text-xs text-muted-foreground">
                                     {course.trainingTypeName} • {course.levelName}
                                   </p>
                                 </div>
@@ -309,7 +330,7 @@ export function StudentDashboard() {
                                     hasAvailableSessions(course.courseId) ? (
                                       <Button
                                         size="sm"
-                                        className="text-sm font-semibold text-slate-900"
+                                        className="text-sm font-semibold text-foreground"
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           handleBookClick(
@@ -336,7 +357,7 @@ export function StudentDashboard() {
                           );
                         })}
                       </div>
-                    </Accordion.Content>
+                    </AccordionContent>
                   </Accordion.Item>
                 );
               })}
@@ -346,10 +367,10 @@ export function StudentDashboard() {
 
         {/* Right Column: Completed Programs */}
         <div className="space-y-4 overflow-y-auto">
-          <h2 className="text-xl font-semibold text-slate-800">Completed Programs</h2>
+          <h2 className="text-xl font-semibold text-foreground">Completed Programs</h2>
 
           {completedPrograms.length === 0 ? (
-            <div className="p-8 text-center text-slate-400">
+            <div className="p-8 text-center text-muted-foreground">
               No completed programs yet
             </div>
           ) : (
@@ -358,20 +379,20 @@ export function StudentDashboard() {
                 <Accordion.Item
                   key={hydrated.program.id}
                   value={hydrated.program.id}
-                  className="border border-border rounded-[--radius] overflow-hidden bg-card-background"
+                  className="border border-border rounded-(--radius) overflow-hidden bg-card-background"
                 >
-                  <Accordion.Trigger className="flex w-full items-center px-4 py-3 [&[data-state=open]] text-left group">
-                    <span className="font-semibold text-slate-900 flex-1">
+                  <Accordion.Trigger className="flex w-full items-center px-4 py-3 [&[data-state=open]] text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
+                    <span className="font-semibold text-foreground flex-1">
                       {hydrated.program.programName}
                     </span>
                     <Badge className="bg-green-100 text-green-800 hover:bg-green-100 mr-2">
                       ✓ Complete
                     </Badge>
-                    <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    <ChevronDown className={CHEVRON_CLASS} />
                   </Accordion.Trigger>
-                  <Accordion.Content className="px-4 pb-4 pt-2">
+                  <AccordionContent className="px-4 pb-4 pt-2">
                     {hydrated.program.description && (
-                      <p className="text-sm text-slate-600 mb-4">
+                      <p className="text-sm text-muted-foreground mb-4">
                         {hydrated.program.description}
                       </p>
                     )}
@@ -379,7 +400,7 @@ export function StudentDashboard() {
                       {hydrated.courses.map((course, idx) => (
                         <Card
                           key={course.id}
-                          className="cursor-pointer border border-border rounded-[--radius] p-4 bg-card-background hover:border-green-400/50 transition-colors"
+                          className="cursor-pointer border border-border rounded-(--radius) p-4 bg-card-background hover:border-green-400/50 transition-colors"
                           onClick={() => handleCourseClick(course, hydrated.program.id)}
                         >
                           <div className="flex items-center gap-3">
@@ -390,10 +411,10 @@ export function StudentDashboard() {
 
                             {/* Course Info */}
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-slate-900 truncate">
+                              <p className="text-sm font-semibold text-foreground truncate">
                                 {course.courseTitle}
                               </p>
-                              <p className="text-xs text-slate-500">
+                              <p className="text-xs text-muted-foreground">
                                 {course.trainingTypeName} • {course.levelName}
                               </p>
                             </div>
@@ -408,7 +429,7 @@ export function StudentDashboard() {
                         </Card>
                       ))}
                     </div>
-                  </Accordion.Content>
+                  </AccordionContent>
                 </Accordion.Item>
               ))}
             </Accordion.Root>
@@ -429,17 +450,17 @@ export function StudentDashboard() {
         }
       />
 
-      {/* Enrollment Modal */}
-      {pendingEnrollment && (
-        <EnrollmentModal
-          isOpen={enrollmentModalOpen}
-          onClose={() => setEnrollmentModalOpen(false)}
-          learner={MOCK_STUDENT}
-          programId={pendingEnrollment.programId}
-          courseId={pendingEnrollment.courseId}
-          onEnrollmentComplete={handleEnrollmentComplete}
-        />
-      )}
+      {/* Enrollment Modal. Rendered unconditionally (see CourseDetailModal above) so its
+          exit transition can play; EnrollmentModal retains the last pending enrollment
+          itself. */}
+      <EnrollmentModal
+        isOpen={enrollmentModalOpen}
+        onClose={() => setEnrollmentModalOpen(false)}
+        learner={MOCK_STUDENT}
+        programId={pendingEnrollment?.programId ?? ""}
+        courseId={pendingEnrollment?.courseId ?? null}
+        onEnrollmentComplete={handleEnrollmentComplete}
+      />
     </div>
   );
 }

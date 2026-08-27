@@ -1,5 +1,4 @@
-import "./App.css";
-import { useState, useEffect } from "react";
+import { useState, useLayoutEffect } from "react";
 import { PageContent } from "./components/PageContent";
 import { AppSidebar } from "./components/layout/AppSidebar";
 import { SiteHeader } from "./components/layout/SiteHeader";
@@ -29,17 +28,36 @@ function App() {
     setRefreshTrigger((prev) => prev + 1);
   };
 
-  // Handler to toggle theme
+  // Handler to toggle theme.
+  // The View Transition API crossfades every changed colour in one compositor
+  // pass, with no layout involvement, so nothing moves. Deliberately NOT Motion:
+  // the platform already does this and the library would add nothing. Firefox has
+  // no support and falls back to an instant swap, which is exactly the behaviour
+  // this replaces, so there is no regression to guard against.
+  //
+  // The old requestAnimationFrame wrapper is gone. It deferred the class flip by a
+  // frame but never coordinated it with anything, so the flash it was presumably
+  // meant to avoid happened anyway.
   const handleThemeToggle = () => {
     const next = !lightMode;
-    requestAnimationFrame(() => {
-      document.documentElement.classList.toggle('dark', !next);
-    });
-    setLightMode(next);
+    if (document.startViewTransition) {
+      document.startViewTransition(() => setLightMode(next));
+    } else {
+      setLightMode(next);
+    }
   };
 
-  // Persist theme preference to localStorage
-  useEffect(() => {
+  // Sync the `dark` class on <html> to state, and persist the preference.
+  // useLayoutEffect, not useEffect: it commits before the browser paints,
+  // in the same synchronous flush as the state update. A passive effect is
+  // scheduled after paint, which would make startViewTransition capture the
+  // "after" frame before the class actually changed - the whole crossfade
+  // would silently no-op. The inline script in index.html applies the same
+  // class before first paint (reading localStorage directly, before React
+  // mounts), so this effect's first run on mount is a redundant
+  // re-application, not a visible flip.
+  useLayoutEffect(() => {
+    document.documentElement.classList.toggle('dark', !lightMode);
     localStorage.setItem('theme', lightMode ? 'light' : 'dark');
   }, [lightMode]);
 
@@ -59,13 +77,13 @@ function App() {
               <h1 className="text-2xl font-bold italic">Phillips</h1>
             </header>
             <button
-              className="bg-orange-500! text-gray-950! px-6 py-3 rounded-[--radius] mx-auto font-medium hover:bg-orange-400! focus-visible:bg-orange-400! transition-colors"
+              className="bg-orange-500! text-gray-950! px-6 py-3 rounded-(--radius) mx-auto font-medium hover:bg-orange-400! focus-visible:bg-orange-400! transition-[background-color,scale] duration-(--duration-micro) ease-out active:scale-(--scale-press) active:duration-0"
               onClick={() => handleSetUserType("supervisor")}
             >
               Education Supervisor
             </button>
             <button
-              className="bg-orange-500! text-gray-950! px-6 py-3 rounded-[--radius] mx-auto font-medium hover:bg-orange-400! focus-visible:bg-orange-400! transition-colors"
+              className="bg-orange-500! text-gray-950! px-6 py-3 rounded-(--radius) mx-auto font-medium hover:bg-orange-400! focus-visible:bg-orange-400! transition-[background-color,scale] duration-(--duration-micro) ease-out active:scale-(--scale-press) active:duration-0"
               onClick={() => handleSetUserType("student")}
             >
               Student

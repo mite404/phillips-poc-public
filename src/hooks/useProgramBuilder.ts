@@ -27,12 +27,21 @@ export function useProgramBuilder() {
   const [isLoading, setIsLoading] = useState(true);
   const [availableCourses, setAvailableCourses] = useState<Course[]>([]);
 
-  // Fetch courses from Legacy API on mount
+  // Fetch courses from Legacy API on mount.
+  // StrictMode double-invokes this effect in dev, and the underlying endpoint isn't
+  // idempotent across calls (it returns a different slice of the catalog each time) -
+  // so both the wasted request and any stale response need to be stopped. The
+  // AbortController stops the request; the `aborted` check stops a stale response
+  // from calling setState even though getCatalog() swallows AbortError internally
+  // and resolves with fallback data instead of rejecting.
   useEffect(() => {
+    const controller = new AbortController();
+
     async function loadCatalog() {
       setIsLoading(true);
       try {
-        const catalogItems = await getCatalog();
+        const catalogItems = await getCatalog(controller.signal);
+        if (controller.signal.aborted) return;
 
         // Transform CourseCatalogItem[] to Course[] (add string ID for dnd-kit)
         const courses: Course[] = catalogItems.map((item) => ({
@@ -42,14 +51,16 @@ export function useProgramBuilder() {
 
         setAvailableCourses(courses);
       } catch (error) {
+        if (controller.signal.aborted) return;
         console.error("Failed to load course catalog:", error);
         toast.error("Failed to load course catalog");
       } finally {
-        setIsLoading(false);
+        if (!controller.signal.aborted) setIsLoading(false);
       }
     }
 
     loadCatalog();
+    return () => controller.abort();
   }, []);
 
   // Filtering logic

@@ -1,5 +1,12 @@
 import { Course } from "@/hooks/useProgramBuilder";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+  cardInteractiveClasses,
+} from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -34,9 +41,9 @@ export function CourseCard({
   // Workbench variant: Vertical layout with title centered at top
   if (variant === "workbench") {
     return (
-      <Card className="p-4 hover:shadow-md transition-all cursor-pointer border-border">
+      <Card className={cn("p-4 border-border", cardInteractiveClasses)}>
         {/* Row 1: Centered Title */}
-        <div className="text-lg font-semibold text-center text-slate-900 mb-4">
+        <div className="text-lg font-semibold text-center text-foreground mb-4">
           {course.courseTitle}
         </div>
 
@@ -45,7 +52,7 @@ export function CourseCard({
           {/* Left: Drag Handle */}
           {dragHandle || (
             <div className="w-5 flex items-center justify-center flex-shrink-0">
-              <div className="text-slate-400 text-sm">⋮⋮</div>
+              <div className="text-muted-foreground text-sm">⋮⋮</div>
             </div>
           )}
 
@@ -66,7 +73,7 @@ export function CourseCard({
           </div>
 
           {/* Right: Duration */}
-          <div className="text-sm text-slate-500 ml-auto whitespace-nowrap">
+          <div className="text-sm text-muted-foreground ml-auto whitespace-nowrap">
             Duration:{" "}
             {course.trainingTypeName === "ILT"
               ? `${course.totalDays} day${course.totalDays !== 1 ? "s" : ""}`
@@ -87,14 +94,14 @@ export function CourseCard({
   // Default variant: Original layout
   return (
     <Card
-      className="cursor-pointer hover:bg-accent/50 transition-colors"
+      className="cursor-pointer hover:bg-accent/50 transition-colors duration-(--duration-micro) ease-out"
       onClick={handleCardClick}
     >
       <CardHeader className="p-4 pb-3">
         <div className="flex items-start gap-3">
           {/* Course Image Thumbnail */}
           {course.previewImageUrl && (
-            <div className="relative flex-shrink-0 w-16 h-16 rounded overflow-hidden bg-slate-100">
+            <div className="relative flex-shrink-0 w-16 h-16 rounded overflow-hidden bg-muted">
               <img
                 src={course.previewImageUrl}
                 alt={course.courseTitle}

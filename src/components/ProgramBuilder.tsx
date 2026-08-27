@@ -14,7 +14,8 @@ import { SortableCourseItem } from "./SortableCourseItem";
 import { CourseDetailModal } from "./common/CourseDetailModal";
 import { CourseCard } from "./common/CourseCard";
 import { Skeleton } from "./ui/skeleton";
-import { Card } from "./ui/card";
+import { Card, cardInteractiveClasses, staggerCardClasses } from "./ui/card";
+import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -82,12 +83,12 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Page Header */}
-      <div className="text-4xl font-bold text-black mb-6">Create Custom Program</div>
+      <div className="text-4xl font-bold text-foreground mb-6">Create Custom Program</div>
 
       {/* Two Column Layout */}
       <div className="flex flex-1 gap-4 min-h-0">
         {/* Left Column - My Program (50%) */}
-        <div className="flex-1 flex flex-col border border-border rounded-[--radius]">
+        <div className="flex-1 flex flex-col border border-border rounded-(--radius)">
           {/* Header */}
           <div className="p-4 border-b border-border bg-muted space-y-3 pb-9">
             <h2 className="text-xl font-semibold">My Program</h2>
@@ -96,14 +97,14 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
               onChange={(e) => updateDescription(e.target.value)}
               placeholder="Add a description for this program..."
               rows={2}
-              className="text-sm resize-none border-none shadow-none focus-visible:ring-0 px-0"
+              className="text-sm resize-none border-none shadow-none px-0"
             />
           </div>
 
           {/* Body - Scrollable */}
           <div className="flex-1 overflow-y-auto p-4">
             {selectedCourses.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-slate-400 text-lg">
+              <div className="flex items-center justify-center h-full text-muted-foreground text-lg">
                 Insert Courses Here...
               </div>
             ) : (
@@ -137,7 +138,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
           {/* Footer - Sticky with Duration Stats */}
           <div className="p-4 border-t border-border bg-card-background space-y-2">
             {selectedCourses.length > 0 && (
-              <div className="text-sm text-slate-600">
+              <div className="text-sm text-muted-foreground">
                 <span className="font-semibold">Total Duration:</span>{" "}
                 {calculateTotalDuration()}
               </div>
@@ -157,7 +158,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
         </div>
 
         {/* Right Column - Course Catalog (50%) */}
-        <div className="flex-1 flex flex-col border border-border rounded-[--radius]">
+        <div className="flex-1 flex flex-col border border-border rounded-(--radius)">
           {/* Header */}
           <div className="p-4 border-b border-border bg-muted space-y-3">
             <h2 className="text-xl font-semibold">Course Catalog</h2>
@@ -175,7 +176,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                   onClick={() => toggleFilter(filterKey)}
                   disabled={isLoading}
                   size="sm"
-                  className={`px-6 py-2 text-sm font-medium transition-all focus-visible:ring-0 focus-visible:ring-offset-0 border-0 ${
+                  className={`px-6 py-2 text-sm font-medium border-0 ${
                     activeFilters[filterKey]
                       ? "bg-secondary-hover text-button-text hover:text-text-hover"
                       : "bg-secondary text-button-text hover:text-text-hover"
@@ -197,29 +198,33 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                   <Skeleton className="h-48 w-full" />
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-3 transition-opacity duration-(--duration-swap) ease-out starting:opacity-0">
                   {filteredCourses.map((course) => (
                     <Card
                       key={course.id}
                       onClick={() => setActiveCourse(course)}
-                      className="flex flex-row items-center gap-3 p-3 hover:shadow-md transition-all cursor-pointer border-border"
+                      className={cn(
+                        "flex flex-row items-center gap-3 p-3 border-border",
+                        cardInteractiveClasses,
+                        staggerCardClasses,
+                      )}
                     >
                       {/* Course Image */}
                       {course.previewImageUrl ? (
                         <img
                           src={course.previewImageUrl}
                           alt={course.courseTitle}
-                          className="w-20 h-14 object-cover rounded-md bg-slate-100 shrink-0"
+                          className="w-20 h-14 object-cover rounded-md bg-muted shrink-0"
                         />
                       ) : (
-                        <div className="w-20 h-14 bg-slate-100 rounded-md shrink-0 flex items-center justify-center text-xs text-slate-500">
+                        <div className="w-20 h-14 bg-muted rounded-md shrink-0 flex items-center justify-center text-xs text-muted-foreground">
                           No Image
                         </div>
                       )}
 
                       {/* Content: Title & Metadata */}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-sm text-slate-900 truncate">
+                        <h3 className="font-bold text-sm text-foreground truncate">
                           {course.courseTitle}
                         </h3>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -235,7 +240,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                           >
                             {course.levelName}
                           </Badge>
-                          <span className="text-xs text-slate-600">
+                          <span className="text-xs text-muted-foreground">
                             {course.trainingTypeName === "ILT"
                               ? `${course.totalDays} day${course.totalDays !== 1 ? "s" : ""}`
                               : course.hours
@@ -259,7 +264,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                     </Card>
                   ))}
                   {filteredCourses.length === 0 && (
-                    <div className="flex items-center justify-center h-full text-slate-400 text-sm py-8">
+                    <div className="flex items-center justify-center h-full text-muted-foreground text-sm py-8">
                       No courses found
                     </div>
                   )}

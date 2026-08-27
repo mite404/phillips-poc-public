@@ -20,11 +20,13 @@ import testimonialsData from "@/data/Testimonials.json";
 /**
  * Fetch course catalog from Legacy API
  * Falls back to local JSON if API fails (CORS, network, etc.)
+ * @param signal - Optional AbortSignal to cancel an in-flight request (e.g. on unmount)
  */
-export async function getCatalog(): Promise<CourseCatalogItem[]> {
+export async function getCatalog(signal?: AbortSignal): Promise<CourseCatalogItem[]> {
   try {
     const response = await fetchApi<{ result: CourseCatalogItem[] }>(
       `${LEGACY_API_BASE}/Course/GetAllPartialValue`,
+      { signal },
     );
 
     // The API returns { result: [...] }
@@ -39,11 +41,13 @@ export async function getCatalog(): Promise<CourseCatalogItem[]> {
 /**
  * Fetch learner roster from Legacy API
  * Falls back to local Students.json if API fails
+ * @param signal - Optional AbortSignal to cancel an in-flight request (e.g. on unmount)
  */
-export async function getRoster(): Promise<LearnerProfile[]> {
+export async function getRoster(signal?: AbortSignal): Promise<LearnerProfile[]> {
   try {
     const response = await fetchApi<{ result: LearnerProfile[] }>(
       `${LEGACY_API_BASE}/Learner/GetAllPartialValue`,
+      { signal },
     );
 
     return response.result || [];

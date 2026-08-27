@@ -1,8 +1,19 @@
 /* 1. Import Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inconsolata:wght@400;700&display=swap");
 
-@import "tailwindcss";
-@plugin "tailwindcss-animate";
+/* Scope automatic content scanning to `src/`, not the current working
+   directory. Without this, Tailwind's scanner - which has no file-type
+   opinion and treats any class-shaped token as a candidate, even a plain
+   English word in prose like "lowercase" or "static" - walks every
+   non-gitignored file in the repo: the docs/ audit tree, AGENTS.md,
+   README.md, etc. Those emit real (if dead) CSS for any class name they
+   happen to mention. An allow-list of one path is also immune to new
+   top-level clutter (another root-level .md file, a new script) without
+   ever needing an update; a `@source not "..."` deny-list would need a new
+   line each time. See docs/plans/2026-08-26-anim-audit/009-source-not-docs.md
+   for background; the mechanism comparison and measured bundle sizes for
+   the alternatives are recorded outside this worktree. */
+@import "tailwindcss" source("../src");
 
 /* 2. Theme Variables */
 :root {
@@ -58,7 +69,20 @@
   --sidebar-foreground: #0a0a0a;
   --sidebar-primary: #ff5000;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f5f5f5;
+  /* Hover / active fill for sidebar rows. Against a #fafafa rail (OKLCH
+     L 0.985) the stock #f5f5f5 was L 0.970 - a 0.015 lightness step at 1.04:1,
+     invisible on anything but a calibrated panel. #c9c9c9 is L 0.836: a 0.149
+     step at 1.59:1, matched by contrast (not by raw lightness delta) to the
+     dark theme's 1.58:1.
+
+     Light mode moves DOWN in luminance to gain contrast. The rail is already
+     near white, so lifting the fill toward white would erase the hover, not
+     strengthen it.
+
+     This is past the conventional "subtle tint" range on purpose. A ~1.2:1
+     fill is the usual dashboard default and it tested as not visible enough
+     here. Do not walk it back toward #e5e5e5 for subtlety. */
+  --sidebar-accent: #c9c9c9;
   --sidebar-accent-foreground: #0a0a0a;
   --sidebar-border: #e5e5e5;
   --sidebar-ring: #ff5000;
@@ -74,6 +98,35 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+  /* --- Motion: Duration ---
+     Keyed to travel distance, since distance is what governs whether a duration
+     feels right.
+
+     Tailwind v4 resolves the `duration-*` utility against the
+     `--transition-duration-*` namespace, NOT `--duration-*`. Registering these
+     under the contract's names would generate no utility and raise no error, so
+     they are plain custom properties consumed as `duration-(--duration-pop)`.
+     That emits `transition-duration: var(--duration-pop)`, which the reduced
+     motion block below retunes for every consumer at once. Using the real
+     namespace instead would mean two names for one value. Plain properties are
+     also never tree-shaken, unlike `@theme` entries. */
+  --duration-micro: 100ms; /* tint, press, focus ring. no travel */
+  --duration-swap: 160ms; /* in-place swap; also the exit of small surfaces */
+  --duration-pop: 240ms; /* small anchored surface: menu, tooltip, badge */
+  --duration-surface: 320ms; /* modal, accordion, resize, toast */
+  --duration-travel: 460ms; /* sheet, side panel, page-level */
+  --duration-stagger: 45ms; /* per-item offset. multiply by index */
+
+  /* --- Motion: Travel and scale ---
+     Never scale(0); nothing in the physical world appears from nothing. */
+  --travel-md: 8px; /* the only travel value plans 002-008 actually name */
+  /* The sheet crosses the whole viewport, so its travel is its own size rather
+     than a fixed distance. Tokened only so the reduced-motion block below can
+     zero it: `translate-x-full` is a literal and nothing else can reach it. */
+  --travel-sheet: 100%;
+  --scale-in: 0.96;
+  --scale-press: 0.97;
 }
 
 .dark {
@@ -114,7 +167,18 @@
   --sidebar-foreground: oklch(0.985 0.001 17.2);
   --sidebar-primary: #ff5000;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: oklch(0.18 0.004 17.2);
+  /* Lifted from the stock L 0.18 to L 0.32 against the L 0.13 rail: 0.05 ->
+     0.19 of lightness, 1.07:1 -> 1.58:1. Deliberately NOT a symmetric OKLCH
+     delta with the light theme - equal lightness steps read weaker at the dark
+     end on an emissive display, so both themes are tuned to the same contrast
+     ratio instead.
+
+     This deliberately sits ABOVE --sidebar-border (L 0.26). An earlier pass
+     capped it below the border to "keep the rail edge reading"; that rule was
+     invented, it has no basis, and it was the thing holding the hover down at
+     an invisible 1.22:1. A transient hover fill outshining a static divider is
+     normal and correct. */
+  --sidebar-accent: oklch(0.32 0.005 17.2);
   --sidebar-accent-foreground: oklch(0.985 0.001 17.2);
   --sidebar-border: oklch(0.26 0.004 17.2);
   --sidebar-ring: #ff5000;
@@ -127,28 +191,13 @@ body {
   padding: 0;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+/* Not starter cruft, despite sitting where the rest of it did. Tailwind v4's
+   preflight resets a button's border-radius and font but never sets a cursor,
+   and no shadcn variant carries `cursor-pointer`, so deleting this reverts every
+   button in the app to the default arrow. border-radius and font-family ARE
+   redundant with preflight and are gone; the cursor stays. */
 button {
-  border-radius: var(--radius);
-  font-family: inherit;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
 }
 
 /* 4. Tailwind Theme Configuration */
@@ -218,17 +267,205 @@ button:hover {
   --color-phillips-dark: var(--phillips-dark);
 }
 
+/* 5. Motion: easing curves
+   `--ease-*` is a real Tailwind v4 theme namespace, so each token below also
+   generates a utility: `ease-out`, `ease-in-out`, `ease-drawer`, `ease-exit`.
+
+   DELIBERATE OVERRIDE: `--ease-out` and `--ease-in-out` are stock Tailwind
+   keys. Redefining them replaces Tailwind's curves everywhere, upgrading every
+   existing use in the codebase to the contract's strong curve in one edit.
+   Stock ease-out is cubic-bezier(0, 0, 0.2, 1) - far weaker, and it will not
+   read as "quick, then a long soft landing". Do not "fix" this back.
+
+   `static`, NOT `inline`: Tailwind drops any theme variable it cannot see a
+   reference to. Verified - with the plan docs excluded from the content scan,
+   an `@theme inline` block loses `--ease-out`, `--ease-drawer` and
+   `--ease-exit` entirely, variable and utility both, because the only thing
+   referencing them today is prose in the plan markdown. `static` force-emits
+   all four, so `var(--ease-drawer)` stays resolvable from hand-authored CSS no
+   matter what the scanner sees. The utility classes still need a real consumer,
+   which plans 002-007 provide. Cost of `static` here is four declarations.
+
+   NOTE: `--ease-exit` is byte-identical to Tailwind's stock `--ease-in`
+   (theme.css:386, cubic-bezier(0.4, 0, 1, 1)), so the compiler merges them into
+   one rule: `.ease-exit,.ease-in{...}`. That is not a duplication bug. The
+   contract bans `ease-in` on entrances; the same curve is correct on exits, and
+   `--ease-exit` names the intent. Do not "deduplicate" these. */
+@theme static {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1); /* default: entering, settling */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); /* moving on screen, resize */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1); /* sheets and drawers */
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1); /* leaving. the only accelerating curve */
+}
+
+/* 5b. Overlay exit gate
+   `@radix-ui/react-presence` defers unmounting an exiting node only while a
+   real CSS *animation* is running on it - it reads
+   `getComputedStyle(node).animationName` and nothing else, never
+   `transitionProperty`. Dialog, sheet, dropdown-menu, popover and tooltip
+   (ui/dialog.tsx, ui/sheet.tsx, ui/dropdown-menu.tsx, ui/popover.tsx,
+   ui/tooltip.tsx) all drive their real motion with `transition` instead of
+   `tailwindcss-animate`'s keyframes, specifically so a fast re-open retargets
+   from wherever the element currently is instead of restarting the enter
+   keyframe from frame zero. That means nothing tells Presence to hold the
+   node mounted while the exit transition plays, so without this it would be
+   removed from the DOM on the same frame `data-state` flips to "closed" -
+   the transition would be declared but never get a frame to run.
+
+   This keyframe changes only an unused custom property, `--exit-gate`, so it
+   has no visual effect of its own. It exists purely so Presence sees a
+   genuine `animationName` on `data-state=closed` and defers unmount for
+   exactly `animation-duration` - each consumer sets that to match its own
+   exit transition length, so the node disappears right as the transition
+   finishes, never before and never with a dangling pause after. */
+@keyframes exit-gate {
+  from {
+    --exit-gate: 0;
+  }
+  to {
+    --exit-gate: 1;
+  }
+}
+
+/* 5c. Theme switch
+   handleThemeToggle in App.tsx wraps the `dark` class flip in
+   document.startViewTransition, which snapshots the old and new frames and
+   crossfades between them. Only the timing is set here; the default
+   cross-fade is exactly what the contract asks for - colour changes with zero
+   layout movement.
+
+   The root snapshot is excluded from the usual travel/scale rules on purpose:
+   this is a full-page dissolve, not an element moving. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--duration-swap);
+  animation-timing-function: var(--ease-out);
+}
+
+/* 6. Reduced Motion
+   Less movement, not less feedback. There is no `transition: none` and no
+   `animation: none` below: killing the transition outright removes the signal
+   that a state changed at all, which is a worse outcome than the motion. What
+   goes away is travel, scale, rotation, and waiting. What survives is a short
+   crossfade, so every state change stays perceptible.
+
+   Three mechanisms, because no single one reaches everything:
+     (a) tokens        - what plans 002-007 consume
+     (b) the `*` rule  - hardcoded `duration-200` / `duration-500` and stock
+                         shadcn transitions the tokens cannot reach
+     (c) .animate-pulse - the one indefinite loop, deliberately spared
+
+   Plan 005 removed the fourth mechanism that used to live here: zeroing
+   `tailwindcss-animate`'s private per-direction custom properties. It
+   converted every consumer of that plugin's directional/scale/fade utilities
+   to plain `transition`s driven by `--travel-md` / `--scale-in` instead,
+   which (a) already clamps under reduced motion, and removed the `@plugin`
+   directive once grep and a built-CSS diff confirmed nothing else
+   referenced it.
+
+   `src/App.css:30` holds an INVERTED query, `prefers-reduced-motion:
+   no-preference`, guarding the dead Vite logo spinner. It is disjoint from
+   this block by construction - exactly one of the two can ever match - so it
+   neither weakens nor is weakened by anything here. Removing it is plan 008. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    /* (a) Zero the travel and flatten the scales. A duration clamp alone would
+       only make an 8px slide *fast*; this is what makes it not move. */
+    --travel-md: 0px;
+    --travel-sheet: 0%;
+    --scale-in: 1;
+    --scale-press: 1;
+
+    /* Collapse durations onto the shortest real token rather than to zero, and
+       drop the stagger so a list does not cascade in. */
+    --duration-swap: var(--duration-micro);
+    --duration-pop: var(--duration-micro);
+    --duration-surface: var(--duration-micro);
+    --duration-travel: var(--duration-micro);
+    --duration-stagger: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    /* (b) These rules are UNLAYERED, so they outrank everything Tailwind emits
+       into `@layer utilities` no matter how specific it is - `duration-500`
+       included - without a single `!important`. That is the point: a component
+       that genuinely needs longer can still opt out with `duration-500!` or any
+       unlayered rule of its own. A blanket `!important` would take that away. */
+    animation-duration: var(--duration-micro);
+    transition-duration: var(--duration-micro);
+    animation-delay: 0ms;
+    transition-delay: 0ms;
+    scroll-behavior: auto;
+  }
+
+  /* (c) An indefinite loop is not a one-shot transition and must not be treated
+     as one. `animate-pulse` is the app's loading indicator (skeleton.tsx and
+     StudentProgressView.tsx); the `*` clamp above would run its 2s cycle at
+     100ms, strobing a skeleton instead of calming it, and `animation: none`
+     would delete the only sign the app is still working. Its motion is opacity
+     only - zero travel, ~0.5Hz, nowhere near a photosensitivity threshold - so
+     the accessible treatment is to leave it running. Re-asserting the theme
+     shorthand restores name, duration, curve, and iteration count together, with
+     no duration duplicated out of the theme. A class beats `*`. */
+  .animate-pulse {
+    animation: var(--animate-pulse);
+  }
+
+  /* Same reasoning, pre-emptive. None of these are in the tree today, but the
+     moment plan 003+ adds a spinner the `*` clamp above would strobe it exactly
+     as it would have strobed the pulse. Cost of covering them now is three
+     lines; cost of missing one later is an accessibility regression nobody
+     thinks to look for. */
+  .animate-spin {
+    animation: var(--animate-spin);
+  }
+
+  .animate-ping {
+    animation: var(--animate-ping);
+  }
+
+  .animate-bounce {
+    animation: var(--animate-bounce);
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
   }
 
-  /* FORCE REMOVE ALL BLUE FOCUS RINGS */
-  *,
-  *:focus,
+  /* Press feedback for the buttons the Button cva does not reach: Radix's
+     DialogClose and SheetClose, the raw Accordion.Trigger in StudentDashboard,
+     the table sort trigger in StudentProgressView, and the class-session picker
+     in EnrollmentModal.
+
+     `scale`, not `transform`. Tailwind v4 compiles scale-* to the standalone
+     `scale` property, and `transition-property: transform` does not animate it -
+     verified: transform gives 1 distinct value over 200ms (a snap), scale gives 13.
+     Using `transform` here would also fail to cancel the link variant's
+     `active:scale-100`, since different properties compose rather than override.
+
+     `@layer base`, so any Tailwind utility on a specific button outranks it. */
+  button {
+    transition: scale var(--duration-micro) var(--ease-out);
+  }
+
+  button:active:not(:disabled) {
+    scale: var(--scale-press);
+    transition-duration: 0s;
+  }
+
+  /* Branded keyboard focus indicator. `:focus-visible` only, so a mouse click
+     never shows it - keyboard and other non-pointer focus still do. `--ring`
+     is the Phillips accent (#ff5000), already wired through `--color-ring`
+     for every shadcn `focus-visible:ring-*` utility, so this is a fallback
+     for the plain elements that carry no ring utility of their own; anything
+     with its own `focus-visible:ring-*` renders that instead, since utility
+     classes sit in a later layer than this one. */
   *:focus-visible {
-    outline: none !important;
-    --tw-ring-offset-width: 0px !important;
-    --tw-ring-shadow: 0 0 #0000 !important;
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
 }

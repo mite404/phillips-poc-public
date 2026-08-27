@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>phillips-poc</title>
+    <script>
+      // Apply the stored theme before React mounts, so the first paint is
+      // never wrong. Default is dark (absence of 'light') to match the
+      // `lightMode` state default in App.tsx.
+      document.documentElement.classList.toggle(
+        'dark',
+        localStorage.getItem('theme') !== 'light'
+      );
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { staggerRowClasses } from "@/components/ui/card";
 import { toast } from "sonner";
 
 interface RosterListProps {
@@ -29,25 +30,33 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
   const [selectedLearner, setSelectedLearner] = useState<LearnerProfile | null>(null);
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
 
+  // StrictMode double-invokes this effect in dev; abort the stale request and ignore
+  // its response so it can't overwrite a later, live one.
   useEffect(() => {
-    loadRosterData();
+    const controller = new AbortController();
+    loadRosterData(controller.signal);
+    return () => controller.abort();
   }, []);
 
-  async function loadRosterData() {
+  async function loadRosterData(signal?: AbortSignal) {
     setIsLoading(true);
     try {
-      const [fetchedLearners, fetchedAssignments, fetchedEnrollments] = await Promise.all(
-        [legacyApi.getRoster(), localApi.getAssignments(), localApi.getEnrollments()],
-      );
+      const [fetchedLearners, fetchedAssignments, fetchedEnrollments] = await Promise.all([
+        legacyApi.getRoster(signal),
+        localApi.getAssignments(signal),
+        localApi.getEnrollments(signal),
+      ]);
+      if (signal?.aborted) return;
 
       setLearners(fetchedLearners);
       setAssignments(fetchedAssignments);
       setEnrollments(fetchedEnrollments);
     } catch (error) {
+      if (signal?.aborted) return;
       console.error("Failed to load roster data:", error);
       toast.error("Failed to load student roster");
     } finally {
-      setIsLoading(false);
+      if (!signal?.aborted) setIsLoading(false);
     }
   }
 
@@ -180,11 +189,11 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
 
   return (
     <>
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full transition-opacity duration-(--duration-swap) ease-out starting:opacity-0">
         {/* Header */}
         <div className="h-[88px] p-4 border-b border-border bg-muted flex flex-col justify-center">
           <h2 className="text-lg font-semibold">Student Roster</h2>
-          <p className="text-sm text-slate-600">{learners.length} students</p>
+          <p className="text-sm text-muted-foreground">{learners.length} students</p>
         </div>
 
         {/* Batch Invite Button */}
@@ -201,7 +210,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
         {/* Student Table */}
         <div className="flex-1 overflow-auto p-4">
           {learners.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-slate-400">
+            <div className="flex items-center justify-center h-full text-muted-foreground">
               No students found
             </div>
           ) : (
@@ -231,7 +240,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                     const isSelected = selectedStudentIds.includes(learner.learnerId);
 
                     return (
-                      <TableRow key={learner.learnerId}>
+                      <TableRow key={learner.learnerId} className={staggerRowClasses}>
                         <TableCell className="flex-shrink-0 pl-6">
                           <input
                             type="checkbox"
@@ -242,10 +251,10 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                         </TableCell>
                         <TableCell className="min-w-48">
                           <div className="flex flex-col min-w-0">
-                            <span className="font-medium text-slate-900 truncate">
+                            <span className="font-medium text-foreground truncate">
                               {learner.learnerName}
                             </span>
-                            <span className="text-sm text-slate-600 truncate">
+                            <span className="text-sm text-muted-foreground truncate">
                               {learner.emailId}
                             </span>
                           </div>
@@ -295,17 +304,17 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
         </div>
       </div>
 
-      {/* Enrollment Modal */}
-      {selectedLearner && firstCourseId && (
-        <EnrollmentModal
-          isOpen={!!selectedLearner}
-          onClose={() => setSelectedLearner(null)}
-          learner={selectedLearner}
-          programId={programId}
-          courseId={firstCourseId}
-          onEnrollmentComplete={handleEnrollmentComplete}
-        />
-      )}
+      {/* Enrollment Modal. Rendered unconditionally so Radix can play the exit transition -
+          EnrollmentModal retains the last selected learner/course itself, so it does not
+          need to stay in the tree only while selectedLearner is set. */}
+      <EnrollmentModal
+        isOpen={!!selectedLearner && !!firstCourseId}
+        onClose={() => setSelectedLearner(null)}
+        learner={selectedLearner}
+        programId={programId}
+        courseId={firstCourseId ?? null}
+        onEnrollmentComplete={handleEnrollmentComplete}
+      />
     </>
   );
 }

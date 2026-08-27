@@ -4,6 +4,7 @@ import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -117,10 +118,13 @@ function FacetFilter<T extends string>({
           {options.map((option) => {
             const isSelected = selected.includes(option.value);
             return (
-              <div
+              <button
                 key={option.value}
+                type="button"
+                role="checkbox"
+                aria-checked={isSelected}
                 className={cn(
-                  "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                  "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm transition-colors hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
                 )}
                 onClick={() => onToggle(option.value)}
               >
@@ -136,7 +140,7 @@ function FacetFilter<T extends string>({
                 </div>
                 {option.icon && <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
                 <span>{option.label}</span>
-              </div>
+              </button>
             );
           })}
         </div>
@@ -176,7 +180,7 @@ function SortHeader({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-1 focus-visible:outline-none group">
+        <button className="flex items-center gap-1 group">
           {label}
           <span className={isActive ? "opacity-100" : "opacity-40 group-hover:opacity-100"}>
             {isActive && sort.dir === "asc" ? (
@@ -269,8 +273,12 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
   const toggleCol = (col: ColKey) => setHiddenCols((prev) => toggleColumn(prev, col));
 
-  // Fetch & hydrate data
+  // Fetch & hydrate data.
+  // StrictMode double-invokes this effect in dev; abort the stale request and ignore
+  // its response so it can't overwrite a later, live one.
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchData() {
       try {
         setIsLoading(true);
@@ -278,12 +286,13 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
         // Step 1: Fetch all data in parallel
         const [roster, assignments, enrollments, allPrograms, catalog] = await Promise.all([
-          legacyApi.getRoster(),
-          localApi.getAssignments(),
-          localApi.getEnrollments(),
-          fetchAllPrograms(),
-          legacyApi.getCatalog(),
+          legacyApi.getRoster(controller.signal),
+          localApi.getAssignments(controller.signal),
+          localApi.getEnrollments(controller.signal),
+          fetchAllPrograms(controller.signal),
+          legacyApi.getCatalog(controller.signal),
         ]);
+        if (controller.signal.aborted) return;
 
         // Step 2: Find the student
         const foundStudent = roster.find(
@@ -371,14 +380,16 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
         setHydratedPrograms(hydrated);
         setFlatCourses(flatCourses);
       } catch (err) {
+        if (controller.signal.aborted) return;
         console.error("Failed to fetch student progress data:", err);
         setError("Failed to load student progress");
       } finally {
-        setIsLoading(false);
+        if (!controller.signal.aborted) setIsLoading(false);
       }
     }
 
     fetchData();
+    return () => controller.abort();
   }, [studentId]);
 
   // Calculate metrics from flat data
@@ -423,8 +434,8 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   // const completedCourses = filteredCourses.filter((course) => course.status === "Completed");
 
   // Helper function to fetch all programs (uses network-first, localStorage-fallback)
-  async function fetchAllPrograms(): Promise<SupervisorProgram[]> {
-    return localApi.getAllPrograms();
+  async function fetchAllPrograms(signal?: AbortSignal): Promise<SupervisorProgram[]> {
+    return localApi.getAllPrograms(signal);
   }
 
   const getStatusClassName = (status: CourseStatus): string => {
@@ -434,7 +445,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
       case "Incomplete":
         return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100";
       case "Not Enrolled":
-        return "bg-slate-100 text-slate-600 hover:bg-slate-100";
+        return "bg-muted text-muted-foreground hover:bg-muted";
     }
   };
 
@@ -463,10 +474,10 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     return (
       <div className="h-full p-4 @sm:p-6 @lg:p-8">
         <div className="space-y-6">
-          <div className="h-8 w-64 bg-slate-200 rounded animate-pulse"></div>
+          <Skeleton className="h-8 w-64" />
           <div className="space-y-4">
-            <div className="h-64 bg-slate-100 rounded animate-pulse"></div>
-            <div className="h-64 bg-slate-100 rounded animate-pulse"></div>
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-64 w-full" />
           </div>
         </div>
       </div>
@@ -477,7 +488,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   if (error) {
     return (
       <div className="h-full p-4 @sm:p-6 @lg:p-8">
-        <div className="bg-red-50 border border-red-200 rounded-[--radius] p-6">
+        <div className="bg-red-50 border border-red-200 rounded-(--radius) p-6">
           <h2 className="text-xl font-semibold text-red-900 mb-2">Error</h2>
           <p className="text-red-700">{error}</p>
         </div>
@@ -489,11 +500,11 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   if (hydratedPrograms.length === 0) {
     return (
       <div className="h-full p-4 @sm:p-6 @lg:p-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">
+        <h2 className="text-2xl font-bold text-foreground mb-4">
           {student?.learnerName}'s Progress
         </h2>
-        <div className="bg-muted border border-border rounded-[--radius] p-8 text-center">
-          <p className="text-slate-600">No programs assigned to this student.</p>
+        <div className="bg-muted border border-border rounded-(--radius) p-8 text-center">
+          <p className="text-muted-foreground">No programs assigned to this student.</p>
         </div>
       </div>
     );
@@ -502,8 +513,8 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   // Main render
   return (
     <>
-      <div className="h-full p-4 @sm:p-6 @lg:p-8 overflow-y-auto">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">
+      <div className="h-full p-4 @sm:p-6 @lg:p-8 overflow-y-auto transition-opacity duration-(--duration-swap) ease-out starting:opacity-0">
+        <h2 className="text-2xl font-bold text-foreground mb-6">
           {student?.learnerName}'s Progress
         </h2>
 
@@ -593,7 +604,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
           <ColumnToggle hiddenCols={hiddenCols} onToggle={toggleCol} />
         </div>
 
-        <div className="border border-border rounded-[--radius] overflow-hidden">
+        <div className="border border-border rounded-(--radius) overflow-hidden">
           <div className="overflow-x-auto">
             <Table className="min-w-[640px]">
               <TableHeader>
