@@ -26,3 +26,20 @@ jobs:
 
       - name: Build project
         run: bun run build
+  fallow:
+    name: Fallow analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      id-token: write
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: fallow-rs/fallow@v3
+        with:
+          command: audit
+          gate: new-only
+          format: sarif
+          comment: true
