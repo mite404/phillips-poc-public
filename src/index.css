@@ -374,6 +374,27 @@ button:hover {
     @apply border-border;
   }
 
+  /* Press feedback for the buttons the Button cva does not reach: Radix's
+     DialogClose and SheetClose, the raw Accordion.Trigger in StudentDashboard,
+     the table sort trigger in StudentProgressView, and the class-session picker
+     in EnrollmentModal.
+
+     `scale`, not `transform`. Tailwind v4 compiles scale-* to the standalone
+     `scale` property, and `transition-property: transform` does not animate it -
+     verified: transform gives 1 distinct value over 200ms (a snap), scale gives 13.
+     Using `transform` here would also fail to cancel the link variant's
+     `active:scale-100`, since different properties compose rather than override.
+
+     `@layer base`, so any Tailwind utility on a specific button outranks it. */
+  button {
+    transition: scale var(--duration-micro) var(--ease-out);
+  }
+
+  button:active:not(:disabled) {
+    scale: var(--scale-press);
+    transition-duration: 0s;
+  }
+
   /* FORCE REMOVE ALL BLUE FOCUS RINGS */
   *,
   *:focus,

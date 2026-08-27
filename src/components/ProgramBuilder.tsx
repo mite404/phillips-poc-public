@@ -176,7 +176,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                   onClick={() => toggleFilter(filterKey)}
                   disabled={isLoading}
                   size="sm"
-                  className={`px-6 py-2 text-sm font-medium transition-colors duration-(--duration-micro) ease-out focus-visible:ring-0 focus-visible:ring-offset-0 border-0 ${
+                  className={`px-6 py-2 text-sm font-medium focus-visible:ring-0 focus-visible:ring-offset-0 border-0 ${
                     activeFilters[filterKey]
                       ? "bg-secondary-hover text-button-text hover:text-text-hover"
                       : "bg-secondary text-button-text hover:text-text-hover"

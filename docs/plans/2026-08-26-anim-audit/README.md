@@ -26,7 +26,7 @@ independent and can land any time.
 | [001](001-motion-tokens.md) | Motion token scale + global reduced-motion | - | **DONE** ([synthesis](arena/001-synthesis.md)) |
 | [002](002-fix-accordion.md) | Accordion collapse animation | 001 | **DONE** ([synthesis](arena/002-synthesis.md)) |
 | [003](003-kill-transition-all.md) | `transition-all` in six files | 001 | **DONE** ([synthesis](arena/003-synthesis.md)) |
-| [004](004-press-feedback.md) | Press/active feedback on buttons | 001 | TODO |
+| [004](004-press-feedback.md) | Press/active feedback on buttons | 001 | **DONE** ([synthesis](arena/004-synthesis.md)) |
 | [005](005-overlay-starting-style.md) | Overlays: keyframes to transitions | 001 | TODO |
 | [006](006-loading-and-swap.md) | Skeleton crossfade, icon swap, stagger | 001 | TODO |
 | [007](007-view-and-theme-transition.md) | Screen transitions, theme, count-up | 001 | TODO |

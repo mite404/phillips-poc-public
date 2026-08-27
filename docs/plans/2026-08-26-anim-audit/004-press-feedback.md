@@ -34,7 +34,10 @@ absence reads as unresponsiveness rather than as missing polish.
 
 1. Add press feedback to the `cva` base in `button-variants.ts` so every variant inherits
    it, rather than repeating it six times.
-2. Extend the existing `transition-colors` to include `transform`. Note contract rule 5:
+2. Extend the existing `transition-colors` to include **`scale`**, not `transform`.
+   Tailwind v4 compiles `scale-*` to the standalone `scale` property, and
+   `transition-property: transform` does not animate it - verified, `transform` gives one
+   distinct value over 200ms (a snap) where `scale` gives thirteen. Note contract rule 5:
    two rules both setting `transform` do not compose, the later wins outright. If
    anything else on a button already sets `transform`, use the individual `scale`
    property instead of the shorthand.
@@ -61,8 +64,10 @@ absence reads as unresponsiveness rather than as missing polish.
 2. The scale is subtle. Anything below 0.95 or above 0.99 fails.
 3. Press registers instantly; release settles. Not symmetric.
 4. Disabled buttons do not react.
-5. Keyboard activation is not broken: `:active` fires on Space and Enter, and focus
-   rings remain visible and unclipped throughout the press.
+5. Keyboard activation is not broken: `:active` fires on **Space** (at keyup). It does
+   **not** fire on Enter for a native `<button>` in Chrome - Enter's activation runs as
+   keydown's default action and the browser never renders a pressed state. Measured, not
+   assumed. Focus rings cannot be checked until plan 010 lands.
 6. No hover-scale that sticks after a tap on touch.
 7. The rule is written once, not pasted into six variant strings.
 
