@@ -31,9 +31,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write   
+      security-events: write  
+      id-token: write 
+      pull-requests: write   
+      checks: write   
     steps:
       - uses: actions/checkout@v4
       - uses: fallow-rs/fallow@v3
         with:
           format: sarif
+          comment: true
