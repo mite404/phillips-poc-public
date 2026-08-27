@@ -3,7 +3,8 @@ import { localApi } from "@/api/localRoutes";
 import { legacyApi } from "@/api/legacyRoutes";
 import type { SupervisorProgram, CourseCatalogItem } from "@/types/models";
 import { Skeleton } from "./ui/skeleton";
-import { Card } from "./ui/card";
+import { Card, cardInteractiveClasses } from "./ui/card";
+import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { RosterList } from "./RosterList";
@@ -177,7 +178,10 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
                   <Card
                     key={course.id}
                     onClick={() => setActiveCourse(course)}
-                    className="flex flex-row items-center gap-4 p-4 hover:shadow-md transition-all cursor-pointer border-border"
+                    className={cn(
+                      "flex flex-row items-center gap-4 p-4 border-border",
+                      cardInteractiveClasses,
+                    )}
                   >
                     {/* Sequence Number */}
                     <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-white rounded-full text-sm font-bold">

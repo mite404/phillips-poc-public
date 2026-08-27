@@ -2,6 +2,13 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+// Shared affordance for a Card that acts as a click target: shadow lift on
+// hover, timed to the contract's micro duration so it feels immediate.
+// Not a cva variant - there is no second option to select between, just one
+// recipe reused at each call site via cn().
+export const cardInteractiveClasses =
+  "hover:shadow-md transition-shadow duration-(--duration-micro) ease-out cursor-pointer";
+
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div

@@ -1,5 +1,12 @@
 import { Course } from "@/hooks/useProgramBuilder";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+  cardInteractiveClasses,
+} from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -34,7 +41,7 @@ export function CourseCard({
   // Workbench variant: Vertical layout with title centered at top
   if (variant === "workbench") {
     return (
-      <Card className="p-4 hover:shadow-md transition-all cursor-pointer border-border">
+      <Card className={cn("p-4 border-border", cardInteractiveClasses)}>
         {/* Row 1: Centered Title */}
         <div className="text-lg font-semibold text-center text-slate-900 mb-4">
           {course.courseTitle}
@@ -87,7 +94,7 @@ export function CourseCard({
   // Default variant: Original layout
   return (
     <Card
-      className="cursor-pointer hover:bg-accent/50 transition-colors"
+      className="cursor-pointer hover:bg-accent/50 transition-colors duration-(--duration-micro) ease-out"
       onClick={handleCardClick}
     >
       <CardHeader className="p-4 pb-3">

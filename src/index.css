@@ -170,7 +170,6 @@ button {
   border-radius: var(--radius);
   font-family: inherit;
   cursor: pointer;
-  transition: border-color 0.25s;
 }
 button:hover {
   border-color: #646cff;

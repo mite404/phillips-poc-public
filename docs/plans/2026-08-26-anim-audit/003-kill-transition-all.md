@@ -16,7 +16,7 @@ and everything else along with the intended `transform`.
 
 | File:line | Current | Actually animating |
 | --- | --- | --- |
-| `src/components/ui/progress.tsx:19` | `h-full w-full flex-1 bg-primary transition-all` | `transform` (Radix sets `translateX`) |
+| `src/components/ui/progress.tsx:19` | `h-full w-full flex-1 bg-primary transition-all` | `transform` (the component's own inline style at line 20, NOT Radix - Radix sets no style on Indicator) |
 | `src/components/common/CourseCard.tsx:37` | `p-4 hover:shadow-md transition-all cursor-pointer border-border` | `box-shadow` |
 | `src/components/ProgramBuilder.tsx:205` | `... p-3 hover:shadow-md transition-all cursor-pointer border-border` | `box-shadow` |
 | `src/components/ProgramManager.tsx:180` | `... p-4 hover:shadow-md transition-all cursor-pointer border-border` | `box-shadow` |

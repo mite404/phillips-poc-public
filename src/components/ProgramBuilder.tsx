@@ -14,7 +14,8 @@ import { SortableCourseItem } from "./SortableCourseItem";
 import { CourseDetailModal } from "./common/CourseDetailModal";
 import { CourseCard } from "./common/CourseCard";
 import { Skeleton } from "./ui/skeleton";
-import { Card } from "./ui/card";
+import { Card, cardInteractiveClasses } from "./ui/card";
+import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -175,7 +176,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                   onClick={() => toggleFilter(filterKey)}
                   disabled={isLoading}
                   size="sm"
-                  className={`px-6 py-2 text-sm font-medium transition-all focus-visible:ring-0 focus-visible:ring-offset-0 border-0 ${
+                  className={`px-6 py-2 text-sm font-medium transition-colors duration-(--duration-micro) ease-out focus-visible:ring-0 focus-visible:ring-offset-0 border-0 ${
                     activeFilters[filterKey]
                       ? "bg-secondary-hover text-button-text hover:text-text-hover"
                       : "bg-secondary text-button-text hover:text-text-hover"
@@ -202,7 +203,10 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                     <Card
                       key={course.id}
                       onClick={() => setActiveCourse(course)}
-                      className="flex flex-row items-center gap-3 p-3 hover:shadow-md transition-all cursor-pointer border-border"
+                      className={cn(
+                        "flex flex-row items-center gap-3 p-3 border-border",
+                        cardInteractiveClasses,
+                      )}
                     >
                       {/* Course Image */}
                       {course.previewImageUrl ? (
