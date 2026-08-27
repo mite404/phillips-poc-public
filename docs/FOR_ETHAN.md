@@ -238,6 +238,157 @@ flatMap(            // Open 1
 )
 ```
 
+### Bloopers 3: The Animation That Was Never There (ANIM-002, 2026-08-26)
+
+**The Bug:** every accordion in the student dashboard snapped open with no transition. The audit
+blamed this line in `src/components/ui/accordion.tsx`:
+
+```tsx
+className="... data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+```
+
+Those keyframes are not defined anywhere in the repo. `tailwindcss-animate` does not ship them -
+they are shadcn's own `tailwind.config` entries you are expected to paste in - and this project's
+`tailwind.config.js` had no `keyframes` block at all. It was also never loaded: Tailwind v4 only
+reads a JS config when a stylesheet declares `@config`, and none did.
+
+**Why it happened:** Tailwind does not error on a class it cannot resolve. It emits nothing and
+moves on. `animate-accordion-down` looks exactly like a working class in source, in review, and in
+the browser's DOM inspector.
+
+**The Fix - and the part that matters:** the file was dead code. `StudentDashboard.tsx` imports the
+Radix primitives directly:
+
+```tsx
+import * as Accordion from "@radix-ui/react-accordion";   // not the vendored wrapper
+...
+<Accordion.Content className="px-4 pb-4 pt-2">           // no animation class at all
+```
+
+Three independent implementations all found this before writing a line. Fixing the file the plan
+named would have passed every check and animated nothing.
+
+**The Lesson:** a broken thing and an unused thing look identical from the outside. Before fixing
+what a bug report points at, confirm the code is *reachable*: `grep -rn "ui/accordion" src/` was the
+whole investigation, and it returned nothing.
+
+### Bloopers 4: `transform` Does Not Animate `scale` (ANIM-004, 2026-08-26)
+
+**The Bug:** buttons got press feedback that visibly worked and never actually animated.
+
+```tsx
+// the cva base string
+"transition-[color,background-color,border-color,transform] duration-(--duration-micro) ease-out
+ active:scale-(--scale-press)"
+```
+
+Press it and it depresses. Release and it springs back. Both instantaneous - no interpolation at
+all.
+
+**Why it happened:** Tailwind v4 compiles `scale-*` to the **standalone `scale` property**, not to
+`transform: scale()`:
+
+```css
+.active\:scale-\(--scale-press\):active{scale:var(--scale-press)}
+```
+
+`transform` and `scale` are separate animatable properties in CSS. A transition on one does not
+touch the other. Measured with a synthetic element:
+
+```
+transition-property: transform  ->   1 distinct value over 200ms   (a snap)
+transition-property: scale      ->  13 distinct values             (animates)
+```
+
+**The Fix:** name the property that actually changes.
+
+```tsx
+"transition-[color,background-color,border-color,scale] ..."   // scale, not transform
+```
+
+**The Lesson:** this one fooled a careful check. The implementation read
+`getComputedStyle(btn).transitionDuration` on mouseup, got `0.1s`, and concluded the settle worked.
+That number was real - the declaration was on the element. It just governed a property list that
+did not include the thing moving. **Reading a declaration proves the CSS is there. Only counting
+frames proves something moved.**
+
+### Bloopers 5: The Focus Ring Nobody Could See (ANIM-010, 2026-08-26)
+
+**The Bug:** `src/index.css` carried this, inside `@layer base`:
+
+```css
+/* FORCE REMOVE ALL BLUE FOCUS RINGS */
+*, *:focus, *:focus-visible {
+  outline: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+}
+```
+
+Every focus indicator in the application, gone. Not just the browser default - zeroing
+`--tw-ring-shadow` also defeats the `focus-visible:ring-1` that nine components correctly ask for.
+A keyboard user could not tell where they were, anywhere. WCAG 2.1 AA failure, 2.4.7.
+
+**Why it happened:** `git log -S "FORCE REMOVE"` found it landed in one commit alongside **two other
+kill switches** - it also deleted shadcn's correct fix (`@apply border-border outline-ring/50`) and
+set `--ring: transparent`. The reason all three shipped together: `--color-ring` was not wired to
+`--ring` at that commit, so the correct fix could not work. The author tried it, saw nothing change,
+and escalated. Twice.
+
+That wiring bug is long fixed (`--color-ring: var(--ring)`), so the rule had outlived what it
+patched by months.
+
+**The Fix:** delete the blanket rule, add a branded `:focus-visible` outline. But that alone was not
+enough:
+
+```css
+--primary: #ff5000;
+--ring:    #ff5000;   /* identical */
+```
+
+The `default` and `secondary` Button variants fill with `bg-primary`. A flush ring on them was
+orange on orange - **invisible**, not merely low-contrast. Fixed with a `ring-offset-2` so a
+background-coloured gap separates the two.
+
+**The Lesson:** when you find a deliberate-looking hack, read the commit that introduced it before
+removing it. The comment said "blue", the app's accent is orange, and the author's actual complaint
+(the browser's default blue ring) was legitimate - only the blast radius was wrong. Knowing that is
+what stops the next person re-adding it.
+
+### Bloopers 6: `cn()` Silently Deletes Transitions (ANIM-004 / ANIM-006, 2026-08-26)
+
+**The Bug:** adding a fade to a card deleted its hover shadow. No error, no warning.
+
+**Why it happened:** `cn()` runs `tailwind-merge`, which treats **every** `transition-*` class as
+one mutually-exclusive group and keeps only the last one. Run it directly and watch:
+
+```
+base:    transition-shadow duration-(--duration-micro) ease-out
++ fade:  transition-opacity duration-(--duration-swap) ease-out
+merged:  cursor-pointer transition-opacity duration-(--duration-swap) ease-out
+         ^ transition-shadow is gone
+```
+
+This bit twice: once when a `cva` variant's `transition-colors` ate the base string's list, and
+again when a crossfade ate a card hover.
+
+**The Fix - three sanctioned escapes**, in order of preference:
+
+```tsx
+// 1. One arbitrary-PROPERTY declaration. Per-property timing, collision impossible.
+"[transition:box-shadow_var(--duration-micro)_var(--ease-out),opacity_var(--duration-pop)_var(--ease-out)]"
+
+// 2. Drive one of them with `animation` instead - a disjoint group, so they coexist.
+"animate-[stagger-in_var(--duration-swap)_ease-out_both]"
+
+// 3. Put them on different elements.
+```
+
+Note `transition-[a,b]` is **not** option 1. That form sets `transition-property` only and pulls
+timing from `--tw-duration`, so every listed property shares one duration.
+
+**The Lesson:** an element carries at most one `transition-*` utility. This is now written into
+`MOTION-CONTRACT.md` as rule 4, because knowing it in the abstract did not stop it happening twice.
+
 ---
 
 ## Director's Commentary: Senior Engineer Mindset
@@ -514,6 +665,168 @@ confirm the monitors are actually reading from it.
 never compared equal and the memo never once hit - it paid the comparison and did the sort anyway.
 Same lesson as ETH-9, one file over: a `useMemo` whose deps change identity every render is pure
 overhead wearing a performance costume.
+
+### 8. **Unlayered CSS Beats Every Tailwind Utility** (ANIM audit, 2026-08-26)
+
+Four separate defects in this codebase trace to one mechanism, and once you see it you can spot the
+rest in a minute.
+
+Tailwind emits its utilities inside `@layer utilities`. **A rule written outside any layer beats a
+layered rule regardless of specificity.** Not because it is more specific - because unlayered
+styles are a higher cascade origin than any named layer. `index.css` is full of unlayered rules,
+so anything left in it silently outranks the entire utility system.
+
+```css
+/* src/index.css - all four of these were unlayered, all four won */
+
+h1 { font-size: 3.2em; }              /* every <h1> rendered 51.2px, ignoring text-2xl */
+button { transition: border-color 0.25s; }  /* ate transition-colors on every button */
+*, *:focus-visible { outline: none !important; }  /* removed every focus ring app-wide */
+```
+
+```mermaid
+flowchart TD
+    A["@layer theme"] --> B["@layer base"]
+    B --> C["@layer components"]
+    C --> D["@layer utilities<br/>text-2xl, transition-colors, ring-1"]
+    D --> E["UNLAYERED<br/>anything left loose in index.css"]
+    E --> F["wins"]
+
+    style D fill:#fde2e2
+    style E fill:#d4f5d4
+    style F fill:#d4f5d4
+```
+
+Read the diagram bottom-up: the *last* box wins, and it is not the one holding your utilities.
+
+**The useful half of this.** The same mechanic is the correct tool when you genuinely want to
+override everything. The reduced-motion block in `index.css` is deliberately unlayered:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    /* Unlayered on purpose, so this outranks duration-500 and every other utility
+       WITHOUT a single !important - which means a component can still opt out. */
+    transition-duration: var(--duration-micro);
+  }
+}
+```
+
+A blanket `!important` would have won too, and taken away every component's ability to opt out.
+Layer position gets you the same authority and leaves the escape hatch open.
+
+**What you can now predict:** any styling bug that reads as "my Tailwind class is being ignored"
+should send you to `index.css` first, looking for a bare element selector. Not to the component.
+
+### 9. **Watch Frames, Not Declarations** (ANIM audit, 2026-08-26)
+
+Across fifteen tickets, the single most common failure was **motion that is correctly declared and
+never gets a frame to run**. It happened four times, by four unrelated mechanisms:
+
+| What ate the animation | Ticket |
+| --- | --- |
+| Radix forces `transitionDuration = "0s"` then reads `getBoundingClientRect()` | 002 |
+| The button's own click handler unmounts it mid-spring-back | 004 |
+| React removes the dialog subtree before Radix `Presence` can defer | 011 |
+| The transition names `transform`; the thing moving is `scale` | 004 |
+
+None of these fail a build, a type check, or a test. All of them survive a `getComputedStyle()`
+check, because the declaration genuinely *is* on the element.
+
+The check that works is boring and mechanical:
+
+```ts
+// Sample the property every animation frame and count how many DISTINCT values appear.
+// One value means it snapped. Anything above ~8 over 300ms means it interpolated.
+const frames: string[] = [];
+await new Promise<void>((resolve) => {
+  const t0 = performance.now();
+  (function tick() {
+    frames.push(getComputedStyle(el).opacity);          // the property that should move
+    if (performance.now() - t0 < 400) requestAnimationFrame(tick);
+    else resolve();
+  })();
+});
+new Set(frames).size;   // 1 = broken, 13 = working
+```
+
+```mermaid
+sequenceDiagram
+    participant U as User action
+    participant R as React / Radix
+    participant C as CSS engine
+    participant P as Painted frames
+
+    U->>R: click "close"
+    R->>C: data-state flips to "closed"
+    Note over R,C: exit transition is now declared
+    R--xP: React unmounts the node
+    Note over P: 1 distinct value - nothing rendered
+    C-->>P: (never gets here)
+```
+
+That sequence is ticket 011 exactly. The transition was perfect; the element stopped existing before
+the compositor saw it.
+
+**The refinement that came later.** Ticket 011 added a second question: frame-counting proves the
+*element* animated, not that it animated the *right thing*. A dialog whose content is nulled on
+close still produces 14 clean frames - of an empty box. So the sample tracked the dialog's **text**
+alongside its opacity, and asserted the title was present in every frame.
+
+**What you can now predict:** any "the animation isn't working" report has two candidate causes, and
+they need different tools. Wrong values -> read the computed style. No values -> count the frames.
+Guessing between them is what costs the afternoon.
+
+### 10. **A Long-Standing Bug Can Be Load-Bearing** (ANIM audit, 2026-08-26)
+
+Three times in this audit, fixing something exposed a second bug the first one had been hiding.
+It happened often enough to be a rule rather than a coincidence.
+
+**Ticket 008.** The plan said `App.css`'s `#root { max-width: 1280px; padding: 2rem }` was pushing
+content under the sidebar and clipping program titles. Three independent measurements said the
+opposite: deleting it made the clipping **32px worse**. The real cause was `w-[--sidebar-width]`
+emitting nothing, so the layout never reserved the sidebar's 256px - and `#root`'s stale padding had
+been accidentally covering part of that gap.
+
+**Ticket 013.** Fixing that width then broke `ProgramManager`, which lays out two fixed 550px
+columns:
+
+```
+viewport 1024 - sidebar 256   =  768px available
+two 550px columns + 24px gap  = 1124px needed        -> 356px shortfall
+```
+
+The `flex-1` column absorbed the whole shortfall and its `overflow-hidden` clipped student names and
+the Invite button, with **no scrollbar** - silent content loss. The old overlap bug had been giving
+that row width it was never entitled to.
+
+**Ticket 015.** The `dark` class was never applied on mount, so nobody had ever seen dark mode.
+Fixing four lines of wiring revealed a palette full of `text-slate-900`, which measures **1.00:1**
+against the dark background. Identical luminance. Invisible headings.
+
+```mermaid
+flowchart LR
+    A["Bug A<br/>#root max-width"] -.masks.-> B["Bug B<br/>sidebar width emits nothing"]
+    B -.masks.-> C["Bug C<br/>ProgramManager fixed columns"]
+    D["Bug D<br/>theme never mounts"] -.masks.-> E["Bug E<br/>hardcoded slate palette"]
+
+    style A fill:#fde2e2
+    style B fill:#fde2e2
+    style C fill:#fde2e2
+    style D fill:#fde2e2
+    style E fill:#fde2e2
+```
+
+**The working rule.** When you fix a visible defect, ask a second question: *what was this bug
+holding up?* Then check the thing it was adjacent to. In two of the three cases above the answer was
+"a layout that never had to be correct", and in the third it was "a colour palette nobody
+could see".
+
+**The judgment call that follows.** Ticket 013 could have shipped its fix and filed the
+`ProgramManager` breakage as a new ticket. It did not, on the grounds that **the commit which
+exposes a defect owns it** - shipping a fix alongside a regression it caused is worse than shipping
+neither. Same reasoning put the 60-site colour sweep inside ticket 015 rather than after it. A fix
+that leaves the app worse in a new way is not finished.
 
 ---
 
@@ -1032,3 +1345,109 @@ The table columns in order:
 - Status (15% width)
 
 Good luck! You've got the concepts down. Now it's just execution. 🚀
+
+---
+
+## Bloopers: The Sidebar That Ate Its Own Toggle (2026-08-27)
+
+### The report
+
+Four complaints, one file. "Collapse the sidebar and the button to bring it back
+disappears." "The nav icons don't line up with the footer icons when it's
+shrunk." "Clicking a nav item makes the text flinch." "The account menu drops
+down instead of popping out."
+
+### Blooper 1: the control that rode inside the thing it controls
+
+`AppSidebar.tsx` put `<SidebarTrigger>` inside `<SidebarHeader>`:
+
+```tsx
+<div className="flex items-center justify-between gap-2">
+  <SidebarMenu className="flex-1">{/* logo + title */}</SidebarMenu>
+  <SidebarTrigger className="ml-2 h-8 w-8" />
+</div>
+```
+
+Collapsed, the rail is `--sidebar-width-icon` = 3rem. Minus `SidebarHeader`'s
+`p-2` that leaves a 32px content box. The trigger alone is 32px plus `ml-2`, so
+the row needed 40px in a 32px box and the rail's `overflow` swallowed it. The
+only way out of icon mode was `cmd+B`.
+
+The film analogy: you built the light switch inside the closet, then let the
+door lock behind you.
+
+The fix is a control anchored to the *outside* edge. `ui/sidebar.tsx` renders
+the rail as a `fixed` container whose `width` animates between the two sizes:
+
+```tsx
+// ui/sidebar.tsx - the element that actually resizes
+"fixed inset-y-0 z-10 ... w-(--sidebar-width) transition-[left,right,width] duration-200"
+```
+
+A child positioned `absolute -right-3` resolves against that `fixed` ancestor,
+not against the flex column it is written inside. So the button rides the
+animating right edge for free - there is no second transition to keep in sync,
+which is the whole reason not to hand-animate a `left` offset here.
+
+```mermaid
+flowchart LR
+  A["SidebarProvider<br/>open: true → false"] --> B["fixed rail container<br/>width 16rem → 3rem<br/>transition-[width] 200ms"]
+  B --> C["absolute -right-3 toggle<br/>slides with the edge"]
+  B --> D["SidebarContent<br/>labels fade, icons stay"]
+```
+
+### Blooper 2: 8 pixels of missing padding
+
+Collapsed, the nav icons sat at x=8 and the footer icons at x=16. Measured, not
+guessed - `getBoundingClientRect()` in DevTools on the real rail.
+
+Cause: `SidebarContent` has no padding of its own. `SidebarFooter` has `p-2`.
+Stock shadcn puts a `<SidebarGroup>` (also `p-2`) inside `SidebarContent`, and
+this file skipped it and dropped `<SidebarMenu>` in bare. Adding the group put
+every icon at 16..32 in a 47px rail. Centred, and identical top to bottom.
+
+The lesson is the measuring, not the padding. "Looks off" is a hypothesis. One
+`getBoundingClientRect()` sweep turned it into two numbers that named the cause.
+
+### Blooper 3: three signals for one press
+
+`sidebar-menu-button-variants.ts` carried `active:scale-(--scale-press)`, copied
+from the app-wide press-feedback pass. On a plain button that reads as a press.
+On a sidebar row it reads as the *text flinching*, because the row already
+answers twice: it tints to `sidebar-accent` on `:active`, and either the chevron
+twirls or the whole page behind it swaps.
+
+Press feedback is a budget, not a policy. Removed here, kept everywhere else,
+with a comment saying why so nobody "restores consistency" later.
+
+### Blooper 4: the avatar sliced by its own border
+
+The user button was `className="h-auto py-2"` wrapping a 32px `<Avatar>`.
+Collapsed, the shared variant forces `!size-8 !p-2`, giving a 16px content box -
+so the avatar overflowed to x=48 in a 47px rail and the right border cut it.
+
+`size="lg"` fixes it because that variant carries
+`group-data-[collapsible=icon]:!p-0`. The 32px avatar then fills the 32px button
+exactly. That is also the shape shadcn's own `sidebar-07` block uses, along with
+`side="right"` on the menu so it pops out of the rail instead of dropping down
+over the footer.
+
+### Director's Commentary: reuse the block's shape, not the block
+
+`sidebar-07` is a *block*, not a component - `npx shadcn add sidebar-07` would
+have written `app-sidebar.tsx`, `nav-main.tsx`, `nav-user.tsx` and
+`team-switcher.tsx` on top of an `AppSidebar.tsx` that already had this app's
+data loading, collapsibles and routing in it. The primitive it depends on,
+`ui/sidebar.tsx`, was already installed.
+
+So the move was to copy the three shapes that mattered - `size="lg"` on the user
+row, `data-[state=open]:bg-sidebar-accent` for the open-state highlight, and
+`side="right" align="end" sideOffset={4}` on the menu - and leave everything
+else alone. Installing the block to get three class strings would have meant
+merging four generated files back into one working component.
+
+**What you can now predict:** any control that must survive the rail collapsing
+belongs `absolute` against the `fixed` container in `ui/sidebar.tsx`, not in the
+flex column. Anything inside `SidebarContent` needs a `<SidebarGroup>` to match
+the footer's padding. And any new pressable in the sidebar should *not* get
+`active:scale-*`.
