@@ -177,7 +177,7 @@ function SortHeader({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-1 focus-visible:outline-none group">
+        <button className="flex items-center gap-1 group">
           {label}
           <span className={isActive ? "opacity-100" : "opacity-40 group-hover:opacity-100"}>
             {isActive && sort.dir === "asc" ? (

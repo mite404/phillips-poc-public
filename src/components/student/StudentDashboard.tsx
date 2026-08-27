@@ -254,7 +254,7 @@ export function StudentDashboard() {
                     value={hydrated.program.id}
                     className="border border-border rounded-[--radius] overflow-hidden bg-card-background"
                   >
-                    <Accordion.Trigger className="flex w-full items-center px-4 py-3 hover:bg-card-background [&[data-state=open]]:bg-card-background text-left group">
+                    <Accordion.Trigger className="flex w-full items-center px-4 py-3 hover:bg-card-background [&[data-state=open]]:bg-card-background text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
                       <span className="font-semibold text-slate-900 flex-1">
                         {hydrated.program.programName}
                       </span>
@@ -367,7 +367,7 @@ export function StudentDashboard() {
                   value={hydrated.program.id}
                   className="border border-border rounded-[--radius] overflow-hidden bg-card-background"
                 >
-                  <Accordion.Trigger className="flex w-full items-center px-4 py-3 [&[data-state=open]] text-left group">
+                  <Accordion.Trigger className="flex w-full items-center px-4 py-3 [&[data-state=open]] text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
                     <span className="font-semibold text-slate-900 flex-1">
                       {hydrated.program.programName}
                     </span>

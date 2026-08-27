@@ -32,10 +32,11 @@ independent and can land any time.
 | [007](007-view-and-theme-transition.md) | Screen transitions, theme, count-up | 001 | **DONE** ([notes](arena/007-synthesis.md), no arena) |
 | [008](008-starter-cleanup.md) | Delete Vite starter leftovers | - | **DONE** ([synthesis](arena/008-synthesis.md)) |
 | [009](009-source-not-docs.md) | Scope the Tailwind content scan to `src/` | - | **DONE** ([synthesis](arena/009-synthesis.md)) |
-| [010](010-restore-focus-rings.md) | Restore focus indicators (WCAG 2.4.7 failure) | - | TODO |
+| [010](010-restore-focus-rings.md) | Restore focus indicators (WCAG 2.4.7 failure) | - | **DONE** ([synthesis](arena/010-synthesis.md)) |
 | [011](011-dialog-consumer-unmount.md) | Dialog consumers unmount before their exit plays | 005 | TODO |
 | [012](012-fetch-abort-guard.md) | Guard the catalog fetch against double-invocation | - | TODO |
 | [013](013-tailwind-v3-bracket-syntax.md) | Fix 23 v3 bracket-syntax class names (visible layout bug) | - | TODO |
+| [014](014-keyboard-traps.md) | Facet filter options unreachable by keyboard (WCAG A) | - | TODO |
 
 ## How each plan gets implemented
 

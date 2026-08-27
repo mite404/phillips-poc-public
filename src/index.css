@@ -433,12 +433,15 @@ button {
     transition-duration: 0s;
   }
 
-  /* FORCE REMOVE ALL BLUE FOCUS RINGS */
-  *,
-  *:focus,
+  /* Branded keyboard focus indicator. `:focus-visible` only, so a mouse click
+     never shows it - keyboard and other non-pointer focus still do. `--ring`
+     is the Phillips accent (#ff5000), already wired through `--color-ring`
+     for every shadcn `focus-visible:ring-*` utility, so this is a fallback
+     for the plain elements that carry no ring utility of their own; anything
+     with its own `focus-visible:ring-*` renders that instead, since utility
+     classes sit in a later layer than this one. */
   *:focus-visible {
-    outline: none !important;
-    --tw-ring-offset-width: 0px !important;
-    --tw-ring-shadow: 0 0 #0000 !important;
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
 }
