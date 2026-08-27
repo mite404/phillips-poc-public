@@ -21,7 +21,7 @@ export function SiteHeader({ lightMode, onThemeToggle }: SiteHeaderProps) {
       <button
         onClick={onThemeToggle}
         aria-label={lightMode ? "Switch to dark mode" : "Switch to light mode"}
-        className="flex items-center justify-center w-10 h-10 text-foreground hover:bg-muted focus-visible:bg-muted transition-[background-color,scale] duration-(--duration-micro) ease-out active:scale-(--scale-press) active:duration-0 rounded-[--radius]"
+        className="flex items-center justify-center w-10 h-10 text-foreground hover:bg-muted focus-visible:bg-muted transition-[background-color,scale] duration-(--duration-micro) ease-out active:scale-(--scale-press) active:duration-0 rounded-(--radius)"
       >
         {/* Both icons live in the same grid cell (grid + col/row-start-1) so
             the swap crossfades in place instead of the ternary replacing one

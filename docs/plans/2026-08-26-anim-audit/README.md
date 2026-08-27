@@ -35,8 +35,9 @@ independent and can land any time.
 | [010](010-restore-focus-rings.md) | Restore focus indicators (WCAG 2.4.7 failure) | - | **DONE** ([synthesis](arena/010-synthesis.md)) |
 | [011](011-dialog-consumer-unmount.md) | Dialog consumers unmount before their exit plays | 005 | **DONE** ([synthesis](arena/011-synthesis.md)) |
 | [012](012-fetch-abort-guard.md) | Guard the catalog fetch against double-invocation | - | **DONE** ([synthesis](arena/012-synthesis.md)) |
-| [013](013-tailwind-v3-bracket-syntax.md) | Fix 23 v3 bracket-syntax class names (visible layout bug) | - | TODO |
+| [013](013-tailwind-v3-bracket-syntax.md) | Fix 23 v3 bracket-syntax class names (visible layout bug) | - | **DONE** ([synthesis](arena/013-synthesis.md)) |
 | [014](014-keyboard-traps.md) | Facet filter options unreachable by keyboard (WCAG A) | - | TODO |
+| [015](015-theme-never-applies-on-mount.md) | Dark class never applied on mount; first click is a no-op | - | TODO |
 
 ## How each plan gets implemented
 

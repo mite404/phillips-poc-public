@@ -266,7 +266,7 @@ export function StudentDashboard() {
                   <Accordion.Item
                     key={hydrated.program.id}
                     value={hydrated.program.id}
-                    className="border border-border rounded-[--radius] overflow-hidden bg-card-background"
+                    className="border border-border rounded-(--radius) overflow-hidden bg-card-background"
                   >
                     <Accordion.Trigger className="flex w-full items-center px-4 py-3 hover:bg-card-background [&[data-state=open]]:bg-card-background text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
                       <span className="font-semibold text-slate-900 flex-1">
@@ -299,7 +299,7 @@ export function StudentDashboard() {
                           return (
                             <Card
                               key={course.id}
-                              className="cursor-pointer border border-border rounded-[--radius] p-4 bg-card-background transition-colors"
+                              className="cursor-pointer border border-border rounded-(--radius) p-4 bg-card-background transition-colors"
                               onClick={() =>
                                 handleCourseClick(course, hydrated.program.id)
                               }
@@ -379,7 +379,7 @@ export function StudentDashboard() {
                 <Accordion.Item
                   key={hydrated.program.id}
                   value={hydrated.program.id}
-                  className="border border-border rounded-[--radius] overflow-hidden bg-card-background"
+                  className="border border-border rounded-(--radius) overflow-hidden bg-card-background"
                 >
                   <Accordion.Trigger className="flex w-full items-center px-4 py-3 [&[data-state=open]] text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
                     <span className="font-semibold text-slate-900 flex-1">
@@ -400,7 +400,7 @@ export function StudentDashboard() {
                       {hydrated.courses.map((course, idx) => (
                         <Card
                           key={course.id}
-                          className="cursor-pointer border border-border rounded-[--radius] p-4 bg-card-background hover:border-green-400/50 transition-colors"
+                          className="cursor-pointer border border-border rounded-(--radius) p-4 bg-card-background hover:border-green-400/50 transition-colors"
                           onClick={() => handleCourseClick(course, hydrated.program.id)}
                         >
                           <div className="flex items-center gap-3">

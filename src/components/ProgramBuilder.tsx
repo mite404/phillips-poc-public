@@ -88,7 +88,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
       {/* Two Column Layout */}
       <div className="flex flex-1 gap-4 min-h-0">
         {/* Left Column - My Program (50%) */}
-        <div className="flex-1 flex flex-col border border-border rounded-[--radius]">
+        <div className="flex-1 flex flex-col border border-border rounded-(--radius)">
           {/* Header */}
           <div className="p-4 border-b border-border bg-muted space-y-3 pb-9">
             <h2 className="text-xl font-semibold">My Program</h2>
@@ -158,7 +158,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
         </div>
 
         {/* Right Column - Course Catalog (50%) */}
-        <div className="flex-1 flex flex-col border border-border rounded-[--radius]">
+        <div className="flex-1 flex flex-col border border-border rounded-(--radius)">
           {/* Header */}
           <div className="p-4 border-b border-border bg-muted space-y-3">
             <h2 className="text-xl font-semibold">Course Catalog</h2>

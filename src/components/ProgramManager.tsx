@@ -162,9 +162,12 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
       </div>
 
       {/* Split View: Course List + Roster */}
-      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0">
+      {/* xl:, not lg:. Two 550px columns need 1124px; at lg (1024px) the sidebar
+          correctly reserves 256px leaving 768px, and the shortfall gets clipped by
+          the overflow-hidden below rather than scrolled. Stack until they fit. */}
+      <div className="flex-1 flex flex-col xl:flex-row gap-6 min-h-0">
         {/* Left Column: Course Sequence - width driven by its content/cards */}
-        <div className="lg:w-[550px] lg:flex-shrink-0 flex flex-col border border-border rounded-[--radius] overflow-hidden">
+        <div className="xl:w-[550px] xl:flex-shrink-0 flex flex-col border border-border rounded-(--radius) overflow-hidden">
           {" "}
           {/* <- here <- */}
           <div className="h-[88px] p-4 border-b border-border bg-muted flex flex-col justify-center">
@@ -245,7 +248,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
         </div>
 
         {/* Right Column: Student Roster - fills remaining space */}
-        <div className="lg:w-[550px] flex-1 flex flex-col border border-border rounded-[--radius] overflow-hidden">
+        <div className="xl:w-[550px] flex-1 min-w-0 flex flex-col border border-border rounded-(--radius) overflow-hidden">
           <RosterList
             programId={programId}
             firstCourseId={hydratedCourses[0]?.courseId}
@@ -259,7 +262,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
           Publish Program
         </Button>
         {program.published && (
-          <span className="px-4 py-2 bg-green-100 text-green-800 font-semibold rounded-[--radius]">
+          <span className="px-4 py-2 bg-green-100 text-green-800 font-semibold rounded-(--radius)">
             ✓ Published
           </span>
         )}

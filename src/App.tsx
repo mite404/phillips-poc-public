@@ -70,13 +70,13 @@ function App() {
               <h1 className="text-2xl font-bold italic">Phillips</h1>
             </header>
             <button
-              className="bg-orange-500! text-gray-950! px-6 py-3 rounded-[--radius] mx-auto font-medium hover:bg-orange-400! focus-visible:bg-orange-400! transition-[background-color,scale] duration-(--duration-micro) ease-out active:scale-(--scale-press) active:duration-0"
+              className="bg-orange-500! text-gray-950! px-6 py-3 rounded-(--radius) mx-auto font-medium hover:bg-orange-400! focus-visible:bg-orange-400! transition-[background-color,scale] duration-(--duration-micro) ease-out active:scale-(--scale-press) active:duration-0"
               onClick={() => handleSetUserType("supervisor")}
             >
               Education Supervisor
             </button>
             <button
-              className="bg-orange-500! text-gray-950! px-6 py-3 rounded-[--radius] mx-auto font-medium hover:bg-orange-400! focus-visible:bg-orange-400! transition-[background-color,scale] duration-(--duration-micro) ease-out active:scale-(--scale-press) active:duration-0"
+              className="bg-orange-500! text-gray-950! px-6 py-3 rounded-(--radius) mx-auto font-medium hover:bg-orange-400! focus-visible:bg-orange-400! transition-[background-color,scale] duration-(--duration-micro) ease-out active:scale-(--scale-press) active:duration-0"
               onClick={() => handleSetUserType("student")}
             >
               Student
