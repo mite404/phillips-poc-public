@@ -4,6 +4,7 @@ import { legacyApi } from "@/api/legacyRoutes";
 import { localApi } from "@/api/localRoutes";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -463,10 +464,10 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     return (
       <div className="h-full p-4 @sm:p-6 @lg:p-8">
         <div className="space-y-6">
-          <div className="h-8 w-64 bg-slate-200 rounded animate-pulse"></div>
+          <Skeleton className="h-8 w-64" />
           <div className="space-y-4">
-            <div className="h-64 bg-slate-100 rounded animate-pulse"></div>
-            <div className="h-64 bg-slate-100 rounded animate-pulse"></div>
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-64 w-full" />
           </div>
         </div>
       </div>
@@ -502,7 +503,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   // Main render
   return (
     <>
-      <div className="h-full p-4 @sm:p-6 @lg:p-8 overflow-y-auto">
+      <div className="h-full p-4 @sm:p-6 @lg:p-8 overflow-y-auto transition-opacity duration-(--duration-swap) ease-out starting:opacity-0">
         <h2 className="text-2xl font-bold text-slate-900 mb-6">
           {student?.learnerName}'s Progress
         </h2>

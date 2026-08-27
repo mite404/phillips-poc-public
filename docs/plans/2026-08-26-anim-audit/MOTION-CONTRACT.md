@@ -85,6 +85,21 @@ Never `scale(0)`. Nothing in the physical world appears from nothing.
    correct, and `origin-center` there is not a defect.
 4. **Name the properties. Never `transition: all`.** It catches colors mid-theme-switch
    and layout on resize, and runs off-GPU.
+
+   **An element carries at most one `transition-*` utility.** `cn()` runs `tailwind-merge`,
+   which treats every `transition-*` class as one mutually-exclusive group and keeps only
+   the last. Adding motion to something that already animates silently deletes what was
+   there. This has bitten three plans: 004 (a variant's `transition-colors` ate the cva
+   base's list), and 006 twice (a crossfade would have deleted the card hover). Three ways
+   out, in order of preference:
+
+   - `[transition:a 100ms var(--ease-out),b 240ms var(--ease-out)]` - the arbitrary
+     *property* form. One declaration, per-property timing, collision impossible. Note
+     `transition-[a,b]` is NOT equivalent: it sets `transition-property` only and pulls
+     timing from `--tw-duration`, so it cannot express different durations per property.
+   - Drive one of them with `animation` instead. `animation-*` and `transition-*` are
+     disjoint groups, so they coexist.
+   - Put them on different elements.
 5. **Prefer `transform`, `opacity`, `filter`,** and the individual `translate` / `scale` /
    `rotate` properties, which compose without clobbering each other the way the
    `transform` shorthand does. Exception: `grid-template-rows` for collapse, the only

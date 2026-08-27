@@ -19,7 +19,9 @@ export function MetricCard({ title, value, icon, isLoading, highlight = false }:
         {isLoading ? (
           <Skeleton className="h-8 w-16" />
         ) : (
-          <div className="text-3xl font-bold">{value}</div>
+          <div className="text-3xl font-bold transition-opacity duration-(--duration-swap) ease-out starting:opacity-0">
+            {value}
+          </div>
         )}
       </CardContent>
     </Card>

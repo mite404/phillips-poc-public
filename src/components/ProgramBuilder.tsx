@@ -14,7 +14,7 @@ import { SortableCourseItem } from "./SortableCourseItem";
 import { CourseDetailModal } from "./common/CourseDetailModal";
 import { CourseCard } from "./common/CourseCard";
 import { Skeleton } from "./ui/skeleton";
-import { Card, cardInteractiveClasses } from "./ui/card";
+import { Card, cardInteractiveClasses, staggerCardClasses } from "./ui/card";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
@@ -198,7 +198,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                   <Skeleton className="h-48 w-full" />
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-3 transition-opacity duration-(--duration-swap) ease-out starting:opacity-0">
                   {filteredCourses.map((course) => (
                     <Card
                       key={course.id}
@@ -206,6 +206,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                       className={cn(
                         "flex flex-row items-center gap-3 p-3 border-border",
                         cardInteractiveClasses,
+                        staggerCardClasses,
                       )}
                     >
                       {/* Course Image */}

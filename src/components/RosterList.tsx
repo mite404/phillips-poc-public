@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { staggerRowClasses } from "@/components/ui/card";
 import { toast } from "sonner";
 
 interface RosterListProps {
@@ -180,7 +181,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
 
   return (
     <>
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full transition-opacity duration-(--duration-swap) ease-out starting:opacity-0">
         {/* Header */}
         <div className="h-[88px] p-4 border-b border-border bg-muted flex flex-col justify-center">
           <h2 className="text-lg font-semibold">Student Roster</h2>
@@ -231,7 +232,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                     const isSelected = selectedStudentIds.includes(learner.learnerId);
 
                     return (
-                      <TableRow key={learner.learnerId}>
+                      <TableRow key={learner.learnerId} className={staggerRowClasses}>
                         <TableCell className="flex-shrink-0 pl-6">
                           <input
                             type="checkbox"

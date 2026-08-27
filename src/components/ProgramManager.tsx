@@ -3,7 +3,7 @@ import { localApi } from "@/api/localRoutes";
 import { legacyApi } from "@/api/legacyRoutes";
 import type { SupervisorProgram, CourseCatalogItem } from "@/types/models";
 import { Skeleton } from "./ui/skeleton";
-import { Card, cardInteractiveClasses } from "./ui/card";
+import { Card, cardInteractiveClasses, staggerCardClasses } from "./ui/card";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -132,7 +132,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
   }
 
   return (
-    <div className="h-full flex flex-col gap-6 p-8">
+    <div className="h-full flex flex-col gap-6 p-8 transition-opacity duration-(--duration-swap) ease-out starting:opacity-0">
       {/* Program Header */}
       <div className="space-y-2">
         <div className="text-3xl font-bold text-black">{program.programName}</div>
@@ -181,6 +181,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
                     className={cn(
                       "flex flex-row items-center gap-4 p-4 border-border",
                       cardInteractiveClasses,
+                      staggerCardClasses,
                     )}
                   >
                     {/* Sequence Number */}
