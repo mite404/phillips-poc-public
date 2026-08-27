@@ -14,7 +14,6 @@ import {
   HelpCircle,
   Search,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -250,17 +249,24 @@ export function AppSidebar({
                         ) : (
                           savedPrograms.map((program) => (
                             <SidebarMenuSubItem key={program.id}>
+                              {/* A plain <button>, not <Button variant="ghost">.
+                                  SidebarMenuSubButton already supplies the row
+                                  treatment - height, padding, gap, hover fill,
+                                  active state - so the Button only added a
+                                  competing hover:bg-primary/20 and dragged in
+                                  buttonVariants' active:scale press, which is
+                                  the flinch the top-level rows don't have. */}
                               <SidebarMenuSubButton
                                 asChild
                                 isActive={currentView === program.id}
                                 className="cursor-pointer"
                               >
-                                <Button
-                                  variant="ghost"
-                                  className="w-full justify-start"
+                                <button
+                                  type="button"
+                                  className="w-full"
                                   onClick={() => onNavigate(program.id)}
                                 >
-                                  <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
+                                  <FileText className="h-4 w-4 flex-shrink-0" />
                                   <span className="truncate">
                                     {program.programName}
                                   </span>
@@ -269,7 +275,7 @@ export function AppSidebar({
                                       DRAFT
                                     </span>
                                   )}
-                                </Button>
+                                </button>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
                           ))
@@ -316,18 +322,18 @@ export function AppSidebar({
                                 }
                                 className="cursor-pointer"
                               >
-                                <Button
-                                  variant="ghost"
-                                  className="w-full justify-start"
+                                <button
+                                  type="button"
+                                  className="w-full"
                                   onClick={() =>
                                     onNavigate(
                                       `student_${student.learner_Data_Id}`,
                                     )
                                   }
                                 >
-                                  <User className="h-4 w-4 mr-2 flex-shrink-0" />
+                                  <User className="h-4 w-4 flex-shrink-0" />
                                   <span>{student.learnerName}</span>
-                                </Button>
+                                </button>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
                           ))
