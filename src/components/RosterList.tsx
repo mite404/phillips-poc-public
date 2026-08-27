@@ -296,17 +296,17 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
         </div>
       </div>
 
-      {/* Enrollment Modal */}
-      {selectedLearner && firstCourseId && (
-        <EnrollmentModal
-          isOpen={!!selectedLearner}
-          onClose={() => setSelectedLearner(null)}
-          learner={selectedLearner}
-          programId={programId}
-          courseId={firstCourseId}
-          onEnrollmentComplete={handleEnrollmentComplete}
-        />
-      )}
+      {/* Enrollment Modal. Rendered unconditionally so Radix can play the exit transition -
+          EnrollmentModal retains the last selected learner/course itself, so it does not
+          need to stay in the tree only while selectedLearner is set. */}
+      <EnrollmentModal
+        isOpen={!!selectedLearner && !!firstCourseId}
+        onClose={() => setSelectedLearner(null)}
+        learner={selectedLearner}
+        programId={programId}
+        courseId={firstCourseId ?? null}
+        onEnrollmentComplete={handleEnrollmentComplete}
+      />
     </>
   );
 }

@@ -436,17 +436,17 @@ export function StudentDashboard() {
         }
       />
 
-      {/* Enrollment Modal */}
-      {pendingEnrollment && (
-        <EnrollmentModal
-          isOpen={enrollmentModalOpen}
-          onClose={() => setEnrollmentModalOpen(false)}
-          learner={MOCK_STUDENT}
-          programId={pendingEnrollment.programId}
-          courseId={pendingEnrollment.courseId}
-          onEnrollmentComplete={handleEnrollmentComplete}
-        />
-      )}
+      {/* Enrollment Modal. Rendered unconditionally (see CourseDetailModal above) so its
+          exit transition can play; EnrollmentModal retains the last pending enrollment
+          itself. */}
+      <EnrollmentModal
+        isOpen={enrollmentModalOpen}
+        onClose={() => setEnrollmentModalOpen(false)}
+        learner={MOCK_STUDENT}
+        programId={pendingEnrollment?.programId ?? ""}
+        courseId={pendingEnrollment?.courseId ?? null}
+        onEnrollmentComplete={handleEnrollmentComplete}
+      />
     </div>
   );
 }
