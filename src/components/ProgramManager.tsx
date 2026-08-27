@@ -133,7 +133,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
   if (!program) {
     return (
       <div className="h-full flex items-center justify-center">
-        <p className="text-slate-500">Program not found</p>
+        <p className="text-muted-foreground">Program not found</p>
       </div>
     );
   }
@@ -142,17 +142,17 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
     <div className="h-full flex flex-col gap-6 p-8 transition-opacity duration-(--duration-swap) ease-out starting:opacity-0">
       {/* Program Header */}
       <div className="space-y-2">
-        <div className="text-3xl font-bold text-black">{program.programName}</div>
-        {program.description && <p className="text-slate-600">{program.description}</p>}
+        <div className="text-3xl font-bold text-foreground">{program.programName}</div>
+        {program.description && <p className="text-muted-foreground">{program.description}</p>}
         {program.tags.length > 0 && (
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-slate-500">
+            <span className="text-sm font-semibold text-muted-foreground">
               Tags included in Program:
             </span>
             {program.tags.map((tag, idx) => (
               <span
                 key={idx}
-                className="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded"
+                className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded"
               >
                 {tag}
               </span>
@@ -172,14 +172,14 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
           {/* <- here <- */}
           <div className="h-[88px] p-4 border-b border-border bg-muted flex flex-col justify-center">
             <h2 className="text-lg font-semibold">Course Sequence</h2>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-muted-foreground">
               {hydratedCourses.length} course{hydratedCourses.length !== 1 ? "s" : ""} •{" "}
               {calculateTotalDuration()}
             </p>
           </div>
           <div className="flex-1 overflow-y-auto p-4">
             {hydratedCourses.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-slate-400">
+              <div className="flex items-center justify-center h-full text-muted-foreground">
                 No courses in this program
               </div>
             ) : (
@@ -204,24 +204,24 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
                       <img
                         src={course.previewImageUrl}
                         alt={course.courseTitle}
-                        className="w-24 h-16 object-cover rounded-md bg-slate-100 shrink-0"
+                        className="w-24 h-16 object-cover rounded-md bg-muted shrink-0"
                       />
                     ) : (
-                      <div className="w-24 h-16 bg-slate-100 rounded-md shrink-0 flex items-center justify-center text-xs text-slate-500">
+                      <div className="w-24 h-16 bg-muted rounded-md shrink-0 flex items-center justify-center text-xs text-muted-foreground">
                         No Image
                       </div>
                     )}
 
                     {/* Middle Section: Title & Metadata */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-slate-900 truncate">
+                      <h3 className="font-bold text-foreground truncate">
                         {course.courseTitle}
                       </h3>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <Badge variant="secondary" className="text-xs">
                           {course.trainingTypeName}
                         </Badge>
-                        <span className="text-sm text-slate-600">
+                        <span className="text-sm text-muted-foreground">
                           {course.trainingTypeName === "ILT"
                             ? `${course.totalDays} day${course.totalDays !== 1 ? "s" : ""}`
                             : course.hours
@@ -236,7 +236,7 @@ export function ProgramManager({ programId }: ProgramManagerProps) {
                       <Badge variant="outline" className="text-xs">
                         {course.levelName}
                       </Badge>
-                      <span className="text-sm text-slate-500 font-mono whitespace-nowrap">
+                      <span className="text-sm text-muted-foreground font-mono whitespace-nowrap">
                         #{course.courseId}
                       </span>
                     </div>

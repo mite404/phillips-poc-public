@@ -445,7 +445,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
       case "Incomplete":
         return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100";
       case "Not Enrolled":
-        return "bg-slate-100 text-slate-600 hover:bg-slate-100";
+        return "bg-muted text-muted-foreground hover:bg-muted";
     }
   };
 
@@ -500,11 +500,11 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   if (hydratedPrograms.length === 0) {
     return (
       <div className="h-full p-4 @sm:p-6 @lg:p-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">
+        <h2 className="text-2xl font-bold text-foreground mb-4">
           {student?.learnerName}'s Progress
         </h2>
         <div className="bg-muted border border-border rounded-(--radius) p-8 text-center">
-          <p className="text-slate-600">No programs assigned to this student.</p>
+          <p className="text-muted-foreground">No programs assigned to this student.</p>
         </div>
       </div>
     );
@@ -514,7 +514,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   return (
     <>
       <div className="h-full p-4 @sm:p-6 @lg:p-8 overflow-y-auto transition-opacity duration-(--duration-swap) ease-out starting:opacity-0">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">
+        <h2 className="text-2xl font-bold text-foreground mb-6">
           {student?.learnerName}'s Progress
         </h2>
 

@@ -24,7 +24,7 @@ export function SortableCourseItem({ id, children }: SortableCourseItemProps) {
     <Button
       variant="ghost"
       size="icon"
-      className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 hover:bg-transparent flex-shrink-0"
+      className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-muted-foreground hover:bg-transparent flex-shrink-0"
       {...attributes}
       {...listeners}
     >

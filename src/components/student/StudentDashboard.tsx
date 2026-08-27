@@ -252,10 +252,10 @@ export function StudentDashboard() {
       <div className="grid grid-cols-2 gap-6 h-full">
         {/* Left Column: Assigned Programs */}
         <div className="space-y-4 overflow-y-auto">
-          <h2 className="text-xl font-semibold text-slate-800">Assigned Programs</h2>
+          <h2 className="text-xl font-semibold text-foreground">Assigned Programs</h2>
 
           {assignedPrograms.length === 0 ? (
-            <div className="p-8 text-center text-slate-400">No programs assigned yet</div>
+            <div className="p-8 text-center text-muted-foreground">No programs assigned yet</div>
           ) : (
             <Accordion.Root type="single" collapsible className="space-y-3">
               {assignedPrograms.map((hydrated) => {
@@ -269,7 +269,7 @@ export function StudentDashboard() {
                     className="border border-border rounded-(--radius) overflow-hidden bg-card-background"
                   >
                     <Accordion.Trigger className="flex w-full items-center px-4 py-3 hover:bg-card-background [&[data-state=open]]:bg-card-background text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
-                      <span className="font-semibold text-slate-900 flex-1">
+                      <span className="font-semibold text-foreground flex-1">
                         {hydrated.program.programName}
                       </span>
                       <Badge
@@ -285,7 +285,7 @@ export function StudentDashboard() {
                     </Accordion.Trigger>
                     <AccordionContent className="px-4 pb-4 pt-2">
                       {hydrated.program.description && (
-                        <p className="text-sm text-slate-600 mb-4">
+                        <p className="text-sm text-muted-foreground mb-4">
                           {hydrated.program.description}
                         </p>
                       )}
@@ -312,10 +312,10 @@ export function StudentDashboard() {
 
                                 {/* Course Info */}
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-semibold text-slate-900 truncate">
+                                  <p className="text-sm font-semibold text-foreground truncate">
                                     {course.courseTitle}
                                   </p>
-                                  <p className="text-xs text-slate-500">
+                                  <p className="text-xs text-muted-foreground">
                                     {course.trainingTypeName} • {course.levelName}
                                   </p>
                                 </div>
@@ -330,7 +330,7 @@ export function StudentDashboard() {
                                     hasAvailableSessions(course.courseId) ? (
                                       <Button
                                         size="sm"
-                                        className="text-sm font-semibold text-slate-900"
+                                        className="text-sm font-semibold text-foreground"
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           handleBookClick(
@@ -367,10 +367,10 @@ export function StudentDashboard() {
 
         {/* Right Column: Completed Programs */}
         <div className="space-y-4 overflow-y-auto">
-          <h2 className="text-xl font-semibold text-slate-800">Completed Programs</h2>
+          <h2 className="text-xl font-semibold text-foreground">Completed Programs</h2>
 
           {completedPrograms.length === 0 ? (
-            <div className="p-8 text-center text-slate-400">
+            <div className="p-8 text-center text-muted-foreground">
               No completed programs yet
             </div>
           ) : (
@@ -382,7 +382,7 @@ export function StudentDashboard() {
                   className="border border-border rounded-(--radius) overflow-hidden bg-card-background"
                 >
                   <Accordion.Trigger className="flex w-full items-center px-4 py-3 [&[data-state=open]] text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
-                    <span className="font-semibold text-slate-900 flex-1">
+                    <span className="font-semibold text-foreground flex-1">
                       {hydrated.program.programName}
                     </span>
                     <Badge className="bg-green-100 text-green-800 hover:bg-green-100 mr-2">
@@ -392,7 +392,7 @@ export function StudentDashboard() {
                   </Accordion.Trigger>
                   <AccordionContent className="px-4 pb-4 pt-2">
                     {hydrated.program.description && (
-                      <p className="text-sm text-slate-600 mb-4">
+                      <p className="text-sm text-muted-foreground mb-4">
                         {hydrated.program.description}
                       </p>
                     )}
@@ -411,10 +411,10 @@ export function StudentDashboard() {
 
                             {/* Course Info */}
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-slate-900 truncate">
+                              <p className="text-sm font-semibold text-foreground truncate">
                                 {course.courseTitle}
                               </p>
-                              <p className="text-xs text-slate-500">
+                              <p className="text-xs text-muted-foreground">
                                 {course.trainingTypeName} • {course.levelName}
                               </p>
                             </div>

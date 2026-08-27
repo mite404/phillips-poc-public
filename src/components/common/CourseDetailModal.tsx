@@ -144,7 +144,7 @@ export function CourseDetailModal({
                   <p className="text-sm text-muted-foreground mb-3">
                     Description
                   </p>
-                  <p className="text-sm text-slate-600 leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     This course covers the fundamentals of{" "}
                     {displayCourse.courseTitle.toLowerCase()}. Students will
                     learn essential skills and techniques through hands-on
@@ -182,16 +182,16 @@ export function CourseDetailModal({
                       {testimonials.map((testimonial) => (
                         <div
                           key={testimonial.testimonialId}
-                          className="bg-card-background border border-slate-100 rounded-lg p-3"
+                          className="bg-card-background border border-border rounded-lg p-3"
                         >
-                          <p className="font-medium text-sm text-slate-900">
+                          <p className="font-medium text-sm text-foreground">
                             {testimonial.personName}
                           </p>
-                          <p className="text-xs text-slate-500 mb-2">
+                          <p className="text-xs text-muted-foreground mb-2">
                             {testimonial.personTitle}
                           </p>
                           {testimonial.testimonialText ? (
-                            <p className="text-sm text-slate-700 italic">
+                            <p className="text-sm text-muted-foreground italic">
                               "{testimonial.testimonialText}"
                             </p>
                           ) : (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useLayoutEffect } from "react";
 import { PageContent } from "./components/PageContent";
 import { AppSidebar } from "./components/layout/AppSidebar";
 import { SiteHeader } from "./components/layout/SiteHeader";
@@ -40,17 +40,24 @@ function App() {
   // meant to avoid happened anyway.
   const handleThemeToggle = () => {
     const next = !lightMode;
-    const apply = () => document.documentElement.classList.toggle('dark', !next);
     if (document.startViewTransition) {
-      document.startViewTransition(apply);
+      document.startViewTransition(() => setLightMode(next));
     } else {
-      apply();
+      setLightMode(next);
     }
-    setLightMode(next);
   };
 
-  // Persist theme preference to localStorage
-  useEffect(() => {
+  // Sync the `dark` class on <html> to state, and persist the preference.
+  // useLayoutEffect, not useEffect: it commits before the browser paints,
+  // in the same synchronous flush as the state update. A passive effect is
+  // scheduled after paint, which would make startViewTransition capture the
+  // "after" frame before the class actually changed - the whole crossfade
+  // would silently no-op. The inline script in index.html applies the same
+  // class before first paint (reading localStorage directly, before React
+  // mounts), so this effect's first run on mount is a redundant
+  // re-application, not a visible flip.
+  useLayoutEffect(() => {
+    document.documentElement.classList.toggle('dark', !lightMode);
     localStorage.setItem('theme', lightMode ? 'light' : 'dark');
   }, [lightMode]);
 

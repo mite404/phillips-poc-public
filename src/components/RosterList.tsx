@@ -193,7 +193,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
         {/* Header */}
         <div className="h-[88px] p-4 border-b border-border bg-muted flex flex-col justify-center">
           <h2 className="text-lg font-semibold">Student Roster</h2>
-          <p className="text-sm text-slate-600">{learners.length} students</p>
+          <p className="text-sm text-muted-foreground">{learners.length} students</p>
         </div>
 
         {/* Batch Invite Button */}
@@ -210,7 +210,7 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
         {/* Student Table */}
         <div className="flex-1 overflow-auto p-4">
           {learners.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-slate-400">
+            <div className="flex items-center justify-center h-full text-muted-foreground">
               No students found
             </div>
           ) : (
@@ -251,10 +251,10 @@ export function RosterList({ programId, firstCourseId }: RosterListProps) {
                         </TableCell>
                         <TableCell className="min-w-48">
                           <div className="flex flex-col min-w-0">
-                            <span className="font-medium text-slate-900 truncate">
+                            <span className="font-medium text-foreground truncate">
                               {learner.learnerName}
                             </span>
-                            <span className="text-sm text-slate-600 truncate">
+                            <span className="text-sm text-muted-foreground truncate">
                               {learner.emailId}
                             </span>
                           </div>

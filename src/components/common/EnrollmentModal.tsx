@@ -138,7 +138,7 @@ export function EnrollmentModal({
           <>
             <DialogHeader>
               <DialogTitle>Enroll {displayLearner.learnerName}</DialogTitle>
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-muted-foreground">
                 Select a class session for the first course in the program
               </p>
             </DialogHeader>
@@ -150,7 +150,7 @@ export function EnrollmentModal({
                   <Skeleton className="h-20 w-full" />
                 </div>
               ) : !inventory || inventory.classes.length === 0 ? (
-                <div className="p-8 text-center text-slate-400">
+                <div className="p-8 text-center text-muted-foreground">
                   No class sessions available for this course
                 </div>
               ) : (
@@ -168,7 +168,7 @@ export function EnrollmentModal({
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-slate-900">
+                            <span className="font-medium text-foreground">
                               {classSession.location}
                             </span>
                             <span
@@ -181,11 +181,11 @@ export function EnrollmentModal({
                               {classSession.type}
                             </span>
                           </div>
-                          <p className="text-sm text-slate-600">
+                          <p className="text-sm text-muted-foreground">
                             {formatDate(classSession.startDate)} –{" "}
                             {formatDate(classSession.endDate)}
                           </p>
-                          <p className="text-xs text-slate-500 mt-1">
+                          <p className="text-xs text-muted-foreground mt-1">
                             {classSession.seats} seat
                             {classSession.seats !== 1 ? "s" : ""} available
                           </p>

@@ -83,7 +83,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Page Header */}
-      <div className="text-4xl font-bold text-black mb-6">Create Custom Program</div>
+      <div className="text-4xl font-bold text-foreground mb-6">Create Custom Program</div>
 
       {/* Two Column Layout */}
       <div className="flex flex-1 gap-4 min-h-0">
@@ -104,7 +104,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
           {/* Body - Scrollable */}
           <div className="flex-1 overflow-y-auto p-4">
             {selectedCourses.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-slate-400 text-lg">
+              <div className="flex items-center justify-center h-full text-muted-foreground text-lg">
                 Insert Courses Here...
               </div>
             ) : (
@@ -138,7 +138,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
           {/* Footer - Sticky with Duration Stats */}
           <div className="p-4 border-t border-border bg-card-background space-y-2">
             {selectedCourses.length > 0 && (
-              <div className="text-sm text-slate-600">
+              <div className="text-sm text-muted-foreground">
                 <span className="font-semibold">Total Duration:</span>{" "}
                 {calculateTotalDuration()}
               </div>
@@ -214,17 +214,17 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                         <img
                           src={course.previewImageUrl}
                           alt={course.courseTitle}
-                          className="w-20 h-14 object-cover rounded-md bg-slate-100 shrink-0"
+                          className="w-20 h-14 object-cover rounded-md bg-muted shrink-0"
                         />
                       ) : (
-                        <div className="w-20 h-14 bg-slate-100 rounded-md shrink-0 flex items-center justify-center text-xs text-slate-500">
+                        <div className="w-20 h-14 bg-muted rounded-md shrink-0 flex items-center justify-center text-xs text-muted-foreground">
                           No Image
                         </div>
                       )}
 
                       {/* Content: Title & Metadata */}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-sm text-slate-900 truncate">
+                        <h3 className="font-bold text-sm text-foreground truncate">
                           {course.courseTitle}
                         </h3>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -240,7 +240,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                           >
                             {course.levelName}
                           </Badge>
-                          <span className="text-xs text-slate-600">
+                          <span className="text-xs text-muted-foreground">
                             {course.trainingTypeName === "ILT"
                               ? `${course.totalDays} day${course.totalDays !== 1 ? "s" : ""}`
                               : course.hours
@@ -264,7 +264,7 @@ export function ProgramBuilder({ onProgramSaved }: ProgramBuilderProps) {
                     </Card>
                   ))}
                   {filteredCourses.length === 0 && (
-                    <div className="flex items-center justify-center h-full text-slate-400 text-sm py-8">
+                    <div className="flex items-center justify-center h-full text-muted-foreground text-sm py-8">
                       No courses found
                     </div>
                   )}

@@ -37,7 +37,7 @@ independent and can land any time.
 | [012](012-fetch-abort-guard.md) | Guard the catalog fetch against double-invocation | - | **DONE** ([synthesis](arena/012-synthesis.md)) |
 | [013](013-tailwind-v3-bracket-syntax.md) | Fix 23 v3 bracket-syntax class names (visible layout bug) | - | **DONE** ([synthesis](arena/013-synthesis.md)) |
 | [014](014-keyboard-traps.md) | Facet filter options unreachable by keyboard (WCAG A) | - | **DONE** ([synthesis](arena/014-synthesis.md)) |
-| [015](015-theme-never-applies-on-mount.md) | Dark class never applied on mount; first click is a no-op | - | TODO |
+| [015](015-theme-never-applies-on-mount.md) | Dark class never applied on mount; first click is a no-op | - | **DONE** ([synthesis](arena/015-synthesis.md)) |
 
 ## How each plan gets implemented
 
