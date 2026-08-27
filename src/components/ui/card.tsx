@@ -44,10 +44,40 @@ export const staggerRowClasses =
   "[transition:background-color_var(--duration-pop)_var(--ease-out),opacity_var(--duration-pop)_var(--ease-out),translate_var(--duration-pop)_var(--ease-out)] " +
   staggerDelayClasses;
 
+/**
+ * A surface container. When given an `onClick` it becomes a real click target:
+ * focusable, activated by Enter and Space, and announced as a button.
+ *
+ * The keyboard wiring lives here rather than at the call sites because `Card`
+ * renders a plain `<div>`, so `<Card onClick>` is a `<div onClick>` wearing a
+ * component name - invisible to every "clickable non-button" grep, and it was
+ * exactly how five keyboard traps hid in this codebase. Handling it here means a
+ * future `<Card onClick>` cannot reintroduce one.
+ *
+ * Cards without `onClick` are untouched and stay out of the tab order.
+ */
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
+  ({ className, onClick, onKeyDown, ...props }, ref) => (
     <div
       ref={ref}
+      {...(onClick
+        ? {
+            role: "button",
+            tabIndex: 0,
+            onClick,
+            onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => {
+              onKeyDown?.(e);
+              if (e.defaultPrevented) return;
+              // Space scrolls the page by default on a non-button; Enter does not
+              // activate a div at all. Both need wiring, and only for this element,
+              // not for a click bubbling up from a control inside the card.
+              if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) {
+                e.preventDefault();
+                onClick(e as unknown as React.MouseEvent<HTMLDivElement>);
+              }
+            },
+          }
+        : { onClick, onKeyDown })}
       className={cn(
         "rounded-(--radius) border bg-card-background text-card-foreground border-border",
         className,
