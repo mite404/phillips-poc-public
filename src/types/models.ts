@@ -84,6 +84,9 @@ export interface ProgramAssignment {
   status: "Pending" | "Registered";
 }
 
+/** What a stored enrollment record carries. Distinct from CourseStatus, which is derived. */
+export type EnrollmentStatus = "Registered" | "Completed";
+
 export interface CourseEnrollment {
   id: string; // UUID
   learnerId: string; // GUID
@@ -91,6 +94,7 @@ export interface CourseEnrollment {
   courseId: number;
   classId: number;
   enrolledDate: string; // ISO date string
+  status?: EnrollmentStatus; // absent on 8 of 11 db.json records
 }
 
 export interface Testimonial {

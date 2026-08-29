@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { localApi } from "@/api/localRoutes";
 import { legacyApi } from "@/api/legacyRoutes";
+import { isProgramComplete } from "@/lib/completion";
 import type {
   CourseEnrollment,
   SupervisorProgram,
@@ -134,10 +135,17 @@ export function StudentDashboard() {
             .map((courseId) => coursesMap.get(courseId))
             .filter((course): course is Course => course !== undefined);
 
+          const programEnrollments = myEnrollments.filter(
+            (e) => e.programId === assignment.programId,
+          );
+
           hydratedPrograms.push({
             program,
             courses,
-            isCompleted: false, // TODO: Check completion logic
+            isCompleted: isProgramComplete(
+              program.courseSequence,
+              programEnrollments,
+            ),
           });
         } catch (error) {
           console.error(`Failed to load program ${assignment.programId}:`, error);
@@ -155,27 +163,10 @@ export function StudentDashboard() {
         // Continue without inventory cache (buttons will still show)
       }
 
-      setAssignedPrograms(hydratedPrograms);
-
-      // Mock: Add one completed program for demo
-      // In real implementation, this would check completion status
-      const mockCompletedProgram: HydratedProgram = {
-        program: {
-          id: "completed_mock",
-          supervisorId: "pat_mann_guid",
-          programName: "Q1 Safety Fundamentals",
-          description: "Basic safety training completed",
-          tags: ["Safety", "Completed"],
-          courseSequence: [116, 11],
-          published: true,
-          createdAt: "2025-09-01T10:00:00Z",
-        },
-        courses: [116, 11]
-          .map((courseId) => coursesMap.get(courseId))
-          .filter((course): course is Course => course !== undefined),
-        isCompleted: true,
-      };
-      setCompletedPrograms([mockCompletedProgram]);
+      // Completed programs move out of Assigned: the two dashboard sections are disjoint,
+      // so a finished program appears once, under "Completed".
+      setAssignedPrograms(hydratedPrograms.filter((p) => !p.isCompleted));
+      setCompletedPrograms(hydratedPrograms.filter((p) => p.isCompleted));
     } catch (error) {
       if (isIgnored()) return;
       console.error("Failed to load student data:", error);
