@@ -6,11 +6,12 @@ set -euo pipefail
 
 step() { echo "==> [$(date +%H:%M:%S)] $*"; }
 
-# 1. Toolchain: Bun ships in the orb base template; install only if missing.
-if ! command -v bun >/dev/null 2>&1; then
-  step "Installing Bun"
-  curl -fsSL https://bun.sh/install | bash
-  export PATH="$HOME/.bun/bin:$PATH"
+# 1. Toolchain: use the project-pinned Bun version, replacing any base image version.
+bun_version="1.4.2"
+export PATH="$HOME/.bun/bin:$PATH"
+if ! command -v bun >/dev/null 2>&1 || [ "$(bun --version)" != "$bun_version" ]; then
+  step "Installing Bun $bun_version"
+  curl -fsSL https://bun.sh/install | bash -s "bun-v$bun_version"
   # Make Bun visible to later non-interactive login shells (supervised services).
   if ! grep -q '.bun/bin' "$HOME/.bash_profile" 2>/dev/null; then
     echo 'export PATH="$HOME/.bun/bin:$PATH"' >> "$HOME/.bash_profile"
@@ -18,10 +19,9 @@ if ! command -v bun >/dev/null 2>&1; then
 fi
 step "Bun $(bun --version)"
 
-# 2. Dependencies from the lockfile. bun install is a no-op when node_modules
-# already matches bun.lock, so warm runs skip the download.
+# 2. Dependencies from the lockfile. Frozen installs reject lockfile drift.
 step "Installing JS dependencies"
-bun install
+bun install --frozen-lockfile
 
 # 3. Env template (never clobber an existing file).
 if [ ! -f .env ]; then
@@ -39,8 +39,8 @@ $marker
 - Dev services 'app' (Vite) and 'api' (json-server) are declared in
   .amp/services.yaml. Start them with 'amp orb services ensure'; never run
   them in the foreground or via nohup/tmux.
-- The 'app' service gets VITE_LOCAL_API_BASE pointing at the 'api' service's
-  public portal URL, so browser-side fetches work through portals.
+- The 'app' service gets VITE_LOCAL_API_BASE=/local-api; Vite proxies it to
+  json-server so browser-side fetches stay on the app portal's origin.
 EOF
 fi
 step "Done"

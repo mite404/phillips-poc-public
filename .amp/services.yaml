@@ -8,9 +8,9 @@ services:
     command: node_modules/.bin/vite --host 0.0.0.0 --port "$PORT"
     health: /
     env:
-      # Browsers reach json-server through its own portal URL. json-server v1
-      # beta sends Access-Control-Allow-Origin: *, so cross-origin fetches work.
-      VITE_LOCAL_API_BASE: ${services.api.publicURL}
+      # Proxy browser API requests through Vite so they remain same-origin with
+      # the app portal. Vite reaches json-server at localhost:3001.
+      VITE_LOCAL_API_BASE: /local-api
     portal:
       url: /
       title: Phillips POC

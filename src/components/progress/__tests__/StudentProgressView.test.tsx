@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import type {
   CourseCatalogItem,
   CourseEnrollment,
@@ -117,7 +123,7 @@ function metricValue(title: string) {
 async function openMenu(name: RegExp | string) {
   fireEvent.pointerDown(
     screen.getByRole("button", { name }),
-    new MouseEvent("pointerdown", { bubbles: true }),
+    new MouseEvent("pointerdown", { bubbles: true })
   );
   return await screen.findByRole("menu");
 }
@@ -140,13 +146,33 @@ describe("StudentProgressView table", () => {
     expect(screen.getByText("Not Enrolled")).toBeInTheDocument();
   });
 
+  it("uses the displayed student's completed enrollment for row status and metrics", async () => {
+    mocked(localApi.getEnrollments).mockResolvedValue([
+      { ...enrollment, status: "Completed" },
+      {
+        ...enrollment,
+        id: "other-enrollment",
+        learnerId: "another-learner",
+        courseId: 116,
+      },
+    ]);
+
+    await renderView();
+
+    expect(screen.getByText("Completed")).toBeInTheDocument();
+    expect(screen.getByText("Not Enrolled")).toBeInTheDocument();
+    await waitFor(() => expect(metricValue("Courses Completed")).toBe("1"));
+  });
+
   it("shows the filter-specific empty state when nothing matches", async () => {
     await renderView();
 
     const search = screen.getByPlaceholderText("Filter courses...");
     fireEvent.change(search, { target: { value: "zzz-no-such-course" } });
 
-    expect(await screen.findByText("No courses match your filters")).toBeInTheDocument();
+    expect(
+      await screen.findByText("No courses match your filters")
+    ).toBeInTheDocument();
     expect(screen.queryByText("Haas CNC Maintenance")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /clear all/i }));
@@ -161,7 +187,7 @@ describe("StudentProgressView table", () => {
     });
 
     await waitFor(() =>
-      expect(screen.queryByText("Haas CNC Maintenance")).not.toBeInTheDocument(),
+      expect(screen.queryByText("Haas CNC Maintenance")).not.toBeInTheDocument()
     );
     expect(screen.getByText("Advanced Mill Programming")).toBeInTheDocument();
   });
@@ -169,13 +195,20 @@ describe("StudentProgressView table", () => {
   it("hiding a column drops its cells but leaves the rest of the row intact", async () => {
     await renderView();
 
-    const rowFor = (title: string) => screen.getByText(title).closest("tr") as HTMLElement;
-    expect(within(rowFor("Haas CNC Maintenance")).getByText("Incomplete")).toBeInTheDocument();
+    const rowFor = (title: string) =>
+      screen.getByText(title).closest("tr") as HTMLElement;
+    expect(
+      within(rowFor("Haas CNC Maintenance")).getByText("Incomplete")
+    ).toBeInTheDocument();
 
     const menu = await openMenu(/view/i);
-    fireEvent.click(within(menu).getByRole("menuitemcheckbox", { name: "Status" }));
+    fireEvent.click(
+      within(menu).getByRole("menuitemcheckbox", { name: "Status" })
+    );
 
-    await waitFor(() => expect(screen.queryByText("Incomplete")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByText("Incomplete")).not.toBeInTheDocument()
+    );
 
     const row = rowFor("Haas CNC Maintenance");
     expect(within(row).getByText("#11")).toBeInTheDocument();
@@ -184,9 +217,13 @@ describe("StudentProgressView table", () => {
     expect(screen.getByText("Advanced Mill Programming")).toBeInTheDocument();
   });
 
-  it("feeds the Programs Assigned metric from the same filter as the table", async () => {
-    // Two programs, and a search only one survives, so a stale predicate here would show.
-    const safety: SupervisorProgram = { ...program, id: "prog-2", programName: "Safety Track" };
+  it("keeps Programs Assigned independent of the table filter", async () => {
+    // Two programs, and a search only one survives, so card/table derivations differ.
+    const safety: SupervisorProgram = {
+      ...program,
+      id: "prog-2",
+      programName: "Safety Track",
+    };
     const safetyCourse: CourseCatalogItem = {
       ...catalog[0],
       courseId: 300,
@@ -210,7 +247,10 @@ describe("StudentProgressView table", () => {
       target: { value: "lockout" },
     });
 
-    await waitFor(() => expect(metricValue("Programs Assigned")).toBe("1"));
+    await waitFor(() =>
+      expect(screen.queryByText("Haas CNC Maintenance")).not.toBeInTheDocument()
+    );
+    await waitFor(() => expect(metricValue("Programs Assigned")).toBe("2"));
   });
 
   it("sorts by level ascending and descending", async () => {
@@ -220,15 +260,26 @@ describe("StudentProgressView table", () => {
       screen
         .getAllByRole("row")
         .slice(1)
-        .map((r) => within(r).getByText(/Haas CNC Maintenance|Advanced Mill Programming/).textContent);
+        .map(
+          (r) =>
+            within(r).getByText(
+              /Haas CNC Maintenance|Advanced Mill Programming/
+            ).textContent
+        );
 
-    expect(levelOrder()).toEqual(["Haas CNC Maintenance", "Advanced Mill Programming"]);
+    expect(levelOrder()).toEqual([
+      "Haas CNC Maintenance",
+      "Advanced Mill Programming",
+    ]);
 
     const menu = await openMenu(/^level/i);
     fireEvent.click(within(menu).getByRole("menuitem", { name: "Desc" }));
 
     await waitFor(() =>
-      expect(levelOrder()).toEqual(["Advanced Mill Programming", "Haas CNC Maintenance"]),
+      expect(levelOrder()).toEqual([
+        "Advanced Mill Programming",
+        "Haas CNC Maintenance",
+      ])
     );
   });
 });

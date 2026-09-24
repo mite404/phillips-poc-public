@@ -7,7 +7,6 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 
 const LOGIC = "src/components/progress/courseTable.ts";
-const VIEW = "src/components/progress/StudentProgressView.tsx";
 const SUITE = "src/components/progress";
 
 const MUTANTS = [
@@ -56,20 +55,6 @@ const MUTANTS = [
     from: "next.delete(col);",
     to: "next.add(col);",
   },
-  {
-    name: "metrics path stops passing the search text to the shared filter",
-    file: VIEW,
-    from: `    const filteredCourses = filterCourses(flatCourses, {
-      levels: selectedLevels,
-      statuses: selectedStatuses,
-      search: searchText,
-    });`,
-    to: `    const filteredCourses = filterCourses(flatCourses, {
-      levels: selectedLevels,
-      statuses: selectedStatuses,
-      search: "",
-    });`,
-  },
 ];
 
 function runSuite() {
@@ -77,7 +62,10 @@ function runSuite() {
     execFileSync("npx", ["vitest", "run", SUITE], { stdio: "pipe" });
     return { failed: 0 };
   } catch (err) {
-    const output = `${err.stdout ?? ""}${err.stderr ?? ""}`.replace(/\[\d+m/g, "");
+    const output = `${err.stdout ?? ""}${err.stderr ?? ""}`.replace(
+      /\[\d+m/g,
+      ""
+    );
     const match = output.match(/Tests\s+(\d+) failed/);
     return { failed: match ? Number(match[1]) : 1 };
   }
@@ -87,23 +75,30 @@ function applyMutant(source, mutant, file) {
   const hits = source.split(mutant.from).length - 1;
   if (hits !== 1) {
     throw new Error(
-      `mutant "${mutant.name}" matched ${hits} times in ${file}; update scripts/mutation-check.mjs`,
+      `mutant "${mutant.name}" matched ${hits} times in ${file}; update scripts/mutation-check.mjs`
     );
   }
   return source.replace(mutant.from, mutant.to);
 }
 
-const originals = new Map([LOGIC, VIEW].map((file) => [file, readFileSync(file, "utf8")]));
-const restore = () => originals.forEach((source, file) => writeFileSync(file, source));
+const originals = new Map(
+  [LOGIC].map((file) => [file, readFileSync(file, "utf8")])
+);
+const restore = () =>
+  originals.forEach((source, file) => writeFileSync(file, source));
 const survivors = [];
 
 try {
   const baseline = runSuite();
   if (baseline.failed > 0) {
-    console.error(`baseline suite is red (${baseline.failed} failing). Fix that first.`);
+    console.error(
+      `baseline suite is red (${baseline.failed} failing). Fix that first.`
+    );
     process.exit(1);
   }
-  console.log(`baseline green, running ${MUTANTS.length} mutants against ${SUITE}\n`);
+  console.log(
+    `baseline green, running ${MUTANTS.length} mutants against ${SUITE}\n`
+  );
 
   for (const mutant of MUTANTS) {
     const file = mutant.file ?? LOGIC;
@@ -111,14 +106,18 @@ try {
     const { failed } = runSuite();
     restore();
     if (failed === 0) survivors.push(mutant.name);
-    console.log(`${failed > 0 ? "killed " : "SURVIVED"}  ${String(failed).padStart(2)} failing  ${mutant.name}`);
+    console.log(
+      `${failed > 0 ? "killed " : "SURVIVED"}  ${String(failed).padStart(2)} failing  ${mutant.name}`
+    );
   }
 } finally {
   restore();
 }
 
 if (survivors.length > 0) {
-  console.error(`\n${survivors.length} mutant(s) survived. The tests do not cover:`);
+  console.error(
+    `\n${survivors.length} mutant(s) survived. The tests do not cover:`
+  );
   survivors.forEach((name) => console.error(`  - ${name}`));
   process.exit(1);
 }

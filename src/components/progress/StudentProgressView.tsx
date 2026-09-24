@@ -38,7 +38,11 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -82,17 +86,27 @@ function FacetFilter<T extends string>({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5 h-9 text-sm border-dashed">
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5 h-9 text-sm border-dashed"
+        >
           <span className="mr-1">+ {label}</span>
           {activeCount > 0 && (
             <>
               <div className="h-4 w-[1px] bg-border" />
-              <Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
+              <Badge
+                variant="secondary"
+                className="rounded-sm px-1 font-normal lg:hidden"
+              >
                 {activeCount}
               </Badge>
               <div className="hidden space-x-1 lg:flex">
                 {activeCount > 2 ? (
-                  <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+                  <Badge
+                    variant="secondary"
+                    className="rounded-sm px-1 font-normal"
+                  >
                     {activeCount} selected
                   </Badge>
                 ) : (
@@ -124,7 +138,7 @@ function FacetFilter<T extends string>({
                 role="checkbox"
                 aria-checked={isSelected}
                 className={cn(
-                  "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm transition-colors hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                  "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm transition-colors hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                 )}
                 onClick={() => onToggle(option.value)}
               >
@@ -133,12 +147,14 @@ function FacetFilter<T extends string>({
                     "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
                     isSelected
                       ? "bg-primary text-primary-foreground"
-                      : "opacity-50 [&_svg]:invisible",
+                      : "opacity-50 [&_svg]:invisible"
                   )}
                 >
                   <CheckCircle className={cn("h-4 w-4")} />
                 </div>
-                {option.icon && <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
+                {option.icon && (
+                  <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                )}
                 <span>{option.label}</span>
               </button>
             );
@@ -182,7 +198,11 @@ function SortHeader({
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-1 group">
           {label}
-          <span className={isActive ? "opacity-100" : "opacity-40 group-hover:opacity-100"}>
+          <span
+            className={
+              isActive ? "opacity-100" : "opacity-40 group-hover:opacity-100"
+            }
+          >
             {isActive && sort.dir === "asc" ? (
               <ArrowUp className="h-3 w-3" />
             ) : isActive && sort.dir === "desc" ? (
@@ -248,11 +268,15 @@ function ColumnToggle({
 
 export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   const [student, setStudent] = useState<LearnerProfile | null>(null);
-  const [hydratedPrograms, setHydratedPrograms] = useState<HydratedProgram[]>([]);
+  const [hydratedPrograms, setHydratedPrograms] = useState<HydratedProgram[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedLevels, setSelectedLevels] = useState<Array<string>>([]);
-  const [selectedStatuses, setSelectedStatuses] = useState<Array<CourseStatus>>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<Array<CourseStatus>>(
+    []
+  );
   const [searchText, setSearchText] = useState<string>("");
   const [flatCourses, setFlatCourses] = useState<Array<CourseRow>>([]);
   const [metrics, setMetrics] = useState<StudentMetrics>({
@@ -264,14 +288,18 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
     programsAssigned: 0,
   });
 
-  const [sort, setSort] = useState<{ col: SortCol | null; dir: "asc" | "desc" }>({
+  const [sort, setSort] = useState<{
+    col: SortCol | null;
+    dir: "asc" | "desc";
+  }>({
     col: null,
     dir: "asc",
   });
 
   const [hiddenCols, setHiddenCols] = useState<Set<ColKey>>(new Set());
 
-  const toggleCol = (col: ColKey) => setHiddenCols((prev) => toggleColumn(prev, col));
+  const toggleCol = (col: ColKey) =>
+    setHiddenCols((prev) => toggleColumn(prev, col));
 
   // Fetch & hydrate data.
   // StrictMode double-invokes this effect in dev; abort the stale request and ignore
@@ -285,18 +313,21 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
         setError(null);
 
         // Step 1: Fetch all data in parallel
-        const [roster, assignments, enrollments, allPrograms, catalog] = await Promise.all([
-          legacyApi.getRoster(controller.signal),
-          localApi.getAssignments(controller.signal),
-          localApi.getEnrollments(controller.signal),
-          fetchAllPrograms(controller.signal),
-          legacyApi.getCatalog(controller.signal),
-        ]);
+        const [roster, assignments, enrollments, allPrograms, catalog] =
+          await Promise.all([
+            legacyApi.getRoster(controller.signal),
+            localApi.getAssignments(controller.signal),
+            localApi.getEnrollments(controller.signal),
+            fetchAllPrograms(controller.signal),
+            legacyApi.getCatalog(controller.signal),
+          ]);
         if (controller.signal.aborted) return;
 
         // Step 2: Find the student
         const foundStudent = roster.find(
-          (s) => s.learnerId === String(studentId) || s.learner_Data_Id === Number(studentId),
+          (s) =>
+            s.learnerId === String(studentId) ||
+            s.learner_Data_Id === Number(studentId)
         );
 
         if (!foundStudent) {
@@ -310,31 +341,35 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
         // Step 3: Filter assignments for this student
         const studentAssignments = assignments.filter(
-          (a) => a.learnerId === foundStudent.learnerId,
+          (a) => a.learnerId === foundStudent.learnerId
         );
 
         // Step 3.5: Deduplicate assignments by programId (keep only first occurrence)
         const uniqueAssignments = studentAssignments.reduce(
           (acc, current) => {
-            const exists = acc.find((item) => item.programId === current.programId);
+            const exists = acc.find(
+              (item) => item.programId === current.programId
+            );
             if (!exists) {
               return acc.concat([current]);
             }
             return acc;
           },
-          [] as typeof studentAssignments,
+          [] as typeof studentAssignments
         );
 
         // Step 4: Filter enrollments for this student
         const studentEnrollments = enrollments.filter(
-          (e) => e.learnerId === foundStudent.learnerId,
+          (e) => e.learnerId === foundStudent.learnerId
         );
 
         // Step 5: Hydrate programs with course data
         const hydrated: HydratedProgram[] = uniqueAssignments
           .map((assignment) => {
             // Find the program
-            const program = allPrograms.find((p) => p.id === assignment.programId);
+            const program = allPrograms.find(
+              (p) => p.id === assignment.programId
+            );
             if (!program) return null;
 
             // Hydrate courses (match IDs to full objects)
@@ -344,7 +379,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
             // Filter enrollments for this program
             const programEnrollments = studentEnrollments.filter(
-              (e) => e.programId === assignment.programId,
+              (e) => e.programId === assignment.programId
             );
 
             return {
@@ -357,13 +392,15 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
 
         // Populate flatCourses.status from getCourseStatus()
         const getCourseStatus = (courseId: number): CourseStatus => {
-          const isEnrolled = enrollments.find((e) => e.courseId === courseId);
+          const enrollment = studentEnrollments.find(
+            (e) => e.courseId === courseId
+          );
 
-          if (!isEnrolled) {
+          if (!enrollment) {
             return "Not Enrolled";
-          } else {
-            return "Incomplete";
           }
+
+          return enrollment.status === "Completed" ? "Completed" : "Incomplete";
         };
 
         // Step 6: Create flatCourses from hydrated
@@ -372,9 +409,11 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
             courses.map((course) => ({
               course,
               program,
-              enrollment: enrollments.find((e) => e.courseId === course.courseId),
+              enrollment: enrollments.find(
+                (e) => e.courseId === course.courseId
+              ),
               status: getCourseStatus(course.courseId),
-            })),
+            }))
         );
 
         setHydratedPrograms(hydrated);
@@ -396,27 +435,27 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   useEffect(() => {
     if (flatCourses.length === 0) return;
 
-    // Count unique programs from currently filtered courses
-    const filteredCourses = filterCourses(flatCourses, {
-      levels: selectedLevels,
-      statuses: selectedStatuses,
-      search: searchText,
-    });
-
     const metrics: StudentMetrics = {
-      statusCompleted: flatCourses.filter((course) => course.status === "Completed").length,
-      statusIncomplete: flatCourses.filter((course) => course.status === "Incomplete").length,
-      statusNotEnrolled: flatCourses.filter((course) => course.status === "Not Enrolled").length,
+      statusCompleted: flatCourses.filter(
+        (course) => course.status === "Completed"
+      ).length,
+      statusIncomplete: flatCourses.filter(
+        (course) => course.status === "Incomplete"
+      ).length,
+      statusNotEnrolled: flatCourses.filter(
+        (course) => course.status === "Not Enrolled"
+      ).length,
       totalCourses: flatCourses.length,
       completionPercentage:
         (flatCourses.filter((course) => course.status === "Completed").length /
           flatCourses.length) *
         100,
-      programsAssigned: new Set(filteredCourses.map((course) => course.program.id)).size,
+      programsAssigned: new Set(flatCourses.map((course) => course.program.id))
+        .size,
     };
 
     setMetrics(metrics);
-  }, [flatCourses, selectedLevels, selectedStatuses, searchText]);
+  }, [flatCourses]);
 
   // filteredCourses is 'derived state' computed from other state on every render
   const filteredCourses = filterCourses(flatCourses, {
@@ -426,7 +465,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   });
 
   const hasActiveFilters =
-    selectedStatuses.length > 0 || selectedLevels.length > 0 || searchText !== "";
+    selectedStatuses.length > 0 ||
+    selectedLevels.length > 0 ||
+    searchText !== "";
 
   const sortedCourses = sortCourses(filteredCourses, sort);
 
@@ -434,7 +475,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
   // const completedCourses = filteredCourses.filter((course) => course.status === "Completed");
 
   // Helper function to fetch all programs (uses network-first, localStorage-fallback)
-  async function fetchAllPrograms(signal?: AbortSignal): Promise<SupervisorProgram[]> {
+  async function fetchAllPrograms(
+    signal?: AbortSignal
+  ): Promise<SupervisorProgram[]> {
     return localApi.getAllPrograms(signal);
   }
 
@@ -466,7 +509,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
       [...new Set(flatCourses.map((r) => r.course.levelName).filter(Boolean))]
         .sort()
         .map((level) => ({ label: level, value: level })),
-    [flatCourses],
+    [flatCourses]
   );
 
   // Loading state
@@ -504,7 +547,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
           {student?.learnerName}'s Progress
         </h2>
         <div className="bg-muted border border-border rounded-(--radius) p-8 text-center">
-          <p className="text-muted-foreground">No programs assigned to this student.</p>
+          <p className="text-muted-foreground">
+            No programs assigned to this student.
+          </p>
         </div>
       </div>
     );
@@ -528,7 +573,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
           />
           <MetricCard
             title="Courses Completed"
-            value={metrics.completionPercentage}
+            value={metrics.statusCompleted}
             icon={<FileText className="h-5 w-5 text-muted-foreground" />}
             isLoading={isLoading}
           />
@@ -571,7 +616,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
             selected={selectedStatuses}
             onToggle={(v) =>
               setSelectedStatuses((prev) =>
-                prev.includes(v) ? prev.filter((s) => s !== v) : [...prev, v],
+                prev.includes(v) ? prev.filter((s) => s !== v) : [...prev, v]
               )
             }
             onClear={() => setSelectedStatuses([])}
@@ -583,7 +628,7 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
             selected={selectedLevels}
             onToggle={(v) =>
               setSelectedLevels((prev) =>
-                prev.includes(v) ? prev.filter((l) => l !== v) : [...prev, v],
+                prev.includes(v) ? prev.filter((l) => l !== v) : [...prev, v]
               )
             }
             onClear={() => setSelectedLevels([])}
@@ -653,9 +698,15 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                       />
                     </TableHead>
                   )}
-                  {!hiddenCols.has("type") && <TableHead className="w-[12%] hidden @sm:table-cell">Type</TableHead>}
+                  {!hiddenCols.has("type") && (
+                    <TableHead className="w-[12%] hidden @sm:table-cell">
+                      Type
+                    </TableHead>
+                  )}
                   {!hiddenCols.has("duration") && (
-                    <TableHead className="w-[10%] hidden @sm:table-cell">Duration</TableHead>
+                    <TableHead className="w-[10%] hidden @sm:table-cell">
+                      Duration
+                    </TableHead>
                   )}
                   {!hiddenCols.has("status") && (
                     <TableHead className="w-[15%]">
@@ -677,7 +728,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                       colSpan={COLUMNS.length - hiddenCols.size}
                       className="h-24 text-center text-muted-foreground"
                     >
-                      {hasActiveFilters ? "No courses match your filters" : "No courses assigned"}
+                      {hasActiveFilters
+                        ? "No courses match your filters"
+                        : "No courses assigned"}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -733,7 +786,9 @@ export function StudentProgressView({ studentId }: StudentProgressViewProps) {
                       {/* Status Badge */}
                       {!hiddenCols.has("status") && (
                         <TableCell className="text-left">
-                          <Badge className={getStatusClassName(row.status)}>{row.status}</Badge>
+                          <Badge className={getStatusClassName(row.status)}>
+                            {row.status}
+                          </Badge>
                         </TableCell>
                       )}
                     </TableRow>
