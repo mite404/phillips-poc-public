@@ -1,0 +1,28 @@
+# Declared long-running dev services for Amp orbs.
+# Start/verify with: amp orb services ensure
+services:
+  # Vite dev server. Amp picks a stable port and injects it as $PORT.
+  # Amp also injects __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS for the portal
+  # hostname, which Vite 7 honors natively.
+  app:
+    command: node_modules/.bin/vite --host 0.0.0.0 --port "$PORT"
+    health: /
+    env:
+      # Browsers reach json-server through its own portal URL. json-server v1
+      # beta sends Access-Control-Allow-Origin: *, so cross-origin fetches work.
+      VITE_LOCAL_API_BASE: ${services.api.publicURL}
+    portal:
+      url: /
+      title: Phillips POC
+      description: Vite dev server for the education program POC.
+
+  # Mock JSON API backed by db.json. Fixed port so in-orb curl/tests and the
+  # documented localhost:3001 default keep working inside the orb.
+  api:
+    command: node_modules/.bin/json-server --watch db.json --host 0.0.0.0 --port "$PORT"
+    port: 3001
+    health: /
+    portal:
+      url: /
+      title: JSON API
+      description: Mock json-server API backed by db.json.

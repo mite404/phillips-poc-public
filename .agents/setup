@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Orb setup for the Phillips Education POC.
+# Runs once per fresh orb (or when a stale snapshot triggers re-setup).
+# Idempotent: warm runs on an existing filesystem are fast no-ops.
+set -euo pipefail
+
+step() { echo "==> [$(date +%H:%M:%S)] $*"; }
+
+# 1. Toolchain: Bun ships in the orb base template; install only if missing.
+if ! command -v bun >/dev/null 2>&1; then
+  step "Installing Bun"
+  curl -fsSL https://bun.sh/install | bash
+  export PATH="$HOME/.bun/bin:$PATH"
+  # Make Bun visible to later non-interactive login shells (supervised services).
+  if ! grep -q '.bun/bin' "$HOME/.bash_profile" 2>/dev/null; then
+    echo 'export PATH="$HOME/.bun/bin:$PATH"' >> "$HOME/.bash_profile"
+  fi
+fi
+step "Bun $(bun --version)"
+
+# 2. Dependencies from the lockfile. bun install is a no-op when node_modules
+# already matches bun.lock, so warm runs skip the download.
+step "Installing JS dependencies"
+bun install
+
+# 3. Env template (never clobber an existing file).
+if [ ! -f .env ]; then
+  cp -- .env.example .env
+fi
+step "Env file ready"
+
+# 4. Orb-specific guidance for agents, appended once to the user-global notes.
+notes="$HOME/.config/amp/AGENTS.md"
+marker="# phillips-poc orb notes"
+if ! grep -Fqx "$marker" "$notes" 2>/dev/null; then
+  cat >> "$notes" <<EOF
+
+$marker
+- Dev services 'app' (Vite) and 'api' (json-server) are declared in
+  .amp/services.yaml. Start them with 'amp orb services ensure'; never run
+  them in the foreground or via nohup/tmux.
+- The 'app' service gets VITE_LOCAL_API_BASE pointing at the 'api' service's
+  public portal URL, so browser-side fetches work through portals.
+EOF
+fi
+step "Done"
