@@ -30,3 +30,6 @@ dist-ssr
 
 # Amp orb generated state
 .amp/portals/
+
+# Local git worktrees
+.worktrees/
