@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Orb resume: fast repair after an orb wakes. No installs, no auth needed.
+set -euo pipefail
+
+# Restore the env template if snapshot restore or a git clean dropped it.
+[ -f .env ] || cp -- .env.example .env
+
+# Reconnect check: the mock API answers only when the service is up.
+if ! curl -fsS --max-time 3 http://localhost:3001/ >/dev/null 2>&1; then
+  echo "resume: json-server not answering on :3001 (Amp will start it via services ensure)"
+fi
